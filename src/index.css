@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Trebuchet MS", "Aptos Display", "Segoe UI", sans-serif;
+  --font-body: "Aptos", "Segoe UI", sans-serif;
+  --font-mono: Consolas, "Courier New", monospace;
+
+  --color-ink: #10292f;
+  --color-muted: #56656a;
+  --color-accent: #be5b2e;
+  --color-accent-strong: #8f4220;
+  --color-accent-soft: #be5b2e1f;
+  --color-teal: #2f6670;
+  --color-teal-soft: #2f66701c;
+  --color-line: #12333b24;
+  --color-line-strong: #12333b38;
+  --color-surface: #fffbf7c2;
+  --color-surface-strong: #fffaf2;
+
+  --shadow-portfolio:
+    0 28px 70px rgba(16, 41, 47, 0.14),
+    0 10px 24px rgba(16, 41, 47, 0.08);
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply m-0 min-h-screen bg-[#efe6d8] font-body text-ink antialiased;
+  }
+
+  #root {
+    @apply min-h-screen;
+  }
+}
