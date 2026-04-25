@@ -42,51 +42,68 @@ const strengthIcons = [Landmark, ClipboardCheck, BriefcaseBusiness]
 function OverviewPage() {
   return (
     <>
-      <PageSection className="grid items-start gap-8 pt-2 lg:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_240px]">
-          <div className="flex min-w-0 flex-col gap-6">
-            <p className="max-w-3xl font-mono text-[0.96rem] font-black uppercase tracking-[0.18em] text-accent-strong sm:text-[1.05rem]">
-              {profile.title} | {profile.company} | {profile.location}
-            </p>
-            <h1 className="max-w-none font-display text-[clamp(3rem,5vw,5rem)] leading-[0.92] tracking-[-0.06em] text-ink">
-              {profile.heroTitle}
-            </h1>
-            <p className="max-w-[38rem] text-[1.02rem] leading-8 text-muted">
-              {profile.heroDescription}
-            </p>
-          </div>
-
-          <div className={cx(panelClassName, 'relative isolate overflow-hidden p-4')}>
-            <div
-              className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full"
-              style={{
-                background:
-                  'radial-gradient(circle, rgba(47, 102, 112, 0.2), transparent 70%)',
-              }}
-            />
+      <PageSection className="pb-3 pt-2">
+        <article
+          className={cx(
+            panelClassName,
+            'grid gap-5 overflow-hidden p-4 sm:p-5 lg:grid-cols-[132px_minmax(0,1fr)_auto] lg:items-center',
+          )}
+        >
+          <div className="mx-auto lg:mx-0">
             <img
               alt={profile.photoAlt}
-              className="h-full min-h-[18rem] w-full rounded-[1.35rem] border border-white/40 bg-white/60 object-cover shadow-[0_18px_40px_rgba(16,41,47,0.12)]"
+              className="h-28 w-28 rounded-full border border-white/70 object-cover object-center shadow-[0_18px_36px_rgba(16,41,47,0.16)]"
+              onError={(event) => {
+                event.currentTarget.onerror = null
+                event.currentTarget.src = profile.photoFallbackSrc
+              }}
               src={profile.photoSrc}
             />
-            <div className="absolute inset-x-7 bottom-7 rounded-[1.25rem] border border-white/60 bg-white/78 p-4 backdrop-blur-xl">
-              <p className={eyebrowClassName}>Profile</p>
-              <h2 className="mt-2 font-display text-[1.3rem] leading-[1.05] text-ink">
-                {profile.name}
-              </h2>
-              <a
-                className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-teal transition duration-200 hover:text-ink"
-                href={profile.linkedinUrl}
-                rel="noreferrer"
-                target="_blank"
-              >
-                Visit LinkedIn
-                <ArrowUpRight size={16} />
-              </a>
+          </div>
+
+          <div className="min-w-0">
+            <p className={eyebrowClassName}>Profile</p>
+            <h2 className="mt-2 font-display text-[clamp(1.9rem,3vw,2.7rem)] leading-[0.95] tracking-[-0.04em] text-ink">
+              {profile.name}
+            </h2>
+            <p className="mt-3 max-w-3xl text-[1rem] leading-7 text-muted">
+              {profile.profileBannerDescription}
+            </p>
+
+            <div className="mt-4 flex flex-wrap gap-3">
+              <span className={chipClassName}>{profile.title}</span>
+              <span className={chipClassName}>{profile.experience}</span>
+              <span className={chipClassName}>{profile.location}</span>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 lg:col-span-2">
+          <div className="flex flex-col gap-3 sm:flex-row lg:items-end lg:text-right">
+            <a
+              className={cx(buttonClassNames.secondary, 'w-full sm:w-auto')}
+              href={profile.linkedinUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Visit LinkedIn
+              <ArrowUpRight size={18} />
+            </a>
+          </div>
+        </article>
+      </PageSection>
+
+      <PageSection className="grid items-start gap-8 pt-3 lg:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
+        <div className="flex min-w-0 flex-col gap-6">
+          <p className="max-w-4xl font-mono text-[1rem] font-black uppercase tracking-[0.2em] text-accent-strong sm:text-[1.12rem]">
+            {profile.title} | {profile.company} | {profile.location}
+          </p>
+          <h1 className="max-w-[11ch] font-display text-[clamp(3.1rem,6vw,5.45rem)] leading-[0.92] tracking-[-0.06em] text-ink max-lg:max-w-none">
+            {profile.heroTitle}
+          </h1>
+          <p className="max-w-[44rem] text-[1.02rem] leading-8 text-muted">
+            {profile.heroDescription}
+          </p>
+
+          <div className="flex flex-wrap items-center gap-3">
             <Link
               className={cx(buttonClassNames.primary, 'w-full sm:w-auto')}
               to="/projects"
@@ -111,7 +128,7 @@ function OverviewPage() {
             </a>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:col-span-2 xl:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <span className="flex min-h-[3.35rem] min-w-0 items-center gap-2 rounded-2xl border border-line bg-white/60 px-4 py-4 text-sm font-medium text-ink shadow-[0_18px_35px_rgba(16,41,47,0.10)]">
               <Phone className="shrink-0" size={16} />
               <span>{profile.phoneDisplay}</span>
