@@ -36,6 +36,7 @@ import {
 import {
   bulletListClassName,
   buttonClassNames,
+  cardLabelClassName,
   chipClassName,
   cx,
   eyebrowClassName,
