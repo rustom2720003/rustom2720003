@@ -3,9 +3,13 @@ import {
   CloudSun,
   Clock3,
   Droplets,
+  Eye,
+  History,
   LocateFixed,
   MapPin,
   RefreshCcw,
+  Sparkles,
+  Users,
   Wind,
 } from 'lucide-react'
 import { useOutletContext } from 'react-router-dom'
@@ -19,9 +23,17 @@ import {
 } from '../classes'
 import { PageSection, ProjectCard, SectionHeading } from '../ui'
 
+const recentActivityFormatter = new Intl.DateTimeFormat(undefined, {
+  month: 'short',
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+})
+
 function ProjectsPage() {
   const [activeFilter, setActiveFilter] = useState('All')
-  const { liveEnvironment, refreshLiveEnvironment } = useOutletContext()
+  const { liveEnvironment, refreshLiveEnvironment, visitorAnalytics } =
+    useOutletContext()
 
   const filteredProjects =
     activeFilter === 'All'
@@ -41,7 +53,32 @@ function ProjectsPage() {
         title="Enterprise modules, banking workflows, and live React product work"
       />
 
-      <article className={cx(panelClassName, 'relative mb-6 overflow-hidden p-6')}>
+      <div className="mb-5 flex flex-wrap gap-3" role="tablist" aria-label="Project filters">
+        {projectFilters.map((filter) => (
+          <button
+            key={filter}
+            type="button"
+            className={cx(
+              'rounded-full border px-4 py-2.5 text-sm transition duration-200 hover:-translate-y-0.5',
+              activeFilter === filter
+                ? 'border-[color:var(--portfolio-glass-border-strong)] bg-[color:var(--portfolio-glass-chip)] text-ink shadow-portfolio'
+                : 'border-line bg-[color:var(--portfolio-glass-soft)] text-muted hover:border-line-strong hover:text-ink',
+            )}
+            aria-pressed={activeFilter === filter}
+            onClick={() => setActiveFilter(filter)}
+          >
+            {filter}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        {filteredProjects.map((project) => (
+          <ProjectCard key={project.name} project={project} />
+        ))}
+      </div>
+
+      <article className={cx(panelClassName, 'relative mt-8 overflow-hidden p-6')}>
         <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-accent to-transparent opacity-60" />
 
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -214,29 +251,131 @@ function ProjectsPage() {
         </div>
       </article>
 
-      <div className="mb-5 flex flex-wrap gap-3" role="tablist" aria-label="Project filters">
-        {projectFilters.map((filter) => (
-          <button
-            key={filter}
-            type="button"
-            className={cx(
-              'rounded-full border px-4 py-2.5 text-sm transition duration-200 hover:-translate-y-0.5',
-              activeFilter === filter
-                ? 'border-[color:var(--portfolio-glass-border-strong)] bg-[color:var(--portfolio-glass-chip)] text-ink shadow-portfolio'
-                : 'border-line bg-[color:var(--portfolio-glass-soft)] text-muted hover:border-line-strong hover:text-ink',
-            )}
-            aria-pressed={activeFilter === filter}
-            onClick={() => setActiveFilter(filter)}
-          >
-            {filter}
-          </button>
-        ))}
-      </div>
+      <div className="mt-10">
+        <SectionHeading
+          description="A lightweight visitor analytics snapshot stored in your own browser using localStorage. It tracks visits and page views for this device only."
+          eyebrow="Visitor analytics"
+          title="Local visitor count and page-view activity"
+        />
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        {filteredProjects.map((project) => (
-          <ProjectCard key={project.name} project={project} />
-        ))}
+        <div className="grid gap-5 xl:grid-cols-4 xl:gap-6">
+          <article className={cx(panelClassName, 'grid gap-3 p-6')}>
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-accent-soft text-accent">
+              <Users size={18} />
+            </div>
+            <p className="font-display text-[1.95rem] font-bold tracking-[-0.05em] text-ink">
+              {visitorAnalytics.totalVisits}
+            </p>
+            <p className="text-[1.02rem] font-semibold text-ink">Visitors count</p>
+            <p className="text-sm leading-7 text-muted">
+              Total visits recorded on this browser so far.
+            </p>
+          </article>
+
+          <article className={cx(panelClassName, 'grid gap-3 p-6')}>
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-teal-soft text-teal">
+              <Eye size={18} />
+            </div>
+            <p className="font-display text-[1.95rem] font-bold tracking-[-0.05em] text-ink">
+              {visitorAnalytics.totalPageViews}
+            </p>
+            <p className="text-[1.02rem] font-semibold text-ink">Page views</p>
+            <p className="text-sm leading-7 text-muted">
+              Counts route visits across overview, projects, skills, and more.
+            </p>
+          </article>
+
+          <article className={cx(panelClassName, 'grid gap-3 p-6')}>
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-accent-soft text-accent">
+              <Sparkles size={18} />
+            </div>
+            <p className="font-display text-[1.95rem] font-bold tracking-[-0.05em] text-ink">
+              {visitorAnalytics.topPageViews}
+            </p>
+            <p className="text-[1.02rem] font-semibold text-ink">Top page views</p>
+            <p className="text-sm leading-7 text-muted">
+              Most viewed page: {visitorAnalytics.topPageLabel}
+            </p>
+          </article>
+
+          <article className={cx(panelClassName, 'grid gap-3 p-6')}>
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-teal-soft text-teal">
+              <History size={18} />
+            </div>
+            <p className="font-display text-[1.45rem] leading-[1.05] tracking-[-0.04em] text-ink">
+              {visitorAnalytics.lastVisitedLabel}
+            </p>
+            <p className="text-[1.02rem] font-semibold text-ink">Last recorded visit</p>
+            <p className="text-sm leading-7 text-muted">
+              First visit: {visitorAnalytics.firstVisitedLabel}
+            </p>
+          </article>
+        </div>
+
+        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(280px,0.95fr)]">
+          <article className={cx(panelClassName, 'grid gap-4 p-6')}>
+            <div>
+              <p className={cardLabelClassName}>Tracked pages</p>
+              <h3 className="mt-2 font-display text-[1.45rem] leading-[1.1] text-ink">
+                Page views by route
+              </h3>
+            </div>
+
+            <div className="grid gap-3">
+              {visitorAnalytics.pageViewsEntries.length ? (
+                visitorAnalytics.pageViewsEntries.map((item) => (
+                  <div
+                    className="flex items-center justify-between gap-4 rounded-2xl border border-line bg-[color:var(--portfolio-glass-soft)] px-4 py-3"
+                    key={item.path}
+                  >
+                    <span className="font-medium text-ink">{item.label}</span>
+                    <span className={chipClassName}>{item.views} views</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm leading-7 text-muted">
+                  Page views will appear here after the first tracked route.
+                </p>
+              )}
+            </div>
+          </article>
+
+          <article className={cx(panelClassName, 'grid gap-4 p-6')}>
+            <div>
+              <p className={cardLabelClassName}>Recent activity</p>
+              <h3 className="mt-2 font-display text-[1.45rem] leading-[1.1] text-ink">
+                Latest browsing history
+              </h3>
+            </div>
+
+            <div className="grid gap-3">
+              {visitorAnalytics.recentViews.length ? (
+                visitorAnalytics.recentViews.map((item) => (
+                  <div
+                    className="rounded-2xl border border-line bg-[color:var(--portfolio-glass-soft)] px-4 py-3"
+                    key={`${item.path}-${item.viewedAt}`}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="font-medium text-ink">{item.label}</span>
+                      <span className={chipClassName}>Recent</span>
+                    </div>
+                    <p className="mt-2 text-sm leading-7 text-muted">
+                      {recentActivityFormatter.format(new Date(item.viewedAt))}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm leading-7 text-muted">
+                  Recent page activity will appear here as routes are visited.
+                </p>
+              )}
+            </div>
+
+            <p className="text-sm leading-7 text-muted">
+              {visitorAnalytics.storedInLabel}
+            </p>
+          </article>
+        </div>
       </div>
     </PageSection>
   )

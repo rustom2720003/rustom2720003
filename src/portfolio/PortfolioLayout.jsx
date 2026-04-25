@@ -3,12 +3,15 @@ import { Clock3, Menu, MoonStar, SunMedium, ThermometerSun, X } from 'lucide-rea
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { navigationLinks, profile } from './portfolioData'
 import { cx, sectionClassName } from './classes'
+import RemarksWidget from './RemarksWidget'
 import { useLiveEnvironment } from './useLiveEnvironment'
+import { useVisitorAnalytics } from './useVisitorAnalytics'
 
 function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const isDarkTheme = theme === 'dark'
   const { liveEnvironment, refreshLiveEnvironment } = useLiveEnvironment()
+  const visitorAnalytics = useVisitorAnalytics()
   const navTemperature =
     liveEnvironment.temperature !== null
       ? `${Math.round(liveEnvironment.temperature)}\u00B0C`
@@ -157,7 +160,13 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
       </header>
 
       <main className="min-h-[calc(100vh-8rem)]">
-        <Outlet context={{ liveEnvironment, refreshLiveEnvironment }} />
+        <Outlet
+          context={{
+            liveEnvironment,
+            refreshLiveEnvironment,
+            visitorAnalytics,
+          }}
+        />
       </main>
 
       <footer className={cx(sectionClassName, 'pt-0 pb-10')}>
@@ -166,6 +175,8 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
           pages, mapped data, reusable UI blocks, and responsive styling.
         </p>
       </footer>
+
+      <RemarksWidget />
     </div>
   )
 }
