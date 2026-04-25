@@ -1,12 +1,22 @@
 import { useState } from 'react'
-import { Menu, MoonStar, SunMedium, X } from 'lucide-react'
+import { Clock3, Menu, MoonStar, SunMedium, ThermometerSun, X } from 'lucide-react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { navigationLinks, profile } from './portfolioData'
 import { cx, sectionClassName } from './classes'
+import { useLiveEnvironment } from './useLiveEnvironment'
 
 function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const isDarkTheme = theme === 'dark'
+  const { liveEnvironment, refreshLiveEnvironment } = useLiveEnvironment()
+  const navTemperature =
+    liveEnvironment.temperature !== null
+      ? `${Math.round(liveEnvironment.temperature)}\u00B0C`
+      : '--'
+  const navTimeLabel =
+    liveEnvironment.status === 'error'
+      ? 'Location off'
+      : liveEnvironment.timeSnapshot.clockLabel
 
   return (
     <div className="relative min-h-screen overflow-x-hidden font-body text-ink">
@@ -43,13 +53,27 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
               menuOpen && 'overflow-visible',
             )}
           >
-            <Link
-              className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-accent via-[#ef5db8] to-teal font-display text-[0.95rem] font-bold uppercase tracking-[0.16em] text-white shadow-[0_16px_34px_rgba(151,29,106,0.28)]"
-              onClick={() => setMenuOpen(false)}
-              to="/"
-            >
-              RSY
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-accent via-[#ef5db8] to-teal font-display text-[0.95rem] font-bold uppercase tracking-[0.16em] text-white shadow-[0_16px_34px_rgba(151,29,106,0.28)]"
+                onClick={() => setMenuOpen(false)}
+                to="/"
+              >
+                RSY
+              </Link>
+
+              <div className="hidden items-center gap-2 rounded-full border border-[color:var(--portfolio-glass-border)] bg-[color:var(--portfolio-glass-strong)] px-4 py-2 text-sm text-ink shadow-[var(--portfolio-soft-shadow)] lg:flex">
+                <span className="inline-flex items-center gap-1.5">
+                  <Clock3 size={15} />
+                  {navTimeLabel}
+                </span>
+                <span className="h-4 w-px bg-line" />
+                <span className="inline-flex items-center gap-1.5 text-muted">
+                  <ThermometerSun size={15} />
+                  {navTemperature}
+                </span>
+              </div>
+            </div>
 
             <div className="flex items-center gap-2 md:ml-auto">
               <nav
@@ -105,7 +129,7 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
       </header>
 
       <main className="min-h-[calc(100vh-8rem)]">
-        <Outlet />
+        <Outlet context={{ liveEnvironment, refreshLiveEnvironment }} />
       </main>
 
       <footer className={cx(sectionClassName, 'pt-0 pb-10')}>

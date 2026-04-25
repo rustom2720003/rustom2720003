@@ -116,22 +116,22 @@ function getWeatherLabel(weatherCode) {
 
 function getGeolocationErrorMessage(error) {
   if (!error) {
-    return 'Location access is needed for live weather data.'
+    return 'Turn on your location to get the exact temperature and timing details.'
   }
 
   if (error.code === 1) {
-    return 'Allow location access to show local weather for your current position.'
+    return 'Turn on your location to get the exact temperature and timing details.'
   }
 
   if (error.code === 2) {
-    return 'Your location could not be detected right now. Please retry in a moment.'
+    return 'Turn on your location to get the exact temperature and timing details.'
   }
 
   if (error.code === 3) {
-    return 'The location request timed out. Retry to fetch your live weather.'
+    return 'Turn on your location to get the exact temperature and timing details.'
   }
 
-  return 'Unable to load your current location right now.'
+  return 'Turn on your location to get the exact temperature and timing details.'
 }
 
 async function fetchLiveWeather(latitude, longitude, signal) {
