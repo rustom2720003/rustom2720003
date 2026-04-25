@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
+import { profile } from './portfolioData'
 
 const REMARKS_STORAGE_KEY = 'rustom-portfolio-remarks'
 const MAX_REMARKS = 12
+const MAIL_SUBJECT_PREFIX = 'Portfolio remarks by '
 
 const routeLabels = {
   '/': 'Overview',
@@ -12,6 +14,14 @@ const routeLabels = {
   '/resume': 'Resume',
   '/skills': 'Skills',
 }
+
+const remarkMailTimestampFormatter = new Intl.DateTimeFormat(undefined, {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+})
 
 function createRemarkId() {
   if (typeof globalThis !== 'undefined' && globalThis.crypto?.randomUUID) {
@@ -36,10 +46,13 @@ function normaliseStoredRemarks(value) {
     .filter((item) => item && typeof item === 'object')
     .map((item) => {
       const path = typeof item.path === 'string' ? item.path : '/'
+      const senderName =
+        typeof item.senderName === 'string' ? item.senderName.trim() : 'Visitor'
       const message = typeof item.message === 'string' ? item.message.trim() : ''
 
       return {
         id: typeof item.id === 'string' ? item.id : createRemarkId(),
+        senderName: senderName || 'Visitor',
         message,
         createdAt:
           typeof item.createdAt === 'string' ? item.createdAt : new Date().toISOString(),
@@ -76,12 +89,40 @@ function writeStoredRemarks(remarks) {
   window.localStorage.setItem(REMARKS_STORAGE_KEY, JSON.stringify(remarks))
 }
 
+function buildMailtoHref({ senderName, message, pageLabel, pageUrl, createdAt }) {
+  const subject = `${MAIL_SUBJECT_PREFIX}${senderName}`
+  const body = [
+    'Hi Rustom,',
+    '',
+    'You received a new portfolio remark.',
+    '',
+    `Name: ${senderName}`,
+    `Page: ${pageLabel}`,
+    `Submitted at: ${remarkMailTimestampFormatter.format(new Date(createdAt))}`,
+    `Page URL: ${pageUrl}`,
+    '',
+    'Remark:',
+    message,
+  ].join('\n')
+
+  return `mailto:${profile.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+}
+
 export function useRemarks() {
   const location = useLocation()
   const [remarks, setRemarks] = useState(() => readStoredRemarks())
+  const [senderName, setSenderNameValue] = useState('')
   const [draft, setDraftValue] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [statusMessage, setStatusMessage] = useState('')
+
+  const setSenderName = (value) => {
+    setSenderNameValue(value)
+
+    if (statusMessage) {
+      setStatusMessage('')
+    }
+  }
 
   const setDraft = (value) => {
     setDraftValue(value)
@@ -94,9 +135,18 @@ export function useRemarks() {
   const openPanel = () => setIsOpen(true)
   const closePanel = () => setIsOpen(false)
   const togglePanel = () => setIsOpen((current) => !current)
+  const canWriteRemark = Boolean(senderName.trim())
+  const canSubmitRemark = canWriteRemark && Boolean(draft.trim())
 
   const submitRemark = () => {
+    const trimmedSenderName = senderName.trim()
     const message = draft.trim()
+
+    if (!trimmedSenderName) {
+      setStatusMessage('Please enter your name before adding a remark.')
+      setIsOpen(true)
+      return false
+    }
 
     if (!message) {
       setStatusMessage('Please enter a remark before submitting.')
@@ -104,15 +154,19 @@ export function useRemarks() {
       return false
     }
 
+    const createdAt = new Date().toISOString()
     const pathname = location.pathname || '/'
+    const pageLabel = formatRouteLabel(pathname)
+    const remarkEntry = {
+      id: createRemarkId(),
+      senderName: trimmedSenderName,
+      message,
+      createdAt,
+      path: pathname,
+      pageLabel,
+    }
     const nextRemarks = [
-      {
-        id: createRemarkId(),
-        message,
-        createdAt: new Date().toISOString(),
-        path: pathname,
-        pageLabel: formatRouteLabel(pathname),
-      },
+      remarkEntry,
       ...remarks,
     ].slice(0, MAX_REMARKS)
 
@@ -120,21 +174,35 @@ export function useRemarks() {
       writeStoredRemarks(nextRemarks)
       setRemarks(nextRemarks)
       setDraftValue('')
-      setStatusMessage('Remark saved in this browser.')
-      setIsOpen(true)
-      return true
+      setSenderNameValue(trimmedSenderName)
+      setStatusMessage('Opening your email app with the remark details.')
     } catch {
-      setStatusMessage('Unable to save the remark right now.')
-      setIsOpen(true)
-      return false
+      setStatusMessage('Opening your email app. Local save was not available.')
     }
+
+    setIsOpen(true)
+
+    if (typeof window !== 'undefined') {
+      const mailtoHref = buildMailtoHref({
+        senderName: trimmedSenderName,
+        message,
+        pageLabel,
+        pageUrl: window.location.href,
+        createdAt,
+      })
+
+      window.location.href = mailtoHref
+    }
+
+    return true
   }
 
   const remarksSummary = useMemo(
     () => ({
       remarks,
       remarksCount: remarks.length,
-      storageLabel: 'Saved locally in this browser using localStorage.',
+      storageLabel:
+        'Saved locally in this browser using localStorage after submit.',
     }),
     [remarks],
   )
@@ -143,7 +211,11 @@ export function useRemarks() {
     ...remarksSummary,
     draft,
     isOpen,
+    senderName,
     statusMessage,
+    canWriteRemark,
+    canSubmitRemark,
+    setSenderName,
     setDraft,
     openPanel,
     closePanel,
