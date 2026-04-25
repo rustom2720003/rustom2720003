@@ -43,9 +43,9 @@ const strengthIcons = [Landmark, ClipboardCheck, BriefcaseBusiness]
 
 function OverviewPage() {
   const profilePhotos =
-    profile.photoGallerySrcs?.length > 0
-      ? profile.photoGallerySrcs
-      : [profile.photoSrc]
+    profile.photoGallery?.length > 0
+      ? profile.photoGallery
+      : [{ src: profile.photoSrc, objectPosition: '50% 50%' }]
   const [activePhotoIndex, setActivePhotoIndex] = useState(0)
   const [photoErrors, setPhotoErrors] = useState(() =>
     profilePhotos.map(() => false),
@@ -82,14 +82,14 @@ function OverviewPage() {
                 }}
               />
 
-              {profilePhotos.map((photoSrc, index) => {
+              {profilePhotos.map((photo, index) => {
                 const isActive = index === activePhotoIndex
 
                 return (
                   <img
-                    key={photoSrc}
+                    key={photo.src}
                     className={cx(
-                      'absolute inset-0 z-10 h-full w-full rounded-full border border-[color:var(--portfolio-glass-border-strong)] object-cover object-center shadow-[var(--portfolio-inline-shadow)] transition-all duration-[1300ms] ease-out',
+                      'absolute inset-0 z-10 h-full w-full rounded-full border border-[color:var(--portfolio-glass-border-strong)] object-cover shadow-[var(--portfolio-inline-shadow)] transition-all duration-[1300ms] ease-out',
                       isActive
                         ? 'scale-100 rotate-0 opacity-100'
                         : 'scale-[1.06] rotate-[4deg] opacity-0',
@@ -103,7 +103,8 @@ function OverviewPage() {
                         ),
                       )
                     }}
-                    src={photoErrors[index] ? profile.photoFallbackSrc : photoSrc}
+                    src={photoErrors[index] ? profile.photoFallbackSrc : photo.src}
+                    style={{ objectPosition: photo.objectPosition }}
                   />
                 )
               })}

@@ -1,8 +1,14 @@
 const advancedTaskAppUrl = `${import.meta.env.BASE_URL}advanced-task-productivity-app/`
 const portfolioWebsiteUrl = 'https://rustom2720003.github.io/rustom2720003/'
-const profilePhotoUrls = [
-  `${import.meta.env.BASE_URL}profile/Rustom_Profile.jpeg`,
-  `${import.meta.env.BASE_URL}profile/Rustom_Profile2.jpeg`,
+const profilePhotos = [
+  {
+    src: `${import.meta.env.BASE_URL}profile/Rustom_Profile.jpeg`,
+    objectPosition: '50% 50%',
+  },
+  {
+    src: `${import.meta.env.BASE_URL}profile/Rustom_Profile2.jpeg`,
+    objectPosition: '50% 14%',
+  },
 ]
 const profilePhotoFallbackUrl = `${import.meta.env.BASE_URL}profile/rustom-profile-photo.svg`
 const whatsappMessage = encodeURIComponent(
@@ -26,8 +32,8 @@ export const profile = {
   linkedinUrl: 'https://www.linkedin.com/in/rustom-singh-yadav-9a717a173/',
   websiteDisplay: 'rustom2720003.github.io/rustom2720003',
   websiteUrl: portfolioWebsiteUrl,
-  photoSrc: profilePhotoUrls[0],
-  photoGallerySrcs: profilePhotoUrls,
+  photoSrc: profilePhotos[0].src,
+  photoGallery: profilePhotos,
   photoFallbackSrc: profilePhotoFallbackUrl,
   photoAlt: 'Profile photo of Rustom Singh Yadav',
   profileBannerDescription:
