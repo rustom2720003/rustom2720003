@@ -59,6 +59,16 @@
     --portfolio-nav-tab-active-gradient:
       linear-gradient(135deg, #31c9ed 0%, #128fd5 56%, #2e73ff 100%);
     --portfolio-nav-tab-active-shadow: 0 14px 28px rgba(14, 114, 176, 0.24);
+    --portfolio-live-pill-gradient:
+      linear-gradient(135deg, rgba(10, 35, 63, 0.96), rgba(11, 58, 103, 0.94), rgba(19, 93, 156, 0.9));
+    --portfolio-live-pill-gradient-hover:
+      linear-gradient(135deg, rgba(12, 42, 74, 0.98), rgba(14, 68, 120, 0.96), rgba(24, 105, 173, 0.92));
+    --portfolio-live-pill-border: rgba(203, 228, 248, 0.18);
+    --portfolio-live-pill-hover-border: rgba(226, 240, 250, 0.26);
+    --portfolio-live-pill-text: #f7fbff;
+    --portfolio-live-pill-subtle-text: rgba(228, 241, 252, 0.82);
+    --portfolio-live-pill-divider: rgba(210, 230, 247, 0.22);
+    --portfolio-live-pill-shadow: 0 18px 34px rgba(9, 36, 61, 0.28);
     --portfolio-glass-strong: rgba(209, 223, 231, 0.78);
     --portfolio-glass-soft: rgba(194, 210, 219, 0.78);
     --portfolio-glass-inline: rgba(202, 217, 225, 0.82);
@@ -193,6 +203,16 @@
     --portfolio-nav-tab-active-gradient:
       linear-gradient(135deg, #ff79c9 0%, #d946ef 56%, #8f57ff 100%);
     --portfolio-nav-tab-active-shadow: 0 14px 28px rgba(151, 29, 106, 0.24);
+    --portfolio-live-pill-gradient:
+      linear-gradient(135deg, rgba(8, 24, 43, 0.96), rgba(10, 42, 79, 0.94), rgba(18, 78, 140, 0.88));
+    --portfolio-live-pill-gradient-hover:
+      linear-gradient(135deg, rgba(10, 31, 56, 0.98), rgba(12, 52, 93, 0.96), rgba(22, 90, 157, 0.9));
+    --portfolio-live-pill-border: rgba(176, 211, 245, 0.16);
+    --portfolio-live-pill-hover-border: rgba(196, 224, 250, 0.24);
+    --portfolio-live-pill-text: #f7fbff;
+    --portfolio-live-pill-subtle-text: rgba(221, 236, 250, 0.8);
+    --portfolio-live-pill-divider: rgba(179, 209, 240, 0.22);
+    --portfolio-live-pill-shadow: 0 18px 34px rgba(0, 0, 0, 0.24);
     --portfolio-glass-strong: rgba(57, 18, 53, 0.8);
     --portfolio-glass-soft: rgba(47, 14, 44, 0.74);
     --portfolio-glass-inline: rgba(52, 18, 49, 0.8);

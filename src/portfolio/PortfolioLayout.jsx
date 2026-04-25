@@ -92,7 +92,7 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
 
               <button
                 type="button"
-                className="inline-flex min-w-0 max-w-[11.75rem] items-center gap-2.5 rounded-[1.3rem] border border-white/10 bg-[image:var(--portfolio-mobile-live-gradient)] px-3.5 py-3.5 text-[0.88rem] font-bold text-white shadow-[var(--portfolio-mobile-control-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-white/18 hover:bg-[image:var(--portfolio-mobile-live-gradient-hover)] sm:max-w-[12.4rem] md:max-w-[12.5rem] md:text-[0.82rem] lg:hidden"
+                className="inline-flex min-w-0 max-w-[11.75rem] items-center gap-2.5 rounded-[1.3rem] border border-[color:var(--portfolio-live-pill-border)] bg-[image:var(--portfolio-live-pill-gradient)] px-3.5 py-3.5 text-[0.88rem] font-bold text-[color:var(--portfolio-live-pill-text)] shadow-[var(--portfolio-live-pill-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-[color:var(--portfolio-live-pill-hover-border)] hover:bg-[image:var(--portfolio-live-pill-gradient-hover)] sm:max-w-[12.4rem] md:max-w-[12.5rem] md:text-[0.82rem] lg:hidden"
                 aria-label={livePillTitle}
                 onClick={refreshLiveEnvironment}
                 title={livePillTitle}
@@ -101,8 +101,8 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
                   <Clock3 className="shrink-0" size={14} />
                   <span className="truncate">{navTimeLabel}</span>
                 </span>
-                <span className="h-4 w-px shrink-0 bg-line" />
-                <span className="inline-flex shrink-0 items-center gap-1 text-white/78">
+                <span className="h-4 w-px shrink-0 bg-[color:var(--portfolio-live-pill-divider)]" />
+                <span className="inline-flex shrink-0 items-center gap-1 text-[color:var(--portfolio-live-pill-subtle-text)]">
                   <ThermometerSun size={14} />
                   {navTemperature}
                 </span>
@@ -110,7 +110,7 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
 
               <button
                 type="button"
-                className="hidden items-center gap-2 rounded-full border border-[color:var(--portfolio-glass-border)] bg-[color:var(--portfolio-glass-strong)] px-4 py-2 text-sm text-ink shadow-[var(--portfolio-soft-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-[color:var(--portfolio-glass-hover)] lg:inline-flex"
+                className="hidden items-center gap-2 rounded-full border border-[color:var(--portfolio-live-pill-border)] bg-[image:var(--portfolio-live-pill-gradient)] px-4 py-2 text-sm text-[color:var(--portfolio-live-pill-text)] shadow-[var(--portfolio-live-pill-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-[color:var(--portfolio-live-pill-hover-border)] hover:bg-[image:var(--portfolio-live-pill-gradient-hover)] lg:inline-flex"
                 aria-label={livePillTitle}
                 onClick={refreshLiveEnvironment}
                 title={livePillTitle}
@@ -119,8 +119,8 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
                   <Clock3 size={15} />
                   {navTimeLabel}
                 </span>
-                <span className="h-4 w-px bg-line" />
-                <span className="inline-flex items-center gap-1.5 text-muted">
+                <span className="h-4 w-px bg-[color:var(--portfolio-live-pill-divider)]" />
+                <span className="inline-flex items-center gap-1.5 text-[color:var(--portfolio-live-pill-subtle-text)]">
                   <ThermometerSun size={15} />
                   {navTemperature}
                 </span>
