@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
   ArrowRight,
   ArrowUpRight,
@@ -41,6 +42,27 @@ const statIcons = [Sparkles, Landmark, BriefcaseBusiness, Blocks]
 const strengthIcons = [Landmark, ClipboardCheck, BriefcaseBusiness]
 
 function OverviewPage() {
+  const profilePhotos =
+    profile.photoGallerySrcs?.length > 0
+      ? profile.photoGallerySrcs
+      : [profile.photoSrc]
+  const [activePhotoIndex, setActivePhotoIndex] = useState(0)
+  const [photoErrors, setPhotoErrors] = useState(() =>
+    profilePhotos.map(() => false),
+  )
+
+  useEffect(() => {
+    if (profilePhotos.length <= 1) {
+      return undefined
+    }
+
+    const intervalId = window.setInterval(() => {
+      setActivePhotoIndex((currentIndex) => (currentIndex + 1) % profilePhotos.length)
+    }, 5000)
+
+    return () => window.clearInterval(intervalId)
+  }, [profilePhotos.length])
+
   return (
     <>
       <PageSection className="pb-3 pt-2">
@@ -51,15 +73,41 @@ function OverviewPage() {
           )}
         >
           <div className="mx-auto lg:mx-0">
-            <img
-              alt={profile.photoAlt}
-              className="h-32 w-32 rounded-full border border-[color:var(--portfolio-glass-border-strong)] object-cover object-center shadow-[var(--portfolio-inline-shadow)] sm:h-36 sm:w-36"
-              onError={(event) => {
-                event.currentTarget.onerror = null
-                event.currentTarget.src = profile.photoFallbackSrc
-              }}
-              src={profile.photoSrc}
-            />
+            <div className="profile-portrait-shell relative h-36 w-36 sm:h-40 sm:w-40">
+              <div
+                aria-hidden
+                className="absolute inset-[-12%] z-0 rounded-full opacity-80 blur-2xl"
+                style={{
+                  background: 'var(--portfolio-focus-glow)',
+                }}
+              />
+
+              {profilePhotos.map((photoSrc, index) => {
+                const isActive = index === activePhotoIndex
+
+                return (
+                  <img
+                    key={photoSrc}
+                    className={cx(
+                      'absolute inset-0 z-10 h-full w-full rounded-full border border-[color:var(--portfolio-glass-border-strong)] object-cover object-center shadow-[var(--portfolio-inline-shadow)] transition-all duration-[1300ms] ease-out',
+                      isActive
+                        ? 'scale-100 rotate-0 opacity-100'
+                        : 'scale-[1.06] rotate-[4deg] opacity-0',
+                    )}
+                    aria-hidden={!isActive}
+                    alt={isActive ? profile.photoAlt : ''}
+                    onError={() => {
+                      setPhotoErrors((currentErrors) =>
+                        currentErrors.map((hasError, errorIndex) =>
+                          errorIndex === index ? true : hasError,
+                        ),
+                      )
+                    }}
+                    src={photoErrors[index] ? profile.photoFallbackSrc : photoSrc}
+                  />
+                )
+              })}
+            </div>
           </div>
 
           <div className="min-w-0">
