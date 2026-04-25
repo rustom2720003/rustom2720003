@@ -44,6 +44,34 @@ function ProjectsPage() {
   const timeZoneDisplay = liveEnvironment.timeZoneAbbreviation
     ? `${liveEnvironment.timeZoneAbbreviation} | ${liveEnvironment.timeZoneLabel}`
     : liveEnvironment.timeZoneLabel
+  const analyticsChartItems = [
+    {
+      label: 'Visits',
+      value: visitorAnalytics.totalVisits,
+      description: 'Browser sessions tracked locally',
+      gradient: 'from-accent via-[#ee5fbb] to-[#a855f7]',
+    },
+    {
+      label: 'Page views',
+      value: visitorAnalytics.totalPageViews,
+      description: 'Tracked route activity in this browser',
+      gradient: 'from-teal via-[#22d3ee] to-[#60a5fa]',
+    },
+    {
+      label: 'Top page',
+      value: visitorAnalytics.topPageViews,
+      description: visitorAnalytics.topPageLabel,
+      gradient: 'from-[#f59e0b] via-[#fb7185] to-[#ef4444]',
+    },
+  ]
+  const analyticsChartMax = Math.max(
+    ...analyticsChartItems.map((item) => item.value),
+    1,
+  )
+  const routeChartMax = Math.max(
+    ...visitorAnalytics.pageViewsEntries.map((item) => item.views),
+    1,
+  )
 
   return (
     <PageSection>
@@ -313,7 +341,48 @@ function ProjectsPage() {
         </div>
 
         <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(280px,0.95fr)]">
-          <article className={cx(panelClassName, 'grid gap-4 p-6')}>
+          <article className={cx(panelClassName, 'grid gap-6 p-6')}>
+            <div>
+              <p className={cardLabelClassName}>Chart view</p>
+              <h3 className="mt-2 font-display text-[1.45rem] leading-[1.1] text-ink">
+                Local visitor and page-view activity chart
+              </h3>
+              <p className="mt-2 text-sm leading-7 text-muted">
+                A quick visual snapshot of visits, route views, and the strongest
+                page activity captured on this browser.
+              </p>
+            </div>
+
+            <div className="rounded-[1.35rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-4 sm:p-5">
+              <div className="flex min-h-[14rem] items-end gap-3 sm:gap-4">
+                {analyticsChartItems.map((item) => (
+                  <div className="flex min-w-0 flex-1 flex-col justify-end gap-3" key={item.label}>
+                    <div className="flex h-44 items-end justify-center rounded-[1.5rem] border border-line bg-surface px-3 py-3">
+                      <div
+                        className={cx(
+                          'w-full rounded-[1.2rem] bg-gradient-to-t shadow-[0_16px_36px_rgba(20,20,20,0.18)] transition-all duration-300',
+                          item.gradient,
+                        )}
+                        style={{
+                          height: `${Math.max(
+                            (item.value / analyticsChartMax) * 100,
+                            item.value > 0 ? 16 : 8,
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                    <div className="grid gap-1 text-center">
+                      <p className="font-display text-[1.6rem] leading-none text-ink">
+                        {item.value}
+                      </p>
+                      <p className="text-sm font-semibold text-ink">{item.label}</p>
+                      <p className="text-xs leading-6 text-muted">{item.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div>
               <p className={cardLabelClassName}>Tracked pages</p>
               <h3 className="mt-2 font-display text-[1.45rem] leading-[1.1] text-ink">
@@ -325,11 +394,24 @@ function ProjectsPage() {
               {visitorAnalytics.pageViewsEntries.length ? (
                 visitorAnalytics.pageViewsEntries.map((item) => (
                   <div
-                    className="flex items-center justify-between gap-4 rounded-2xl border border-line bg-[color:var(--portfolio-glass-soft)] px-4 py-3"
+                    className="rounded-2xl border border-line bg-[color:var(--portfolio-glass-soft)] px-4 py-3"
                     key={item.path}
                   >
-                    <span className="font-medium text-ink">{item.label}</span>
-                    <span className={chipClassName}>{item.views} views</span>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="font-medium text-ink">{item.label}</span>
+                      <span className={chipClassName}>{item.views} views</span>
+                    </div>
+                    <div className="mt-3 h-3 overflow-hidden rounded-full bg-[color:var(--portfolio-glass-inline)]">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-accent via-[#d946ef] to-teal"
+                        style={{
+                          width: `${Math.max(
+                            (item.views / routeChartMax) * 100,
+                            item.views > 0 ? 10 : 0,
+                          )}%`,
+                        }}
+                      />
+                    </div>
                   </div>
                 ))
               ) : (
@@ -338,6 +420,11 @@ function ProjectsPage() {
                 </p>
               )}
             </div>
+
+            <p className="text-sm leading-7 text-muted">
+              Bars scale against the busiest tracked route in this browser session
+              history.
+            </p>
           </article>
 
           <article className={cx(panelClassName, 'grid gap-4 p-6')}>

@@ -2,6 +2,10 @@ const advancedTaskAppUrl = `${import.meta.env.BASE_URL}advanced-task-productivit
 const portfolioWebsiteUrl = 'https://rustom2720003.github.io/rustom2720003/'
 const profilePhotoUrl = `${import.meta.env.BASE_URL}profile/Rustom_Profile.jpeg`
 const profilePhotoFallbackUrl = `${import.meta.env.BASE_URL}profile/rustom-profile-photo.svg`
+const whatsappMessage = encodeURIComponent(
+  'Hi Rustom, I visited your portfolio and would like to connect with you.',
+)
+const whatsappUrl = `https://wa.me/918318054003?text=${whatsappMessage}`
 
 export const profile = {
   name: 'Rustom Singh Yadav',
@@ -11,6 +15,8 @@ export const profile = {
   location: 'Pune, India',
   phoneDisplay: '8468020998',
   phoneHref: 'tel:+918468020998',
+  whatsappDisplay: '8318054003',
+  whatsappHref: whatsappUrl,
   email: 'rustom2720003@gmail.com',
   emailHref: 'mailto:rustom2720003@gmail.com',
   linkedinDisplay: 'linkedin.com/in/rustom-singh-yadav-9a717a173',
@@ -307,6 +313,13 @@ export const contactCards = [
     value: '8468020998',
     href: 'tel:+918468020998',
     hint: 'Available for direct communication and quick follow-up',
+  },
+  {
+    label: 'WhatsApp',
+    value: '8318054003',
+    href: profile.whatsappHref,
+    hint: 'Open a direct WhatsApp chat window with a prefilled message',
+    newTab: true,
   },
   {
     label: 'LinkedIn',

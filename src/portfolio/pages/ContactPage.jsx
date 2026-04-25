@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Copy, Mail } from 'lucide-react'
+import { Copy, Mail, MessageCircle } from 'lucide-react'
 import { contactCards, profile } from '../portfolioData'
 import {
   buttonClassNames,
@@ -30,7 +30,7 @@ function ContactPage() {
         title="Available for React, enterprise web, and full-stack product work"
       />
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {contactCards.map((card) =>
           card.href ? (
             <a
@@ -76,6 +76,18 @@ function ContactPage() {
         >
           <Mail size={18} />
           Open mail
+        </a>
+        <a
+          className={cx(
+            buttonClassNames.secondary,
+            'w-full border-emerald-400/35 bg-gradient-to-r from-[#25d366] to-[#128c7e] text-white shadow-[0_16px_32px_rgba(18,140,126,0.28)] hover:border-emerald-300/45 hover:bg-gradient-to-r hover:from-[#29de6d] hover:to-[#149788] hover:text-white sm:w-auto',
+          )}
+          href={profile.whatsappHref}
+          rel="noreferrer"
+          target="_blank"
+        >
+          <MessageCircle size={18} />
+          WhatsApp me
         </a>
       </div>
     </PageSection>
