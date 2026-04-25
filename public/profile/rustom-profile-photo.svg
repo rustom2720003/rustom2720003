@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 860" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Rustom Singh Yadav profile placeholder</title>
+  <desc id="desc">A warm gradient profile placeholder with RSY initials.</desc>
+  <defs>
+    <linearGradient id="bg" x1="88" y1="62" x2="642" y2="814" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1F4A53"/>
+      <stop offset="0.52" stop-color="#376E79"/>
+      <stop offset="1" stop-color="#BE5B2E"/>
+    </linearGradient>
+    <linearGradient id="soft" x1="164" y1="134" x2="558" y2="674" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF8F2" stop-opacity="0.96"/>
+      <stop offset="1" stop-color="#F7EADF" stop-opacity="0.82"/>
+    </linearGradient>
+  </defs>
+  <rect width="720" height="860" rx="72" fill="url(#bg)"/>
+  <circle cx="555" cy="136" r="104" fill="#FFF6EE" fill-opacity="0.16"/>
+  <circle cx="154" cy="722" r="128" fill="#FFF6EE" fill-opacity="0.12"/>
+  <path d="M176 606c0-114.875 93.125-208 208-208s208 93.125 208 208v74H176v-74Z" fill="url(#soft)"/>
+  <circle cx="384" cy="294" r="136" fill="url(#soft)"/>
+  <circle cx="384" cy="294" r="122" stroke="#FFF7F0" stroke-opacity="0.32" stroke-width="2"/>
+  <rect x="106" y="92" width="508" height="676" rx="56" stroke="#FFF7F0" stroke-opacity="0.2" stroke-width="2"/>
+  <text x="360" y="345" text-anchor="middle" fill="#1B3E46" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="96" font-weight="700" letter-spacing="8">RSY</text>
+  <text x="360" y="742" text-anchor="middle" fill="#173740" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="30" font-weight="600" letter-spacing="5">RUSTOM SINGH YADAV</text>
+  <text x="360" y="786" text-anchor="middle" fill="#5C6B70" font-family="'Segoe UI', sans-serif" font-size="24" font-weight="500">Full Stack Developer</text>
+</svg>

@@ -1,4 +1,5 @@
 const advancedTaskAppUrl = `${import.meta.env.BASE_URL}advanced-task-productivity-app/`
+const profilePhotoUrl = `${import.meta.env.BASE_URL}profile/rustom-profile-photo.svg`
 
 export const profile = {
   name: 'Rustom Singh Yadav',
@@ -12,6 +13,8 @@ export const profile = {
   emailHref: 'mailto:rustom2720003@gmail.com',
   linkedinDisplay: 'linkedin.com/in/rustom-singh-yadav-9a717a173',
   linkedinUrl: 'https://www.linkedin.com/in/rustom-singh-yadav-9a717a173/',
+  photoSrc: profilePhotoUrl,
+  photoAlt: 'Profile avatar for Rustom Singh Yadav',
   heroTitle: 'React-focused interfaces for scalable web products.',
   heroDescription:
     'I build component-driven user interfaces, routed application flows, and API-backed features that stay responsive, maintainable, and ready for real-world enterprise delivery.',

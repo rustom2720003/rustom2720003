@@ -1,5 +1,6 @@
 import {
   ArrowRight,
+  ArrowUpRight,
   Blocks,
   BriefcaseBusiness,
   ClipboardCheck,
@@ -42,18 +43,50 @@ function OverviewPage() {
   return (
     <>
       <PageSection className="grid items-start gap-8 pt-2 lg:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
-        <div className="flex flex-col gap-6">
-          <p className={eyebrowClassName}>
-            {profile.title} | {profile.company} | {profile.location}
-          </p>
-          <h1 className="max-w-[10ch] font-display text-[clamp(2.7rem,5vw,4.7rem)] leading-[0.96] tracking-[-0.05em] text-ink max-lg:max-w-none">
-            {profile.heroTitle}
-          </h1>
-          <p className="max-w-3xl text-[1.02rem] leading-8 text-muted">
-            {profile.heroDescription}
-          </p>
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_240px]">
+          <div className="flex min-w-0 flex-col gap-6">
+            <p className="max-w-3xl font-mono text-[0.96rem] font-black uppercase tracking-[0.18em] text-accent-strong sm:text-[1.05rem]">
+              {profile.title} | {profile.company} | {profile.location}
+            </p>
+            <h1 className="max-w-none font-display text-[clamp(3rem,5vw,5rem)] leading-[0.92] tracking-[-0.06em] text-ink">
+              {profile.heroTitle}
+            </h1>
+            <p className="max-w-[38rem] text-[1.02rem] leading-8 text-muted">
+              {profile.heroDescription}
+            </p>
+          </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className={cx(panelClassName, 'relative isolate overflow-hidden p-4')}>
+            <div
+              className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full"
+              style={{
+                background:
+                  'radial-gradient(circle, rgba(47, 102, 112, 0.2), transparent 70%)',
+              }}
+            />
+            <img
+              alt={profile.photoAlt}
+              className="h-full min-h-[18rem] w-full rounded-[1.35rem] border border-white/40 bg-white/60 object-cover shadow-[0_18px_40px_rgba(16,41,47,0.12)]"
+              src={profile.photoSrc}
+            />
+            <div className="absolute inset-x-7 bottom-7 rounded-[1.25rem] border border-white/60 bg-white/78 p-4 backdrop-blur-xl">
+              <p className={eyebrowClassName}>Profile</p>
+              <h2 className="mt-2 font-display text-[1.3rem] leading-[1.05] text-ink">
+                {profile.name}
+              </h2>
+              <a
+                className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-teal transition duration-200 hover:text-ink"
+                href={profile.linkedinUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Visit LinkedIn
+                <ArrowUpRight size={16} />
+              </a>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 lg:col-span-2">
             <Link
               className={cx(buttonClassNames.primary, 'w-full sm:w-auto')}
               to="/projects"
@@ -78,18 +111,18 @@ function OverviewPage() {
             </a>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            <span className="flex min-h-[3.35rem] items-center gap-2 rounded-2xl border border-line bg-white/60 px-4 py-4 text-sm font-medium text-ink shadow-[0_18px_35px_rgba(16,41,47,0.10)]">
-              <Phone size={16} />
-              {profile.phoneDisplay}
+          <div className="grid gap-4 sm:grid-cols-2 lg:col-span-2 xl:grid-cols-3">
+            <span className="flex min-h-[3.35rem] min-w-0 items-center gap-2 rounded-2xl border border-line bg-white/60 px-4 py-4 text-sm font-medium text-ink shadow-[0_18px_35px_rgba(16,41,47,0.10)]">
+              <Phone className="shrink-0" size={16} />
+              <span>{profile.phoneDisplay}</span>
             </span>
-            <span className="flex min-h-[3.35rem] items-center gap-2 rounded-2xl border border-line bg-white/60 px-4 py-4 text-sm font-medium text-ink shadow-[0_18px_35px_rgba(16,41,47,0.10)]">
-              <Mail size={16} />
-              {profile.email}
+            <span className="flex min-h-[3.35rem] min-w-0 items-center gap-2 rounded-2xl border border-line bg-white/60 px-4 py-4 text-sm font-medium text-ink shadow-[0_18px_35px_rgba(16,41,47,0.10)]">
+              <Mail className="shrink-0" size={16} />
+              <span className="min-w-0 break-all">{profile.email}</span>
             </span>
-            <span className="flex min-h-[3.35rem] items-center gap-2 rounded-2xl border border-line bg-white/60 px-4 py-4 text-sm font-medium text-ink shadow-[0_18px_35px_rgba(16,41,47,0.10)]">
-              <MapPin size={16} />
-              {profile.location}
+            <span className="flex min-h-[3.35rem] min-w-0 items-center gap-2 rounded-2xl border border-line bg-white/60 px-4 py-4 text-sm font-medium text-ink shadow-[0_18px_35px_rgba(16,41,47,0.10)]">
+              <MapPin className="shrink-0" size={16} />
+              <span>{profile.location}</span>
             </span>
           </div>
         </div>
@@ -139,7 +172,7 @@ function OverviewPage() {
       </PageSection>
 
       <PageSection className="pt-0">
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4 xl:gap-6">
           {heroStats.map((stat, index) => (
             <MetricCard
               key={stat.label}
@@ -159,7 +192,7 @@ function OverviewPage() {
           title="How I build React-friendly enterprise products"
         />
 
-        <div className="value-grid">
+        <div className="grid gap-5 lg:grid-cols-3 lg:gap-6">
           {strengths.map((strength, index) => (
             <ValueCard
               key={strength.title}

@@ -47,7 +47,7 @@ export function ValueCard({ icon, title, description }) {
   const Icon = icon
 
   return (
-    <article className={cx(panelClassName, 'grid gap-4 p-6')}>
+    <article className={cx(panelClassName, 'grid h-full content-start gap-4 p-6')}>
       <div className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-teal-soft text-teal">
         <Icon size={20} />
       </div>
