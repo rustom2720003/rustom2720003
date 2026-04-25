@@ -49,7 +49,7 @@ function ProjectsPage() {
       label: 'Visits',
       value: visitorAnalytics.totalVisits,
       description: 'Browser sessions tracked locally',
-      gradient: 'from-accent via-[#ee5fbb] to-[#a855f7]',
+      gradient: 'from-accent via-[#38bdf8] to-teal',
     },
     {
       label: 'Page views',
@@ -403,7 +403,7 @@ function ProjectsPage() {
                     </div>
                     <div className="mt-3 h-3 overflow-hidden rounded-full bg-[color:var(--portfolio-glass-inline)]">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-accent via-[#d946ef] to-teal"
+                        className="h-full rounded-full bg-gradient-to-r from-accent via-[#38bdf8] to-teal"
                         style={{
                           width: `${Math.max(
                             (item.views / routeChartMax) * 100,

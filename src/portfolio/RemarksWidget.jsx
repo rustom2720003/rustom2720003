@@ -178,7 +178,7 @@ function RemarksWidget() {
       <div className="pointer-events-none fixed bottom-4 right-4 z-30 flex max-w-[calc(100vw-1rem)] flex-col items-end sm:bottom-6 sm:right-6">
         <button
           type="button"
-          className="pointer-events-auto inline-flex h-14 items-center gap-3 rounded-full bg-gradient-to-r from-accent via-[#d946ef] to-[#8b5cf6] px-5 text-sm font-semibold text-white shadow-[0_24px_50px_rgba(151,29,106,0.36)] transition duration-200 hover:-translate-y-1"
+          className="pointer-events-auto inline-flex h-14 items-center gap-3 rounded-full bg-[image:var(--portfolio-fab-gradient)] px-5 text-sm font-semibold text-white shadow-[var(--portfolio-fab-shadow)] transition duration-200 hover:-translate-y-1"
           aria-expanded={isOpen}
           aria-label={isOpen ? 'Hide remarks panel' : 'Open remarks panel'}
           onClick={togglePanel}

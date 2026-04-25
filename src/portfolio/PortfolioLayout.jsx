@@ -7,6 +7,27 @@ import RemarksWidget from './RemarksWidget'
 import { useLiveEnvironment } from './useLiveEnvironment'
 import { useVisitorAnalytics } from './useVisitorAnalytics'
 
+const mobileNavToneClasses = [
+  {
+    inactive:
+      'bg-[image:var(--portfolio-mobile-tone-1-inactive)] text-white/92 hover:bg-[image:var(--portfolio-mobile-tone-1-hover)] hover:text-white',
+    active:
+      'bg-[image:var(--portfolio-mobile-tone-1-active)] text-white shadow-[var(--portfolio-mobile-tone-1-shadow)]',
+  },
+  {
+    inactive:
+      'bg-[image:var(--portfolio-mobile-tone-2-inactive)] text-white/92 hover:bg-[image:var(--portfolio-mobile-tone-2-hover)] hover:text-white',
+    active:
+      'bg-[image:var(--portfolio-mobile-tone-2-active)] text-white shadow-[var(--portfolio-mobile-tone-2-shadow)]',
+  },
+  {
+    inactive:
+      'bg-[image:var(--portfolio-mobile-tone-3-inactive)] text-white/92 hover:bg-[image:var(--portfolio-mobile-tone-3-hover)] hover:text-white',
+    active:
+      'bg-[image:var(--portfolio-mobile-tone-3-active)] text-white shadow-[var(--portfolio-mobile-tone-3-shadow)]',
+  },
+]
+
 function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const isDarkTheme = theme === 'dark'
@@ -56,13 +77,13 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
         <div className={cx(sectionClassName, 'relative py-0')}>
           <div
             className={cx(
-              'nav-shimmer flex items-center justify-between gap-3 rounded-[2rem] border border-[color:var(--portfolio-nav-border)] bg-[color:var(--portfolio-nav-background)] px-4 py-2.5 shadow-[var(--portfolio-strong-shadow)] backdrop-blur-2xl',
+              'nav-shimmer flex items-center justify-between gap-3.5 rounded-[2.2rem] border border-white/12 bg-[image:var(--portfolio-mobile-nav-shell)] px-4 py-3.5 shadow-[var(--portfolio-mobile-nav-shell-shadow)] backdrop-blur-2xl md:gap-3 md:rounded-[2rem] md:border-[color:var(--portfolio-nav-border)] md:bg-[color:var(--portfolio-nav-background)] md:px-4 md:py-2.5 md:shadow-[var(--portfolio-strong-shadow)]',
               menuOpen && 'overflow-visible',
             )}
           >
             <div className="flex min-w-0 flex-1 items-center gap-2">
               <Link
-                className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-accent via-[#ef5db8] to-teal font-display text-[0.95rem] font-bold uppercase tracking-[0.16em] text-white shadow-[0_16px_34px_rgba(151,29,106,0.28)]"
+                className="inline-flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-[image:var(--portfolio-mobile-logo-gradient)] font-display text-[1.18rem] font-black uppercase tracking-[0.19em] text-white shadow-[var(--portfolio-mobile-logo-shadow)] md:h-12 md:w-12 md:text-[0.95rem] md:tracking-[0.16em]"
                 onClick={() => setMenuOpen(false)}
                 to="/"
               >
@@ -71,7 +92,7 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
 
               <button
                 type="button"
-                className="inline-flex min-w-0 max-w-[8.9rem] items-center gap-1.5 rounded-full border border-[color:var(--portfolio-glass-border)] bg-[color:var(--portfolio-glass-strong)] px-2.5 py-2 text-[0.72rem] text-ink shadow-[var(--portfolio-soft-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-[color:var(--portfolio-glass-hover)] sm:max-w-[10.75rem] sm:px-3 sm:text-[0.78rem] md:max-w-[12.5rem] lg:hidden"
+                className="inline-flex min-w-0 max-w-[11.75rem] items-center gap-2.5 rounded-[1.3rem] border border-white/10 bg-[image:var(--portfolio-mobile-live-gradient)] px-3.5 py-3.5 text-[0.88rem] font-bold text-white shadow-[var(--portfolio-mobile-control-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-white/18 hover:bg-[image:var(--portfolio-mobile-live-gradient-hover)] sm:max-w-[12.4rem] md:max-w-[12.5rem] md:text-[0.82rem] lg:hidden"
                 aria-label={livePillTitle}
                 onClick={refreshLiveEnvironment}
                 title={livePillTitle}
@@ -81,7 +102,7 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
                   <span className="truncate">{navTimeLabel}</span>
                 </span>
                 <span className="h-4 w-px shrink-0 bg-line" />
-                <span className="inline-flex shrink-0 items-center gap-1 text-muted">
+                <span className="inline-flex shrink-0 items-center gap-1 text-white/78">
                   <ThermometerSun size={14} />
                   {navTemperature}
                 </span>
@@ -109,18 +130,25 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
             <div className="flex shrink-0 items-center gap-2 md:ml-auto">
               <nav
                 className={cx(
-                  'absolute left-4 right-4 top-[calc(100%+0.6rem)] flex-col gap-1 rounded-[1.2rem] border border-[color:var(--portfolio-nav-border)] bg-[color:var(--portfolio-nav-popup-background)] p-2 shadow-portfolio backdrop-blur-xl md:static md:left-auto md:right-auto md:top-auto md:flex md:flex-row md:items-center md:gap-2 md:border-0 md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none',
+                  'absolute left-4 right-4 top-[calc(100%+0.85rem)] flex-col gap-2.5 rounded-[1.85rem] border border-white/12 bg-[image:var(--portfolio-mobile-menu-gradient)] p-3.5 shadow-[var(--portfolio-mobile-menu-shadow)] backdrop-blur-2xl md:static md:left-auto md:right-auto md:top-auto md:flex md:flex-row md:items-center md:gap-2 md:rounded-full md:border md:border-[color:var(--portfolio-nav-tab-group-border)] md:bg-[color:var(--portfolio-nav-tab-group-background)] md:p-1.5 md:shadow-[var(--portfolio-nav-tab-group-shadow)] md:backdrop-blur-xl',
                   menuOpen ? 'flex' : 'hidden md:flex',
                 )}
               >
-                {navigationLinks.map((link) => (
+                {navigationLinks.map((link, index) => {
+                  const tone =
+                    mobileNavToneClasses[index % mobileNavToneClasses.length]
+
+                  return (
                   <NavLink
                     key={link.to}
                     className={({ isActive }) =>
                       cx(
-                        'rounded-full px-3 py-2 text-sm font-medium text-muted transition duration-200 hover:-translate-y-0.5 hover:bg-[color:var(--portfolio-glass-chip)] hover:text-ink',
+                        'rounded-[1.3rem] px-[1.125rem] py-3.5 text-[1rem] font-black tracking-[0.05em] transition duration-200 hover:-translate-y-1 md:rounded-full md:border md:px-4 md:py-2.5 md:text-sm md:font-semibold md:tracking-normal md:hover:-translate-y-0.5',
+                        isActive ? tone.active : tone.inactive,
                         isActive &&
-                          'bg-accent-soft text-accent-strong shadow-[inset_0_0_0_1px_rgba(151,29,106,0.12)]',
+                          'md:border-transparent md:bg-[image:var(--portfolio-nav-tab-active-gradient)] md:text-white md:shadow-[var(--portfolio-nav-tab-active-shadow)]',
+                        !isActive &&
+                          'md:border-[color:var(--portfolio-nav-tab-border)] md:bg-[color:var(--portfolio-nav-tab-background)] md:text-[color:var(--portfolio-nav-tab-text)] md:shadow-[var(--portfolio-nav-tab-shadow)] md:hover:border-[color:var(--portfolio-nav-tab-hover-border)] md:hover:bg-[color:var(--portfolio-nav-tab-hover-background)] md:hover:text-[color:var(--portfolio-nav-tab-hover-text)]',
                       )
                     }
                     end={link.end}
@@ -129,12 +157,13 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
                   >
                     {link.label}
                   </NavLink>
-                ))}
+                  )
+                })}
               </nav>
 
               <button
                 type="button"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-[color:var(--portfolio-glass-border)] bg-[color:var(--portfolio-glass-strong)] px-4 text-sm font-medium text-ink shadow-[var(--portfolio-soft-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-[color:var(--portfolio-glass-hover)]"
+                className="inline-flex h-[3.75rem] items-center justify-center gap-2 rounded-[1.25rem] border border-white/10 bg-[image:var(--portfolio-mobile-control-gradient)] px-[1.125rem] text-sm font-bold tracking-[0.04em] text-white shadow-[var(--portfolio-mobile-control-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-white/18 hover:bg-[image:var(--portfolio-mobile-control-gradient-hover)] md:h-12 md:rounded-full md:border-[color:var(--portfolio-glass-border)] md:bg-[color:var(--portfolio-glass-strong)] md:px-4 md:text-sm md:font-medium md:tracking-normal md:text-ink md:shadow-[var(--portfolio-soft-shadow)] md:hover:border-line-strong md:hover:bg-[color:var(--portfolio-glass-hover)]"
                 aria-label={`Switch to ${isDarkTheme ? 'light' : 'dark'} theme`}
                 onClick={onToggleTheme}
                 title={`Switch to ${isDarkTheme ? 'light' : 'dark'} theme`}
@@ -147,7 +176,7 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
 
               <button
                 type="button"
-                className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[color:var(--portfolio-glass-border)] bg-[color:var(--portfolio-glass-strong)] text-ink shadow-[var(--portfolio-soft-shadow)] md:hidden"
+                className="inline-flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-[1.25rem] border border-white/10 bg-[image:var(--portfolio-mobile-control-gradient)] text-white shadow-[var(--portfolio-mobile-control-shadow)] md:hidden"
                 aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
                 aria-expanded={menuOpen}
                 onClick={() => setMenuOpen((open) => !open)}

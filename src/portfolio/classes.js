@@ -22,7 +22,7 @@ export const chipClassName =
 
 export const buttonClassNames = {
   primary:
-    'inline-flex min-h-[3.2rem] items-center justify-center gap-2 rounded-full border border-transparent bg-gradient-to-br from-accent to-[#8e37ff] px-5 py-3 font-medium text-white shadow-[0_16px_32px_rgba(151,29,106,0.32)] transition duration-200 hover:-translate-y-0.5',
+    'inline-flex min-h-[3.2rem] items-center justify-center gap-2 rounded-full border border-transparent bg-[image:var(--portfolio-primary-button-gradient)] px-5 py-3 font-medium text-white shadow-[var(--portfolio-primary-button-shadow)] transition duration-200 hover:-translate-y-0.5',
   secondary:
     'inline-flex min-h-[3.2rem] items-center justify-center gap-2 rounded-full border border-[color:var(--portfolio-glass-border)] bg-[color:var(--portfolio-glass-strong)] px-5 py-3 font-medium text-ink shadow-[var(--portfolio-soft-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-[color:var(--portfolio-glass-hover)]',
   ghost:

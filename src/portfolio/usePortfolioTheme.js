@@ -4,7 +4,7 @@ const THEME_STORAGE_KEY = 'rustom-portfolio-theme'
 
 function getInitialTheme() {
   if (typeof window === 'undefined') {
-    return 'light'
+    return 'dark'
   }
 
   const savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY)
@@ -13,9 +13,7 @@ function getInitialTheme() {
     return savedTheme
   }
 
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light'
+  return 'dark'
 }
 
 export function usePortfolioTheme() {

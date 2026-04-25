@@ -48,7 +48,7 @@ export const navigationLinks = [
 
 export const heroStats = [
   {
-    value: '3.5+',
+    value: '4',
     label: 'Years of delivery',
     detail: 'Frontend, middleware, and product-focused delivery',
   },

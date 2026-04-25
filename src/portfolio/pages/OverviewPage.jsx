@@ -64,10 +64,10 @@ function OverviewPage() {
 
           <div className="min-w-0">
             <p className={eyebrowClassName}>Profile</p>
-            <h2 className="mt-2 font-display text-[clamp(1.9rem,3vw,2.7rem)] leading-[0.95] tracking-[-0.04em] text-ink">
+            <h2 className="portfolio-name-glow mt-2 font-display text-[clamp(2.15rem,3.8vw,3.1rem)] font-black leading-[0.92] tracking-[-0.05em]">
               {profile.name}
             </h2>
-            <p className="mt-3 max-w-3xl text-[1rem] leading-7 text-muted">
+            <p className="portfolio-copy-justified mt-3 max-w-3xl text-[1.03rem] font-semibold leading-8 text-ink">
               {profile.profileBannerDescription}
             </p>
 
@@ -94,13 +94,13 @@ function OverviewPage() {
 
       <PageSection className="grid items-start gap-8 pt-3 lg:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
         <div className="flex min-w-0 flex-col gap-6">
-          <p className="max-w-4xl font-mono text-[1rem] font-black uppercase tracking-[0.2em] text-accent-strong sm:text-[1.12rem]">
+          <p className="max-w-4xl bg-[image:var(--portfolio-kicker-gradient)] bg-clip-text font-mono text-[1.03rem] font-black uppercase tracking-[0.22em] text-transparent sm:text-[1.14rem]">
             {profile.title} | {profile.company} | {profile.location}
           </p>
-          <h1 className="max-w-[11ch] font-display text-[clamp(3.1rem,6vw,5.45rem)] leading-[0.92] tracking-[-0.06em] text-ink max-lg:max-w-none">
+          <h1 className="portfolio-headline-glow max-w-[11ch] font-display text-[clamp(3.35rem,6.5vw,5.9rem)] font-black leading-[0.88] tracking-[-0.07em] max-lg:max-w-none">
             {profile.heroTitle}
           </h1>
-          <p className="max-w-[44rem] text-[1.02rem] leading-8 text-muted">
+          <p className="portfolio-copy-justified max-w-[44rem] text-[1.08rem] font-medium leading-9 text-ink">
             {profile.heroDescription}
           </p>
 

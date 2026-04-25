@@ -5,66 +5,138 @@
   --font-body: "Aptos", "Segoe UI", sans-serif;
   --font-mono: Consolas, "Courier New", monospace;
 
-  --color-ink: #271629;
-  --color-muted: #6d5a74;
-  --color-accent: #d63f9d;
-  --color-accent-strong: #971d6a;
-  --color-accent-soft: #d63f9d1e;
-  --color-teal: #7c42ee;
-  --color-teal-soft: #7c42ee1d;
-  --color-line: #8f2a6b26;
-  --color-line-strong: #8f2a6b42;
-  --color-surface: #fff8fdcc;
-  --color-surface-strong: #fff6fd;
+  --color-ink: #0d2636;
+  --color-muted: #456175;
+  --color-accent: #16b9dd;
+  --color-accent-strong: #0b7ea4;
+  --color-accent-soft: #16b9dd1d;
+  --color-teal: #2e73ff;
+  --color-teal-soft: #2e73ff1d;
+  --color-line: #0f6d8e2d;
+  --color-line-strong: #0f6d8e42;
+  --color-surface: #ccdde5de;
+  --color-surface-strong: #c2d3dc;
 
   --shadow-portfolio:
-    0 30px 80px rgba(122, 16, 88, 0.18),
-    0 12px 28px rgba(40, 8, 34, 0.12);
+    0 30px 80px rgba(14, 85, 124, 0.16),
+    0 12px 28px rgba(8, 41, 64, 0.1);
 }
 
 @layer base {
   :root {
-    --app-body-bg: #fff4fb;
+    --app-body-bg: #d6e3e9;
     --portfolio-page-background:
-      radial-gradient(circle at 12% 12%, rgba(214, 63, 157, 0.26), transparent 31%),
-      radial-gradient(circle at 86% 14%, rgba(124, 66, 238, 0.2), transparent 28%),
-      radial-gradient(circle at 48% 84%, rgba(255, 118, 210, 0.18), transparent 34%),
-      linear-gradient(180deg, #fff7fd 0%, #ffe9f7 34%, #ffd9ef 68%, #f6e6ff 100%);
+      radial-gradient(circle at 12% 12%, rgba(22, 185, 221, 0.16), transparent 31%),
+      radial-gradient(circle at 86% 14%, rgba(46, 115, 255, 0.16), transparent 28%),
+      radial-gradient(circle at 48% 84%, rgba(110, 208, 255, 0.14), transparent 34%),
+      linear-gradient(180deg, #dcecf3 0%, #cedfe7 34%, #bfd2dc 68%, #d6e2e8 100%);
     --portfolio-page-center-line:
       linear-gradient(
         90deg,
         transparent 0,
         transparent calc(50% - 0.5px),
-        rgba(151, 29, 106, 0.05) calc(50% - 0.5px),
-        rgba(151, 29, 106, 0.05) calc(50% + 0.5px),
+        rgba(9, 95, 124, 0.08) calc(50% - 0.5px),
+        rgba(9, 95, 124, 0.08) calc(50% + 0.5px),
         transparent calc(50% + 0.5px),
         transparent 100%
       );
     --portfolio-page-grid-pattern:
-      linear-gradient(rgba(151, 29, 106, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(151, 29, 106, 0.04) 1px, transparent 1px);
-    --portfolio-nav-background: rgba(255, 255, 255, 0.58);
-    --portfolio-nav-popup-background: rgba(255, 255, 255, 0.82);
-    --portfolio-nav-border: rgba(255, 255, 255, 0.5);
-    --portfolio-glass-strong: rgba(255, 255, 255, 0.72);
-    --portfolio-glass-soft: rgba(255, 255, 255, 0.6);
-    --portfolio-glass-inline: rgba(255, 255, 255, 0.68);
-    --portfolio-glass-chip: rgba(255, 255, 255, 0.7);
-    --portfolio-glass-hover: rgba(255, 255, 255, 0.86);
-    --portfolio-glass-ghost-hover: rgba(255, 255, 255, 0.32);
-    --portfolio-glass-border: rgba(255, 255, 255, 0.48);
-    --portfolio-glass-border-strong: rgba(255, 255, 255, 0.62);
-    --portfolio-footer-background: rgba(255, 255, 255, 0.52);
-    --portfolio-footer-border: rgba(255, 255, 255, 0.45);
+      linear-gradient(rgba(9, 95, 124, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(9, 95, 124, 0.05) 1px, transparent 1px);
+    --portfolio-nav-background: rgba(220, 234, 240, 0.76);
+    --portfolio-nav-popup-background: rgba(202, 220, 229, 0.94);
+    --portfolio-nav-border: rgba(255, 255, 255, 0.62);
+    --portfolio-nav-tab-group-background: rgba(175, 196, 208, 0.56);
+    --portfolio-nav-tab-group-border: rgba(244, 249, 251, 0.38);
+    --portfolio-nav-tab-group-shadow: 0 12px 24px rgba(10, 56, 88, 0.14);
+    --portfolio-nav-tab-background: rgba(30, 108, 153, 0.16);
+    --portfolio-nav-tab-border: rgba(230, 242, 248, 0.24);
+    --portfolio-nav-tab-text: #163a55;
+    --portfolio-nav-tab-shadow: 0 10px 20px rgba(10, 56, 88, 0.08);
+    --portfolio-nav-tab-hover-background: rgba(36, 121, 171, 0.24);
+    --portfolio-nav-tab-hover-border: rgba(235, 245, 249, 0.38);
+    --portfolio-nav-tab-hover-text: #0d2636;
+    --portfolio-nav-tab-active-gradient:
+      linear-gradient(135deg, #31c9ed 0%, #128fd5 56%, #2e73ff 100%);
+    --portfolio-nav-tab-active-shadow: 0 14px 28px rgba(14, 114, 176, 0.24);
+    --portfolio-glass-strong: rgba(209, 223, 231, 0.78);
+    --portfolio-glass-soft: rgba(194, 210, 219, 0.78);
+    --portfolio-glass-inline: rgba(202, 217, 225, 0.82);
+    --portfolio-glass-chip: rgba(190, 206, 215, 0.84);
+    --portfolio-glass-hover: rgba(222, 234, 240, 0.9);
+    --portfolio-glass-ghost-hover: rgba(159, 188, 202, 0.34);
+    --portfolio-glass-border: rgba(237, 245, 248, 0.46);
+    --portfolio-glass-border-strong: rgba(244, 249, 251, 0.58);
+    --portfolio-footer-background: rgba(198, 214, 223, 0.72);
+    --portfolio-footer-border: rgba(236, 244, 248, 0.42);
     --portfolio-focus-glow:
-      radial-gradient(circle, rgba(214, 63, 157, 0.24), rgba(124, 66, 238, 0.08) 48%, transparent 72%);
-    --portfolio-inline-shadow: 0 18px 35px rgba(122, 16, 88, 0.1);
-    --portfolio-soft-shadow: 0 14px 28px rgba(122, 16, 88, 0.12);
-    --portfolio-strong-shadow: 0 20px 48px rgba(122, 16, 88, 0.16);
-    --portfolio-shimmer-band: rgba(255, 255, 255, 0.52);
+      radial-gradient(circle, rgba(22, 185, 221, 0.24), rgba(46, 115, 255, 0.08) 48%, transparent 72%);
+    --portfolio-inline-shadow: 0 18px 35px rgba(11, 56, 86, 0.14);
+    --portfolio-soft-shadow: 0 14px 28px rgba(11, 56, 86, 0.16);
+    --portfolio-strong-shadow: 0 20px 48px rgba(11, 56, 86, 0.2);
+    --portfolio-shimmer-band: rgba(255, 255, 255, 0.34);
+    --portfolio-name-gradient:
+      linear-gradient(135deg, #10324a 0%, #0b7ea4 34%, #16b9dd 62%, #2e73ff 100%);
+    --portfolio-headline-gradient:
+      linear-gradient(135deg, #092336 0%, #0b6f93 32%, #12b6dd 62%, #1f62ff 100%);
+    --portfolio-kicker-gradient:
+      linear-gradient(135deg, #0a3a53 0%, #129fc6 42%, #2e73ff 100%);
+    --portfolio-primary-button-gradient:
+      linear-gradient(135deg, #16b9dd 0%, #2e73ff 100%);
+    --portfolio-primary-button-shadow: 0 16px 32px rgba(13, 121, 188, 0.28);
+    --portfolio-fab-gradient:
+      linear-gradient(135deg, #16b9dd 0%, #2e73ff 100%);
+    --portfolio-fab-shadow: 0 24px 50px rgba(13, 121, 188, 0.32);
+    --portfolio-name-shadow: 0 12px 26px rgba(10, 94, 129, 0.16);
+    --portfolio-headline-shadow: 0 16px 32px rgba(10, 94, 129, 0.22);
+    --portfolio-orb-1:
+      radial-gradient(circle, rgba(28, 181, 224, 0.34), rgba(28, 181, 224, 0) 68%);
+    --portfolio-orb-2:
+      radial-gradient(circle, rgba(46, 115, 255, 0.28), rgba(46, 115, 255, 0) 70%);
+    --portfolio-orb-3:
+      radial-gradient(circle, rgba(145, 224, 255, 0.22), rgba(145, 224, 255, 0) 72%);
+    --portfolio-mobile-nav-shell:
+      linear-gradient(90deg, rgba(15, 86, 124, 0.88), rgba(9, 58, 108, 0.84), rgba(26, 113, 171, 0.88));
+    --portfolio-mobile-nav-shell-shadow: 0 24px 58px rgba(16, 73, 111, 0.3);
+    --portfolio-mobile-logo-gradient:
+      linear-gradient(135deg, #39d4ef 0%, #0ea5e9 52%, #2e73ff 100%);
+    --portfolio-mobile-logo-shadow: 0 18px 38px rgba(14, 165, 233, 0.32);
+    --portfolio-mobile-live-gradient:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(57, 212, 239, 0.14), rgba(46, 115, 255, 0.2));
+    --portfolio-mobile-live-gradient-hover:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.24), rgba(57, 212, 239, 0.2), rgba(46, 115, 255, 0.26));
+    --portfolio-mobile-control-gradient:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(22, 185, 221, 0.16), rgba(46, 115, 255, 0.22));
+    --portfolio-mobile-control-gradient-hover:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(22, 185, 221, 0.22), rgba(46, 115, 255, 0.28));
+    --portfolio-mobile-control-shadow: 0 16px 30px rgba(16, 73, 111, 0.26);
+    --portfolio-mobile-menu-gradient:
+      linear-gradient(135deg, rgba(12, 81, 117, 0.97), rgba(8, 53, 97, 0.96), rgba(19, 97, 155, 0.94));
+    --portfolio-mobile-menu-shadow: 0 28px 70px rgba(16, 73, 111, 0.34);
+    --portfolio-mobile-tone-1-inactive:
+      linear-gradient(135deg, rgba(57, 212, 239, 0.18), rgba(14, 165, 233, 0.08));
+    --portfolio-mobile-tone-1-hover:
+      linear-gradient(135deg, rgba(57, 212, 239, 0.3), rgba(14, 165, 233, 0.16));
+    --portfolio-mobile-tone-1-active:
+      linear-gradient(135deg, #39d4ef, #0ea5e9);
+    --portfolio-mobile-tone-1-shadow: 0 18px 40px rgba(14, 165, 233, 0.3);
+    --portfolio-mobile-tone-2-inactive:
+      linear-gradient(135deg, rgba(125, 211, 252, 0.2), rgba(46, 115, 255, 0.08));
+    --portfolio-mobile-tone-2-hover:
+      linear-gradient(135deg, rgba(125, 211, 252, 0.3), rgba(46, 115, 255, 0.16));
+    --portfolio-mobile-tone-2-active:
+      linear-gradient(135deg, #60a5fa, #2e73ff);
+    --portfolio-mobile-tone-2-shadow: 0 18px 40px rgba(46, 115, 255, 0.28);
+    --portfolio-mobile-tone-3-inactive:
+      linear-gradient(135deg, rgba(167, 243, 255, 0.2), rgba(34, 197, 252, 0.08));
+    --portfolio-mobile-tone-3-hover:
+      linear-gradient(135deg, rgba(167, 243, 255, 0.3), rgba(34, 197, 252, 0.16));
+    --portfolio-mobile-tone-3-active:
+      linear-gradient(135deg, #67e8f9, #22c7fc);
+    --portfolio-mobile-tone-3-shadow: 0 18px 40px rgba(34, 199, 252, 0.26);
     --surface-hover-shadow:
-      0 32px 88px rgba(122, 16, 88, 0.23),
-      0 14px 34px rgba(40, 8, 34, 0.16);
+      0 32px 88px rgba(12, 78, 119, 0.2),
+      0 14px 34px rgba(10, 56, 88, 0.14);
   }
 
   html {
@@ -108,6 +180,19 @@
     --portfolio-nav-background: rgba(33, 9, 31, 0.7);
     --portfolio-nav-popup-background: rgba(26, 8, 25, 0.9);
     --portfolio-nav-border: rgba(255, 193, 232, 0.16);
+    --portfolio-nav-tab-group-background: rgba(57, 18, 53, 0.58);
+    --portfolio-nav-tab-group-border: rgba(255, 193, 232, 0.12);
+    --portfolio-nav-tab-group-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
+    --portfolio-nav-tab-background: rgba(255, 255, 255, 0.03);
+    --portfolio-nav-tab-border: rgba(255, 193, 232, 0.08);
+    --portfolio-nav-tab-text: #edd8f0;
+    --portfolio-nav-tab-shadow: 0 10px 20px rgba(0, 0, 0, 0.14);
+    --portfolio-nav-tab-hover-background: rgba(255, 255, 255, 0.06);
+    --portfolio-nav-tab-hover-border: rgba(255, 193, 232, 0.16);
+    --portfolio-nav-tab-hover-text: #fff6ff;
+    --portfolio-nav-tab-active-gradient:
+      linear-gradient(135deg, #ff79c9 0%, #d946ef 56%, #8f57ff 100%);
+    --portfolio-nav-tab-active-shadow: 0 14px 28px rgba(151, 29, 106, 0.24);
     --portfolio-glass-strong: rgba(57, 18, 53, 0.8);
     --portfolio-glass-soft: rgba(47, 14, 44, 0.74);
     --portfolio-glass-inline: rgba(52, 18, 49, 0.8);
@@ -124,6 +209,65 @@
     --portfolio-soft-shadow: 0 18px 34px rgba(0, 0, 0, 0.2);
     --portfolio-strong-shadow: 0 24px 54px rgba(0, 0, 0, 0.28);
     --portfolio-shimmer-band: rgba(255, 255, 255, 0.2);
+    --portfolio-name-gradient:
+      linear-gradient(135deg, #fff8fe 0%, #ffd7f0 30%, #ff76c8 62%, #c8b2ff 100%);
+    --portfolio-headline-gradient:
+      linear-gradient(135deg, #fffafe 0%, #ffe7f6 28%, #ff84cf 58%, #dac8ff 100%);
+    --portfolio-kicker-gradient:
+      linear-gradient(135deg, #fff2fc 0%, #ff9fd6 42%, #d4bdff 100%);
+    --portfolio-primary-button-gradient:
+      linear-gradient(135deg, #ff68be 0%, #8e37ff 100%);
+    --portfolio-primary-button-shadow: 0 16px 32px rgba(151, 29, 106, 0.32);
+    --portfolio-fab-gradient:
+      linear-gradient(135deg, #ff68be 0%, #8b5cf6 100%);
+    --portfolio-fab-shadow: 0 24px 50px rgba(151, 29, 106, 0.36);
+    --portfolio-name-shadow: 0 12px 26px rgba(151, 29, 106, 0.14);
+    --portfolio-headline-shadow: 0 16px 32px rgba(151, 29, 106, 0.2);
+    --portfolio-orb-1:
+      radial-gradient(circle, rgba(255, 84, 197, 0.52), rgba(255, 84, 197, 0) 68%);
+    --portfolio-orb-2:
+      radial-gradient(circle, rgba(156, 86, 255, 0.42), rgba(156, 86, 255, 0) 70%);
+    --portfolio-orb-3:
+      radial-gradient(circle, rgba(255, 126, 214, 0.28), rgba(255, 126, 214, 0) 72%);
+    --portfolio-mobile-nav-shell:
+      linear-gradient(90deg, rgba(81, 19, 76, 0.86), rgba(48, 11, 54, 0.84), rgba(73, 28, 108, 0.86));
+    --portfolio-mobile-nav-shell-shadow: 0 24px 58px rgba(34, 8, 29, 0.34);
+    --portfolio-mobile-logo-gradient:
+      linear-gradient(135deg, #ff79c9 0%, #ef5db8 52%, #8f57ff 100%);
+    --portfolio-mobile-logo-shadow: 0 18px 38px rgba(214, 63, 157, 0.34);
+    --portfolio-mobile-live-gradient:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 128, 205, 0.12), rgba(124, 66, 238, 0.2));
+    --portfolio-mobile-live-gradient-hover:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 128, 205, 0.18), rgba(124, 66, 238, 0.24));
+    --portfolio-mobile-control-gradient:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(214, 63, 157, 0.18), rgba(124, 66, 238, 0.2));
+    --portfolio-mobile-control-gradient-hover:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(214, 63, 157, 0.24), rgba(124, 66, 238, 0.24));
+    --portfolio-mobile-control-shadow: 0 16px 30px rgba(34, 8, 29, 0.26);
+    --portfolio-mobile-menu-gradient:
+      linear-gradient(135deg, rgba(86, 18, 73, 0.98), rgba(52, 12, 57, 0.96), rgba(69, 26, 103, 0.94));
+    --portfolio-mobile-menu-shadow: 0 28px 70px rgba(34, 8, 29, 0.42);
+    --portfolio-mobile-tone-1-inactive:
+      linear-gradient(135deg, rgba(255, 128, 205, 0.18), rgba(214, 63, 157, 0.08));
+    --portfolio-mobile-tone-1-hover:
+      linear-gradient(135deg, rgba(255, 128, 205, 0.3), rgba(214, 63, 157, 0.16));
+    --portfolio-mobile-tone-1-active:
+      linear-gradient(135deg, #ff7cc9, #d63f9d);
+    --portfolio-mobile-tone-1-shadow: 0 18px 40px rgba(214, 63, 157, 0.32);
+    --portfolio-mobile-tone-2-inactive:
+      linear-gradient(135deg, rgba(196, 148, 255, 0.18), rgba(124, 66, 238, 0.08));
+    --portfolio-mobile-tone-2-hover:
+      linear-gradient(135deg, rgba(196, 148, 255, 0.28), rgba(124, 66, 238, 0.16));
+    --portfolio-mobile-tone-2-active:
+      linear-gradient(135deg, #b583ff, #7c42ee);
+    --portfolio-mobile-tone-2-shadow: 0 18px 40px rgba(124, 66, 238, 0.3);
+    --portfolio-mobile-tone-3-inactive:
+      linear-gradient(135deg, rgba(255, 170, 210, 0.18), rgba(255, 111, 162, 0.08));
+    --portfolio-mobile-tone-3-hover:
+      linear-gradient(135deg, rgba(255, 170, 210, 0.28), rgba(255, 111, 162, 0.16));
+    --portfolio-mobile-tone-3-active:
+      linear-gradient(135deg, #ff8fb8, #ff5f96);
+    --portfolio-mobile-tone-3-shadow: 0 18px 40px rgba(255, 95, 150, 0.28);
     --surface-hover-shadow:
       0 32px 86px rgba(0, 0, 0, 0.34),
       0 14px 34px rgba(0, 0, 0, 0.22);
@@ -203,13 +347,42 @@
   }
 }
 
+@keyframes cardDrift {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  35% {
+    translate: 0 -7px;
+  }
+
+  68% {
+    translate: 0 4px;
+  }
+}
+
 @layer components {
   .section-reveal {
     animation: sectionReveal 820ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .card-reveal {
-    animation: sectionReveal 920ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    --card-drift-distance: 7px;
+    animation:
+      sectionReveal 920ms cubic-bezier(0.22, 1, 0.36, 1) both,
+      cardDrift 8.6s ease-in-out 1s infinite;
+    will-change: transform, translate;
+  }
+
+  .card-reveal:nth-of-type(2n) {
+    animation-duration: 920ms, 9.4s;
+    animation-delay: 0ms, 1.4s;
+  }
+
+  .card-reveal:nth-of-type(3n) {
+    animation-duration: 920ms, 7.8s;
+    animation-delay: 0ms, 0.7s;
   }
 
   .surface-lift {
@@ -225,6 +398,27 @@
     box-shadow: var(--surface-hover-shadow);
   }
 
+  .portfolio-name-glow {
+    background-image: var(--portfolio-name-gradient);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    filter: drop-shadow(var(--portfolio-name-shadow));
+  }
+
+  .portfolio-headline-glow {
+    background-image: var(--portfolio-headline-gradient);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    filter: drop-shadow(var(--portfolio-headline-shadow));
+  }
+
+  .portfolio-copy-justified {
+    text-align: justify;
+    text-justify: inter-word;
+  }
+
   .ambient-orb {
     position: absolute;
     border-radius: 9999px;
@@ -238,7 +432,7 @@
     left: -6rem;
     width: 24rem;
     height: 24rem;
-    background: radial-gradient(circle, rgba(255, 84, 197, 0.52), rgba(255, 84, 197, 0) 68%);
+    background: var(--portfolio-orb-1);
     animation:
       ambientFloatOne 14s ease-in-out infinite,
       ambientPulse 9s ease-in-out infinite;
@@ -249,7 +443,7 @@
     right: -7rem;
     width: 28rem;
     height: 28rem;
-    background: radial-gradient(circle, rgba(156, 86, 255, 0.42), rgba(156, 86, 255, 0) 70%);
+    background: var(--portfolio-orb-2);
     animation:
       ambientFloatTwo 16s ease-in-out infinite,
       ambientPulse 11s ease-in-out infinite;
@@ -260,7 +454,7 @@
     left: 26%;
     width: 30rem;
     height: 30rem;
-    background: radial-gradient(circle, rgba(255, 126, 214, 0.28), rgba(255, 126, 214, 0) 72%);
+    background: var(--portfolio-orb-3);
     animation:
       ambientFloatOne 18s ease-in-out infinite reverse,
       ambientPulse 13s ease-in-out infinite;
