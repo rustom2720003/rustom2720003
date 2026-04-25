@@ -23,16 +23,126 @@
 }
 
 @layer base {
+  :root {
+    --app-body-bg: #fff4fb;
+    --portfolio-page-background:
+      radial-gradient(circle at 12% 12%, rgba(214, 63, 157, 0.26), transparent 31%),
+      radial-gradient(circle at 86% 14%, rgba(124, 66, 238, 0.2), transparent 28%),
+      radial-gradient(circle at 48% 84%, rgba(255, 118, 210, 0.18), transparent 34%),
+      linear-gradient(180deg, #fff7fd 0%, #ffe9f7 34%, #ffd9ef 68%, #f6e6ff 100%);
+    --portfolio-page-center-line:
+      linear-gradient(
+        90deg,
+        transparent 0,
+        transparent calc(50% - 0.5px),
+        rgba(151, 29, 106, 0.05) calc(50% - 0.5px),
+        rgba(151, 29, 106, 0.05) calc(50% + 0.5px),
+        transparent calc(50% + 0.5px),
+        transparent 100%
+      );
+    --portfolio-page-grid-pattern:
+      linear-gradient(rgba(151, 29, 106, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(151, 29, 106, 0.04) 1px, transparent 1px);
+    --portfolio-nav-background: rgba(255, 255, 255, 0.58);
+    --portfolio-nav-popup-background: rgba(255, 255, 255, 0.82);
+    --portfolio-nav-border: rgba(255, 255, 255, 0.5);
+    --portfolio-glass-strong: rgba(255, 255, 255, 0.72);
+    --portfolio-glass-soft: rgba(255, 255, 255, 0.6);
+    --portfolio-glass-inline: rgba(255, 255, 255, 0.68);
+    --portfolio-glass-chip: rgba(255, 255, 255, 0.7);
+    --portfolio-glass-hover: rgba(255, 255, 255, 0.86);
+    --portfolio-glass-ghost-hover: rgba(255, 255, 255, 0.32);
+    --portfolio-glass-border: rgba(255, 255, 255, 0.48);
+    --portfolio-glass-border-strong: rgba(255, 255, 255, 0.62);
+    --portfolio-footer-background: rgba(255, 255, 255, 0.52);
+    --portfolio-footer-border: rgba(255, 255, 255, 0.45);
+    --portfolio-focus-glow:
+      radial-gradient(circle, rgba(214, 63, 157, 0.24), rgba(124, 66, 238, 0.08) 48%, transparent 72%);
+    --portfolio-inline-shadow: 0 18px 35px rgba(122, 16, 88, 0.1);
+    --portfolio-soft-shadow: 0 14px 28px rgba(122, 16, 88, 0.12);
+    --portfolio-strong-shadow: 0 20px 48px rgba(122, 16, 88, 0.16);
+    --portfolio-shimmer-band: rgba(255, 255, 255, 0.52);
+    --surface-hover-shadow:
+      0 32px 88px rgba(122, 16, 88, 0.23),
+      0 14px 34px rgba(40, 8, 34, 0.16);
+  }
+
   html {
     @apply scroll-smooth;
   }
 
+  html.dark {
+    --color-ink: #f8edf7;
+    --color-muted: #d5bfd3;
+    --color-accent: #ff68be;
+    --color-accent-strong: #ffc1e8;
+    --color-accent-soft: rgb(255 104 190 / 0.15);
+    --color-teal: #b28cff;
+    --color-teal-soft: rgb(178 140 255 / 0.16);
+    --color-line: rgb(255 193 232 / 0.14);
+    --color-line-strong: rgb(255 193 232 / 0.28);
+    --color-surface: rgb(38 10 36 / 0.78);
+    --color-surface-strong: rgb(48 14 46 / 0.94);
+    --shadow-portfolio:
+      0 34px 90px rgba(0, 0, 0, 0.36),
+      0 16px 36px rgba(0, 0, 0, 0.24);
+    --app-body-bg: #0d0310;
+    --portfolio-page-background:
+      radial-gradient(circle at 14% 10%, rgba(255, 85, 197, 0.16), transparent 30%),
+      radial-gradient(circle at 86% 16%, rgba(124, 66, 238, 0.2), transparent 30%),
+      radial-gradient(circle at 48% 84%, rgba(255, 126, 214, 0.12), transparent 34%),
+      linear-gradient(180deg, #160512 0%, #180714 34%, #100310 68%, #09020b 100%);
+    --portfolio-page-center-line:
+      linear-gradient(
+        90deg,
+        transparent 0,
+        transparent calc(50% - 0.5px),
+        rgba(255, 193, 232, 0.07) calc(50% - 0.5px),
+        rgba(255, 193, 232, 0.07) calc(50% + 0.5px),
+        transparent calc(50% + 0.5px),
+        transparent 100%
+      );
+    --portfolio-page-grid-pattern:
+      linear-gradient(rgba(255, 193, 232, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 193, 232, 0.05) 1px, transparent 1px);
+    --portfolio-nav-background: rgba(33, 9, 31, 0.7);
+    --portfolio-nav-popup-background: rgba(26, 8, 25, 0.9);
+    --portfolio-nav-border: rgba(255, 193, 232, 0.16);
+    --portfolio-glass-strong: rgba(57, 18, 53, 0.8);
+    --portfolio-glass-soft: rgba(47, 14, 44, 0.74);
+    --portfolio-glass-inline: rgba(52, 18, 49, 0.8);
+    --portfolio-glass-chip: rgba(60, 20, 56, 0.8);
+    --portfolio-glass-hover: rgba(72, 26, 68, 0.92);
+    --portfolio-glass-ghost-hover: rgba(255, 255, 255, 0.07);
+    --portfolio-glass-border: rgba(255, 193, 232, 0.18);
+    --portfolio-glass-border-strong: rgba(255, 193, 232, 0.28);
+    --portfolio-footer-background: rgba(31, 8, 29, 0.78);
+    --portfolio-footer-border: rgba(255, 193, 232, 0.14);
+    --portfolio-focus-glow:
+      radial-gradient(circle, rgba(255, 104, 190, 0.18), rgba(124, 66, 238, 0.12) 48%, transparent 72%);
+    --portfolio-inline-shadow: 0 20px 38px rgba(0, 0, 0, 0.26);
+    --portfolio-soft-shadow: 0 18px 34px rgba(0, 0, 0, 0.2);
+    --portfolio-strong-shadow: 0 24px 54px rgba(0, 0, 0, 0.28);
+    --portfolio-shimmer-band: rgba(255, 255, 255, 0.2);
+    --surface-hover-shadow:
+      0 32px 86px rgba(0, 0, 0, 0.34),
+      0 14px 34px rgba(0, 0, 0, 0.22);
+  }
+
   body {
-    @apply m-0 min-h-screen bg-[#180814] font-body text-ink antialiased;
+    @apply min-h-screen text-ink;
+    margin: 0;
+    background-color: var(--app-body-bg);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition:
+      background-color 240ms ease,
+      color 240ms ease;
   }
 
   #root {
-    @apply min-h-screen;
+    min-height: 100vh;
   }
 }
 
@@ -112,9 +222,7 @@
 
   .surface-lift:hover {
     transform: translateY(-5px);
-    box-shadow:
-      0 32px 88px rgba(122, 16, 88, 0.23),
-      0 14px 34px rgba(40, 8, 34, 0.16);
+    box-shadow: var(--surface-hover-shadow);
   }
 
   .ambient-orb {
@@ -169,7 +277,7 @@
     position: absolute;
     inset: -1px auto -1px -30%;
     width: 28%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.52), transparent);
+    background: linear-gradient(90deg, transparent, var(--portfolio-shimmer-band), transparent);
     opacity: 0.72;
     pointer-events: none;
     animation: shimmerSweep 9s linear infinite;

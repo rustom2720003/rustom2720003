@@ -27,8 +27,8 @@ function ProjectsPage() {
             className={cx(
               'rounded-full border px-4 py-2.5 text-sm transition duration-200 hover:-translate-y-0.5',
               activeFilter === filter
-                ? 'border-white/50 bg-white/70 text-ink shadow-portfolio'
-                : 'border-line bg-white/60 text-muted hover:border-line-strong hover:text-ink',
+                ? 'border-[color:var(--portfolio-glass-border-strong)] bg-[color:var(--portfolio-glass-chip)] text-ink shadow-portfolio'
+                : 'border-line bg-[color:var(--portfolio-glass-soft)] text-muted hover:border-line-strong hover:text-ink',
             )}
             aria-pressed={activeFilter === filter}
             onClick={() => setActiveFilter(filter)}

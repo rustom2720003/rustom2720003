@@ -18,15 +18,15 @@ export const bulletListClassName =
   'grid gap-2 pl-5 leading-7 text-ink marker:text-accent'
 
 export const chipClassName =
-  'inline-flex min-h-8 items-center gap-2 rounded-full border border-white/60 bg-white/70 px-3.5 py-1.5 text-sm text-ink'
+  'inline-flex min-h-8 items-center gap-2 rounded-full border border-[color:var(--portfolio-glass-border-strong)] bg-[color:var(--portfolio-glass-chip)] px-3.5 py-1.5 text-sm text-ink'
 
 export const buttonClassNames = {
   primary:
     'inline-flex min-h-[3.2rem] items-center justify-center gap-2 rounded-full border border-transparent bg-gradient-to-br from-accent to-[#8e37ff] px-5 py-3 font-medium text-white shadow-[0_16px_32px_rgba(151,29,106,0.32)] transition duration-200 hover:-translate-y-0.5',
   secondary:
-    'inline-flex min-h-[3.2rem] items-center justify-center gap-2 rounded-full border border-white/50 bg-white/72 px-5 py-3 font-medium text-ink shadow-[0_14px_28px_rgba(122,16,88,0.12)] transition duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-white/86',
+    'inline-flex min-h-[3.2rem] items-center justify-center gap-2 rounded-full border border-[color:var(--portfolio-glass-border)] bg-[color:var(--portfolio-glass-strong)] px-5 py-3 font-medium text-ink shadow-[var(--portfolio-soft-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-[color:var(--portfolio-glass-hover)]',
   ghost:
-    'inline-flex min-h-[3.2rem] items-center justify-center gap-2 rounded-full border border-line bg-transparent px-5 py-3 font-medium text-ink transition duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-white/32',
+    'inline-flex min-h-[3.2rem] items-center justify-center gap-2 rounded-full border border-line bg-transparent px-5 py-3 font-medium text-ink transition duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-[color:var(--portfolio-glass-ghost-hover)]',
 }
 
 export const pillClassNames = {
@@ -35,5 +35,5 @@ export const pillClassNames = {
   strong:
     'inline-flex items-center rounded-full bg-teal-soft px-3.5 py-1.5 text-sm text-teal',
   muted:
-    'inline-flex items-center rounded-full bg-black/5 px-3.5 py-1.5 text-sm text-muted',
+    'inline-flex items-center rounded-full bg-[color:var(--portfolio-glass-soft)] px-3.5 py-1.5 text-sm text-muted',
 }

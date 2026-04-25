@@ -47,14 +47,14 @@ function ResumePage() {
           <p className="leading-8 text-muted">{profile.overview}</p>
 
           <div className="flex flex-wrap gap-3 text-ink">
-            <span className="rounded-full border border-line bg-white/60 px-4 py-2">
+            <span className="rounded-full border border-line bg-[color:var(--portfolio-glass-soft)] px-4 py-2">
               {profile.phoneDisplay}
             </span>
-            <span className="rounded-full border border-line bg-white/60 px-4 py-2">
+            <span className="rounded-full border border-line bg-[color:var(--portfolio-glass-soft)] px-4 py-2">
               {profile.email}
             </span>
             <a
-              className="rounded-full border border-line bg-white/60 px-4 py-2 transition duration-200 hover:border-line-strong hover:bg-white/80"
+              className="rounded-full border border-line bg-[color:var(--portfolio-glass-soft)] px-4 py-2 transition duration-200 hover:border-line-strong hover:bg-[color:var(--portfolio-glass-hover)]"
               href={profile.websiteUrl}
               rel="noreferrer"
               target="_blank"
@@ -62,7 +62,7 @@ function ResumePage() {
               {profile.websiteDisplay}
             </a>
             <a
-              className="rounded-full border border-line bg-white/60 px-4 py-2 transition duration-200 hover:border-line-strong hover:bg-white/80"
+              className="rounded-full border border-line bg-[color:var(--portfolio-glass-soft)] px-4 py-2 transition duration-200 hover:border-line-strong hover:bg-[color:var(--portfolio-glass-hover)]"
               href={profile.linkedinUrl}
               rel="noreferrer"
               target="_blank"
@@ -75,7 +75,7 @@ function ResumePage() {
         <div className="grid gap-4 md:grid-cols-2">
           {resumeColumns.map((column) => (
             <article
-              className="rounded-[1.2rem] border border-line bg-white/60 p-5"
+              className="rounded-[1.2rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-5"
               key={column.title}
             >
               <h4 className="mb-2 font-display text-[1.05rem] text-ink">

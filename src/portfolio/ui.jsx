@@ -146,7 +146,7 @@ export function SkillGroup({ group }) {
       <div className="flex flex-wrap gap-3">
         {group.items.map((item) => (
           <span
-            className="inline-flex min-h-8 items-center rounded-full border border-white/60 bg-white/60 px-3.5 py-1.5 text-sm text-ink"
+            className="inline-flex min-h-8 items-center rounded-full border border-[color:var(--portfolio-glass-border-strong)] bg-[color:var(--portfolio-glass-soft)] px-3.5 py-1.5 text-sm text-ink"
             key={item}
           >
             {item}
