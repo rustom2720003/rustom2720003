@@ -129,15 +129,15 @@ function OverviewPage() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            <span className="flex min-h-[3.35rem] min-w-0 items-center gap-2 rounded-2xl border border-line bg-white/60 px-4 py-4 text-sm font-medium text-ink shadow-[0_18px_35px_rgba(16,41,47,0.10)]">
+            <span className="card-reveal surface-lift flex min-h-[3.35rem] min-w-0 items-center gap-2 rounded-2xl border border-line bg-white/68 px-4 py-4 text-sm font-medium text-ink shadow-[0_18px_35px_rgba(122,16,88,0.10)] backdrop-blur-xl">
               <Phone className="shrink-0" size={16} />
               <span>{profile.phoneDisplay}</span>
             </span>
-            <span className="flex min-h-[3.35rem] min-w-0 items-center gap-2 rounded-2xl border border-line bg-white/60 px-4 py-4 text-sm font-medium text-ink shadow-[0_18px_35px_rgba(16,41,47,0.10)]">
+            <span className="card-reveal surface-lift flex min-h-[3.35rem] min-w-0 items-center gap-2 rounded-2xl border border-line bg-white/68 px-4 py-4 text-sm font-medium text-ink shadow-[0_18px_35px_rgba(122,16,88,0.10)] backdrop-blur-xl">
               <Mail className="shrink-0" size={16} />
               <span className="min-w-0 break-all">{profile.email}</span>
             </span>
-            <span className="flex min-h-[3.35rem] min-w-0 items-center gap-2 rounded-2xl border border-line bg-white/60 px-4 py-4 text-sm font-medium text-ink shadow-[0_18px_35px_rgba(16,41,47,0.10)]">
+            <span className="card-reveal surface-lift flex min-h-[3.35rem] min-w-0 items-center gap-2 rounded-2xl border border-line bg-white/68 px-4 py-4 text-sm font-medium text-ink shadow-[0_18px_35px_rgba(122,16,88,0.10)] backdrop-blur-xl">
               <MapPin className="shrink-0" size={16} />
               <span>{profile.location}</span>
             </span>
@@ -149,7 +149,7 @@ function OverviewPage() {
             className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full"
             style={{
               background:
-                'radial-gradient(circle, rgba(190, 91, 46, 0.18), transparent 70%)',
+                'radial-gradient(circle, rgba(214, 63, 157, 0.24), rgba(124, 66, 238, 0.08) 48%, transparent 72%)',
             }}
           />
           <p className={eyebrowClassName}>Current focus</p>

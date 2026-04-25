@@ -25,12 +25,12 @@ function ContactPage() {
   return (
     <PageSection className="pb-10">
       <SectionHeading
-        description="Reach out for frontend, enterprise, or product-focused opportunities. Email, phone, LinkedIn, and resume download are all connected here."
+        description="Reach out for React, enterprise frontend, or product-focused opportunities. Email, phone, LinkedIn, website, and resume are all connected here."
         eyebrow="Contact"
-        title="Available for enterprise web, banking platform, and full-stack work"
+        title="Available for React, enterprise web, and full-stack product work"
       />
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {contactCards.map((card) =>
           card.href ? (
             <a
@@ -44,7 +44,7 @@ function ContactPage() {
               target={card.newTab ? '_blank' : undefined}
             >
               <p className={cardLabelClassName}>{card.label}</p>
-              <h3 className="font-display text-[1.35rem] leading-[1.1] text-ink">
+              <h3 className="break-all font-display text-[1.2rem] leading-[1.1] text-ink sm:text-[1.3rem]">
                 {card.value}
               </h3>
               <p className="leading-8 text-muted">{card.hint}</p>
@@ -52,7 +52,7 @@ function ContactPage() {
           ) : (
             <article className={cx(panelClassName, 'grid gap-3 p-5')} key={card.label}>
               <p className={cardLabelClassName}>{card.label}</p>
-              <h3 className="font-display text-[1.35rem] leading-[1.1] text-ink">
+              <h3 className="break-all font-display text-[1.2rem] leading-[1.1] text-ink sm:text-[1.3rem]">
                 {card.value}
               </h3>
               <p className="leading-8 text-muted">{card.hint}</p>

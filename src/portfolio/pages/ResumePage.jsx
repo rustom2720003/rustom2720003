@@ -17,9 +17,9 @@ function ResumePage() {
   return (
     <PageSection>
       <SectionHeading
-        description="The download button can serve an attached PDF from the site, and it will still fall back to the generated version until your final resume file is added."
+        description="Download the current PDF resume or skim the core strengths, focus areas, and links that shape the portfolio story."
         eyebrow="Resume"
-        title="A clean summary ready to review or download"
+        title="Resume highlights for enterprise and React-focused roles"
       />
 
       <div className={cx(panelClassName, 'grid gap-6 p-6')}>
@@ -53,6 +53,14 @@ function ResumePage() {
             <span className="rounded-full border border-line bg-white/60 px-4 py-2">
               {profile.email}
             </span>
+            <a
+              className="rounded-full border border-line bg-white/60 px-4 py-2 transition duration-200 hover:border-line-strong hover:bg-white/80"
+              href={profile.websiteUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              {profile.websiteDisplay}
+            </a>
             <a
               className="rounded-full border border-line bg-white/60 px-4 py-2 transition duration-200 hover:border-line-strong hover:bg-white/80"
               href={profile.linkedinUrl}

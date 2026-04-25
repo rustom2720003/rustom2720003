@@ -6,7 +6,7 @@ export const sectionClassName =
   'mx-auto w-full max-w-[1180px] px-4 py-10 sm:px-6 lg:px-0 lg:py-14'
 
 export const panelClassName =
-  'rounded-[1.6rem] border border-line bg-surface shadow-portfolio backdrop-blur-xl'
+  'card-reveal surface-lift rounded-[1.6rem] border border-line bg-surface shadow-portfolio backdrop-blur-xl'
 
 export const eyebrowClassName =
   'inline-flex items-center gap-2 font-mono text-[0.8rem] font-bold uppercase tracking-[0.12em] text-accent-strong'
@@ -22,11 +22,11 @@ export const chipClassName =
 
 export const buttonClassNames = {
   primary:
-    'inline-flex min-h-[3.2rem] items-center justify-center gap-2 rounded-full border border-transparent bg-gradient-to-br from-accent to-[#d07a3f] px-5 py-3 font-medium text-white shadow-[0_14px_26px_rgba(190,91,46,0.28)] transition duration-200 hover:-translate-y-0.5',
+    'inline-flex min-h-[3.2rem] items-center justify-center gap-2 rounded-full border border-transparent bg-gradient-to-br from-accent to-[#8e37ff] px-5 py-3 font-medium text-white shadow-[0_16px_32px_rgba(151,29,106,0.32)] transition duration-200 hover:-translate-y-0.5',
   secondary:
-    'inline-flex min-h-[3.2rem] items-center justify-center gap-2 rounded-full border border-white/50 bg-white/70 px-5 py-3 font-medium text-ink transition duration-200 hover:-translate-y-0.5',
+    'inline-flex min-h-[3.2rem] items-center justify-center gap-2 rounded-full border border-white/50 bg-white/72 px-5 py-3 font-medium text-ink shadow-[0_14px_28px_rgba(122,16,88,0.12)] transition duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-white/86',
   ghost:
-    'inline-flex min-h-[3.2rem] items-center justify-center gap-2 rounded-full border border-line bg-transparent px-5 py-3 font-medium text-ink transition duration-200 hover:-translate-y-0.5',
+    'inline-flex min-h-[3.2rem] items-center justify-center gap-2 rounded-full border border-line bg-transparent px-5 py-3 font-medium text-ink transition duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-white/32',
 }
 
 export const pillClassNames = {

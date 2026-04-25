@@ -7,9 +7,9 @@ function ExperiencePage() {
   return (
     <PageSection>
       <SectionHeading
-        description="Experience across enterprise banking systems, performance-focused frontend work, and collaborative engineering leadership."
+        description="Experience across enterprise banking systems, React-friendly frontend delivery, and collaborative engineering leadership."
         eyebrow="Career journey"
-        title="Growing from delivery-focused developer to trusted module owner"
+        title="Growing from implementation-focused engineer to trusted module owner"
       />
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.18fr)_minmax(320px,0.82fr)]">
@@ -39,8 +39,9 @@ function ExperiencePage() {
                 Academic foundation
               </h4>
               <p className="leading-8 text-muted">
-                Strong computer engineering base that supports enterprise
-                application design and problem-solving.
+                Strong computer engineering foundation that supports scalable
+                application design, frontend architecture, and enterprise
+                problem-solving.
               </p>
             </div>
           </div>

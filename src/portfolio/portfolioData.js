@@ -1,4 +1,5 @@
 const advancedTaskAppUrl = `${import.meta.env.BASE_URL}advanced-task-productivity-app/`
+const portfolioWebsiteUrl = 'https://rustom2720003.github.io/rustom2720003/'
 const profilePhotoUrl = `${import.meta.env.BASE_URL}profile/Rustom_Profile.jpeg`
 const profilePhotoFallbackUrl = `${import.meta.env.BASE_URL}profile/rustom-profile-photo.svg`
 
@@ -6,7 +7,7 @@ export const profile = {
   name: 'Rustom Singh Yadav',
   title: 'Full Stack Developer',
   company: 'Oracle Financial Services Software Ltd.',
-  experience: '3.5+ years',
+  experience: 'Close to 4 years',
   location: 'Pune, India',
   phoneDisplay: '8468020998',
   phoneHref: 'tel:+918468020998',
@@ -14,18 +15,20 @@ export const profile = {
   emailHref: 'mailto:rustom2720003@gmail.com',
   linkedinDisplay: 'linkedin.com/in/rustom-singh-yadav-9a717a173',
   linkedinUrl: 'https://www.linkedin.com/in/rustom-singh-yadav-9a717a173/',
+  websiteDisplay: 'rustom2720003.github.io/rustom2720003',
+  websiteUrl: portfolioWebsiteUrl,
   photoSrc: profilePhotoUrl,
   photoFallbackSrc: profilePhotoFallbackUrl,
   photoAlt: 'Profile photo of Rustom Singh Yadav',
   profileBannerDescription:
-    'Full Stack Developer focused on React interfaces, scalable delivery, and polished enterprise user experiences.',
-  heroTitle: 'React-focused interfaces for scalable web products.',
+    'React-focused full stack developer building enterprise interfaces, live product demos, and polished user experiences backed by clean integrations.',
+  heroTitle: 'React-first interfaces for enterprise products and modern web apps.',
   heroDescription:
-    'I build component-driven user interfaces, routed application flows, and API-backed features that stay responsive, maintainable, and ready for real-world enterprise delivery.',
+    'I design reusable components, routed experiences, and API-backed workflows that stay fast, maintainable, and visually polished across banking platforms and modern product builds.',
   overview:
-    'Full Stack Developer with 3.5+ years of experience delivering high-performance banking and enterprise solutions using OBDX, Java, and modern web technologies. Skilled in designing scalable, secure, and maintainable systems. Experienced in end-to-end development, including UI optimization, API integration, and working in Agile and Scrum environments. Passionate about creating seamless user experiences and solving complex business challenges efficiently.',
+    'Full Stack Developer with close to 4 years of experience building React-driven interfaces, enterprise banking modules, and scalable web applications using OBDX, Java, and modern frontend technologies. Skilled in component-based UI development, reusable frontend architecture, REST API integration, and designing secure, maintainable systems in Agile and Scrum environments.',
   intro:
-    'Building reusable interfaces, clean integrations, and dependable frontend experiences across enterprise and full-stack products.',
+    'Shipping React-friendly interfaces, clean integrations, and polished user experiences across enterprise banking systems and modern product builds.',
 }
 
 export const navigationLinks = [
@@ -41,12 +44,12 @@ export const heroStats = [
   {
     value: '3.5+',
     label: 'Years of delivery',
-    detail: 'Frontend, middleware, and full-stack product work',
+    detail: 'Frontend, middleware, and product-focused delivery',
   },
   {
     value: '3',
     label: 'Enterprise programs',
-    detail: 'ADCB, QNB, and Barclays delivery experience',
+    detail: 'ADCB, QNB, and Barclays implementation experience',
   },
   {
     value: '2',
@@ -61,24 +64,24 @@ export const heroStats = [
 ]
 
 export const focusAreas = [
-  'Reusable UI components, routed pages, and maintainable frontend structure',
-  'REST API integration, Java middleware, and validation-driven module delivery',
-  'Responsive UX, performance tuning, and collaborative engineering practices',
+  'Reusable React components, routed pages, and maintainable UI architecture',
+  'REST API integration, Java middleware, and validation-driven enterprise modules',
+  'Responsive design, performance tuning, and production-ready delivery',
 ]
 
 export const strengths = [
   {
-    title: 'Component-driven frontend work',
+    title: 'React-driven UI architecture',
     description:
-      'Builds modular interfaces with reusable UI blocks, mapped content, routed pages, and layouts that stay maintainable as products grow.',
+      'Builds modular interfaces with reusable UI blocks, routed views, and data-driven rendering patterns that scale cleanly as products grow.',
   },
   {
-    title: 'API-backed product delivery',
+    title: 'Enterprise API integration',
     description:
-      'Connects frontend workflows with Java services and REST APIs while keeping validation, responsiveness, and reliability in focus.',
+      'Connects frontend workflows with Java services and REST APIs while keeping validation, responsiveness, and delivery reliability in focus.',
   },
   {
-    title: 'Ownership and collaboration',
+    title: 'Ownership from build to release',
     description:
       'Takes features from implementation through release support, contributes in reviews, and helps teams move faster with cleaner code.',
   },
@@ -254,22 +257,22 @@ export const reactConcepts = [
   {
     title: 'Reusable components',
     detail:
-      'The layout is split into small presentational components for sections, metrics, experience cards, and project cards.',
+      'The site is split into focused building blocks for navigation, hero content, metrics, experience cards, project cards, and contact sections.',
   },
   {
-    title: 'Mapped data',
+    title: 'Routed and data-driven pages',
     detail:
-      'Experience, projects, skills, and navigation are rendered from structured arrays instead of hardcoded repeated markup.',
+      'Navigation, experience, projects, skills, and resume content are rendered from structured data instead of repeated hardcoded markup.',
   },
   {
-    title: 'Stateful interactions',
+    title: 'Modern React interactions',
     detail:
-      'Project filtering, mobile navigation, and resume/email actions are all driven by React state and event handlers.',
+      'Project filtering, mobile navigation, copy actions, and resume downloads are powered by React state, handlers, and utility functions.',
   },
   {
-    title: 'Conditional UI',
+    title: 'Responsive presentation logic',
     detail:
-      'Filter buttons, copied-state feedback, and responsive menu behavior are controlled directly from component state.',
+      'Responsive layouts, animated sections, active states, and conditional UI feedback are handled directly in the component layer.',
   },
 ]
 
@@ -277,17 +280,17 @@ export const resumeColumns = [
   {
     title: 'Career focus',
     items: [
-      'Full Stack Developer specializing in banking and enterprise delivery.',
-      'Strong at UI optimization, backend integration, and maintainable module design.',
-      'Comfortable owning features across implementation, review, and release cycles.',
+      'React-focused Full Stack Developer for banking and enterprise delivery.',
+      'Strong in reusable UI architecture, API integration, and maintainable module design.',
+      'Comfortable owning features across implementation, review, release, and optimization cycles.',
     ],
   },
   {
     title: 'Delivery strengths',
     items: [
-      'Trade finance, payments, exception handling, validation, reporting, and dashboard experiences.',
-      'Secure REST integrations and performance-aware front-end implementation.',
-      'Mentorship, collaboration, and cross-team delivery support in Agile environments.',
+      'Trade finance, payments, dashboards, validation, reporting, and interactive workflow experiences.',
+      'Secure REST integrations, responsive UI implementation, and performance-aware frontend delivery.',
+      'Mentorship, collaboration, and cross-team engineering support in Agile environments.',
     ],
   },
 ]
@@ -312,12 +315,19 @@ export const contactCards = [
     hint: 'Open the live LinkedIn profile in a new tab',
     newTab: true,
   },
+  {
+    label: 'Website',
+    value: 'Portfolio Website',
+    href: profile.websiteUrl,
+    hint: 'Explore the live portfolio, projects, and downloadable resume',
+    newTab: true,
+  },
 ]
 
 export const buildResumeText = () => {
   const lines = [
     profile.name,
-    `${profile.phoneDisplay} | ${profile.email} | LinkedIn: ${profile.linkedinUrl}`,
+    `${profile.phoneDisplay} | ${profile.email} | LinkedIn: ${profile.linkedinUrl} | Portfolio: ${profile.websiteUrl}`,
     '',
     'PROFESSIONAL OVERVIEW',
     profile.overview,

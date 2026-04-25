@@ -11,7 +11,11 @@ import {
 } from './classes'
 
 export function PageSection({ children, className = '' }) {
-  return <section className={cx(sectionClassName, className)}>{children}</section>
+  return (
+    <section className={cx(sectionClassName, 'section-reveal', className)}>
+      {children}
+    </section>
+  )
 }
 
 export function SectionHeading({ eyebrow, title, description }) {

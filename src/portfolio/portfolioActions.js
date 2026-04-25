@@ -197,7 +197,7 @@ function buildResumeItems() {
     { style: 'name', text: profile.name },
     {
       style: 'contact',
-      text: `${profile.phoneDisplay} | ${profile.email} | LinkedIn: ${profile.linkedinUrl}`,
+      text: `${profile.phoneDisplay} | ${profile.email} | LinkedIn: ${profile.linkedinUrl} | Portfolio: ${profile.websiteUrl}`,
     },
     { style: 'section', text: 'PROFESSIONAL OVERVIEW' },
     { style: 'paragraph', text: profile.overview },

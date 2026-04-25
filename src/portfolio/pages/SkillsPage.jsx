@@ -6,9 +6,9 @@ function SkillsPage() {
   return (
     <PageSection>
       <SectionHeading
-        description="A practical stack spanning backend systems, responsive UIs, API integration, testing, and delivery tooling."
+        description="A practical stack spanning React interfaces, backend systems, API integration, testing, delivery tooling, and modern UI implementation."
         eyebrow="Technical toolkit"
-        title="Skills shaped by banking-scale engineering constraints"
+        title="Skills shaped by React delivery and banking-scale engineering constraints"
       />
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.18fr)_minmax(320px,0.82fr)]">
