@@ -1,3 +1,5 @@
+const advancedTaskAppUrl = `${import.meta.env.BASE_URL}advanced-task-productivity-app/`
+
 export const profile = {
   name: 'Rustom Singh Yadav',
   title: 'Full Stack Developer',
@@ -8,10 +10,15 @@ export const profile = {
   phoneHref: 'tel:+918468020998',
   email: 'rustom2720003@gmail.com',
   emailHref: 'mailto:rustom2720003@gmail.com',
+  linkedinDisplay: 'linkedin.com/in/rustom-singh-yadav-9a717a173',
+  linkedinUrl: 'https://www.linkedin.com/in/rustom-singh-yadav-9a717a173/',
+  heroTitle: 'React-focused interfaces for scalable web products.',
+  heroDescription:
+    'I build component-driven user interfaces, routed application flows, and API-backed features that stay responsive, maintainable, and ready for real-world enterprise delivery.',
   overview:
     'Full Stack Developer with 3.5+ years of experience delivering high-performance banking and enterprise solutions using OBDX, Java, and modern web technologies. Skilled in designing scalable, secure, and maintainable systems. Experienced in end-to-end development, including UI optimization, API integration, and working in Agile and Scrum environments. Passionate about creating seamless user experiences and solving complex business challenges efficiently.',
   intro:
-    'Building secure, maintainable banking experiences across enterprise frontends, middleware, and full-stack products.',
+    'Building reusable interfaces, clean integrations, and dependable frontend experiences across enterprise and full-stack products.',
 }
 
 export const navigationLinks = [
@@ -27,12 +34,12 @@ export const heroStats = [
   {
     value: '3.5+',
     label: 'Years of delivery',
-    detail: 'High-performance banking and enterprise systems',
+    detail: 'Frontend, middleware, and full-stack product work',
   },
   {
     value: '3',
-    label: 'Banking programs',
-    detail: 'ADCB, QNB, and Barclays engagement experience',
+    label: 'Enterprise programs',
+    detail: 'ADCB, QNB, and Barclays delivery experience',
   },
   {
     value: '2',
@@ -42,42 +49,43 @@ export const heroStats = [
   {
     value: '1',
     label: 'Full-stack product',
-    detail: 'React, Spring Boot, and MySQL employee platform',
+    detail: 'React, Spring Boot, and MySQL showcase app',
   },
 ]
 
 export const focusAreas = [
-  'OBDX-driven banking workflows and secure customer journeys',
-  'Java middleware, REST API integration, and scalable module design',
-  'UI optimization, code quality, and cross-team delivery leadership',
+  'Reusable UI components, routed pages, and maintainable frontend structure',
+  'REST API integration, Java middleware, and validation-driven module delivery',
+  'Responsive UX, performance tuning, and collaborative engineering practices',
 ]
 
 export const strengths = [
   {
-    title: 'Enterprise banking workflows',
+    title: 'Component-driven frontend work',
     description:
-      'Delivered payments, dashboards, reporting, validation, DDS, bulk operations, and trade finance journeys inside OBDX environments.',
+      'Builds modular interfaces with reusable UI blocks, mapped content, routed pages, and layouts that stay maintainable as products grow.',
   },
   {
-    title: 'End-to-end ownership',
+    title: 'API-backed product delivery',
     description:
-      'Handled UI, middleware, API integration, performance tuning, refactoring, and deployment-readiness across multiple releases.',
+      'Connects frontend workflows with Java services and REST APIs while keeping validation, responsiveness, and reliability in focus.',
   },
   {
-    title: 'Mentorship and collaboration',
+    title: 'Ownership and collaboration',
     description:
-      'Led code reviews, coached junior developers, and worked closely with cross-functional teams to improve maintainability and delivery quality.',
+      'Takes features from implementation through release support, contributes in reviews, and helps teams move faster with cleaner code.',
   },
 ]
 
 export const currentFocus = {
-  title: 'Initiate Letter of Credit workflow for ADCB Trade',
+  title: 'ADCB Trade module delivery across OBDX workflows',
   summary:
-    'Currently building and enhancing the LC Details, LC Shipment, and LC Attachment journeys inside OBDX 22.2.5 with Java, KnockoutJS, and secure REST integrations.',
+    'Currently contributing across ADCB Trade modules in OBDX 22.2.5, building and refining customer-facing journeys, validation layers, and secure integrations with Java and KnockoutJS.',
+  tags: ['ADCB Trade', 'Cross-module delivery', 'Secure integrations'],
   points: [
-    'Owns front-end workflows and backend API integration for trade processing.',
-    'Focuses on validation, persistence, responsiveness, and secure data handling.',
-    'Collaborates across teams to improve usability, compliance, and delivery confidence.',
+    'Works across multiple trade modules instead of a single isolated workflow.',
+    'Handles UI customization, validations, API integration, and backend coordination for reliable delivery.',
+    'Focuses on usability, performance, maintainability, and compliance across releases.',
   ],
 }
 
@@ -124,6 +132,7 @@ export const projectFilters = [
   'API Integration',
   'Leadership',
   'Full Stack',
+  'React Product',
 ]
 
 export const projects = [
@@ -171,18 +180,19 @@ export const projects = [
     ],
   },
   {
-    name: 'Employee Management System',
-    client: 'Personal Full Stack Project',
-    period: 'Project Showcase',
-    stack: ['Spring Boot', 'React.js', 'MySQL', 'REST APIs', 'Spring Data JPA'],
-    filters: ['Full Stack'],
+    name: 'Advanced Task Productivity App',
+    client: 'React Product Project',
+    period: 'Live Demo',
+    stack: ['React.js', 'Vite', 'CSS Modules', 'localStorage', 'Lucide React'],
+    filters: ['React Product'],
     summary:
-      'Built a full-stack employee management system with responsive dashboards and CRUD-based employee record workflows.',
+      'Built a polished productivity board inspired by Jira and Trello patterns, focused on reusable React components, modern hooks, and a clean task-management experience.',
     highlights: [
-      'Created REST APIs for reliable employee data handling and simplified record management.',
-      'Designed responsive React dashboards to improve navigation, visualization, and overall user experience.',
-      'Used Spring Data JPA, MySQL, and Lombok to keep the backend scalable, readable, and maintainable.',
+      'Implemented task creation, editing, deletion, filtering, status updates, and search with responsive feedback across the board.',
+      'Used custom hooks, derived state, and localStorage persistence to keep the UI architecture modular and easy to extend.',
+      'Built a card-based dashboard with clear visual hierarchy, stats, due-date insights, and a mobile-friendly layout.',
     ],
+    links: [{ href: advancedTaskAppUrl, label: 'Live Demo', newTab: true }],
   },
 ]
 
@@ -290,16 +300,17 @@ export const contactCards = [
   },
   {
     label: 'LinkedIn',
-    value: 'Profile link available on request',
-    href: '',
-    hint: 'Share the exact URL and this card can be made clickable',
+    value: 'rustom-singh-yadav-9a717a173',
+    href: profile.linkedinUrl,
+    hint: 'Open the live LinkedIn profile in a new tab',
+    newTab: true,
   },
 ]
 
 export const buildResumeText = () => {
   const lines = [
     profile.name,
-    `${profile.phoneDisplay} | ${profile.email} | LinkedIn: profile URL to be added`,
+    `${profile.phoneDisplay} | ${profile.email} | LinkedIn: ${profile.linkedinUrl}`,
     '',
     'PROFESSIONAL OVERVIEW',
     profile.overview,

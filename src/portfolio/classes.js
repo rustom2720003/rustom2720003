@@ -3,7 +3,7 @@ export function cx(...classes) {
 }
 
 export const sectionClassName =
-  'mx-auto w-full max-w-[1180px] px-4 py-16 sm:px-6 lg:px-0 lg:py-20'
+  'mx-auto w-full max-w-[1180px] px-4 py-10 sm:px-6 lg:px-0 lg:py-14'
 
 export const panelClassName =
   'rounded-[1.6rem] border border-line bg-surface shadow-portfolio backdrop-blur-xl'

@@ -14,9 +14,9 @@ function ProjectsPage() {
   return (
     <PageSection>
       <SectionHeading
-        description="A focused view of client work and hands-on implementation experience across front-end, middleware, APIs, and product engineering."
+        description="A focused view of client delivery and hands-on product work across enterprise frontends, middleware integrations, APIs, and React-based application design."
         eyebrow="Project highlights"
-        title="Banking platforms, custom modules, and full-stack product delivery"
+        title="Banking platforms, custom modules, and React product delivery"
       />
 
       <div className="mb-5 flex flex-wrap gap-3" role="tablist" aria-label="Project filters">

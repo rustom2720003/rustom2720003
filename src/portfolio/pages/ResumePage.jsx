@@ -17,7 +17,7 @@ function ResumePage() {
   return (
     <PageSection>
       <SectionHeading
-        description="The resume section below is built directly from the details you shared, and the download button exports a PDF version instantly."
+        description="The download button can serve an attached PDF from the site, and it will still fall back to the generated version until your final resume file is added."
         eyebrow="Resume"
         title="A clean summary ready to review or download"
       />
@@ -53,9 +53,14 @@ function ResumePage() {
             <span className="rounded-full border border-line bg-white/60 px-4 py-2">
               {profile.email}
             </span>
-            <span className="rounded-full border border-line bg-white/60 px-4 py-2">
-              LinkedIn profile available on request
-            </span>
+            <a
+              className="rounded-full border border-line bg-white/60 px-4 py-2 transition duration-200 hover:border-line-strong hover:bg-white/80"
+              href={profile.linkedinUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              {profile.linkedinDisplay}
+            </a>
           </div>
         </div>
 

@@ -25,7 +25,7 @@ function ContactPage() {
   return (
     <PageSection className="pb-10">
       <SectionHeading
-        description="If you want this portfolio connected to a live LinkedIn URL or a PDF resume later, that can be added cleanly in the same structure."
+        description="Reach out for frontend, enterprise, or product-focused opportunities. Email, phone, LinkedIn, and resume download are all connected here."
         eyebrow="Contact"
         title="Available for enterprise web, banking platform, and full-stack work"
       />
@@ -40,6 +40,8 @@ function ContactPage() {
               )}
               href={card.href}
               key={card.label}
+              rel={card.newTab ? 'noreferrer' : undefined}
+              target={card.newTab ? '_blank' : undefined}
             >
               <p className={cardLabelClassName}>{card.label}</p>
               <h3 className="font-display text-[1.35rem] leading-[1.1] text-ink">

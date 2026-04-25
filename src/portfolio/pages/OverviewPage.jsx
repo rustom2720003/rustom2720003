@@ -41,20 +41,23 @@ const strengthIcons = [Landmark, ClipboardCheck, BriefcaseBusiness]
 function OverviewPage() {
   return (
     <>
-      <PageSection className="grid items-start gap-6 pt-6 lg:grid-cols-[minmax(0,1.18fr)_minmax(320px,0.82fr)]">
+      <PageSection className="grid items-start gap-8 pt-2 lg:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
         <div className="flex flex-col gap-6">
           <p className={eyebrowClassName}>
             {profile.title} | {profile.company} | {profile.location}
           </p>
-          <h1 className="max-w-[12ch] font-display text-[clamp(3rem,7vw,6rem)] leading-[0.92] tracking-[-0.06em] text-ink max-lg:max-w-none">
-            Building dependable banking experiences with modern React thinking.
+          <h1 className="max-w-[10ch] font-display text-[clamp(2.7rem,5vw,4.7rem)] leading-[0.96] tracking-[-0.05em] text-ink max-lg:max-w-none">
+            {profile.heroTitle}
           </h1>
-          <p className="max-w-3xl text-[1.05rem] leading-8 text-muted">
-            {profile.overview}
+          <p className="max-w-3xl text-[1.02rem] leading-8 text-muted">
+            {profile.heroDescription}
           </p>
 
           <div className="flex flex-wrap items-center gap-3">
-            <Link className={cx(buttonClassNames.primary, 'w-full sm:w-auto')} to="/projects">
+            <Link
+              className={cx(buttonClassNames.primary, 'w-full sm:w-auto')}
+              to="/projects"
+            >
               Explore Projects
               <ArrowRight size={18} />
             </Link>
@@ -89,18 +92,6 @@ function OverviewPage() {
               {profile.location}
             </span>
           </div>
-
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {heroStats.map((stat, index) => (
-              <MetricCard
-                key={stat.label}
-                detail={stat.detail}
-                icon={statIcons[index]}
-                label={stat.label}
-                value={stat.value}
-              />
-            ))}
-          </div>
         </div>
 
         <aside className={cx(panelClassName, 'relative overflow-hidden p-6')}>
@@ -118,9 +109,11 @@ function OverviewPage() {
           <p className="mt-4 leading-8 text-muted">{currentFocus.summary}</p>
 
           <div className="mt-4 flex flex-wrap gap-3">
-            <span className={chipClassName}>OBDX delivery</span>
-            <span className={chipClassName}>Java middleware</span>
-            <span className={chipClassName}>Responsive UI</span>
+            {currentFocus.tags.map((tag) => (
+              <span className={chipClassName} key={tag}>
+                {tag}
+              </span>
+            ))}
           </div>
 
           <ul className={cx(bulletListClassName, 'mt-4')}>
@@ -145,11 +138,25 @@ function OverviewPage() {
         </aside>
       </PageSection>
 
-      <PageSection>
+      <PageSection className="pt-0">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {heroStats.map((stat, index) => (
+            <MetricCard
+              key={stat.label}
+              detail={stat.detail}
+              icon={statIcons[index]}
+              label={stat.label}
+              value={stat.value}
+            />
+          ))}
+        </div>
+      </PageSection>
+
+      <PageSection className="pt-6">
         <SectionHeading
           description={profile.intro}
           eyebrow="Professional snapshot"
-          title="Built around secure delivery, ownership, and real business impact"
+          title="How I build React-friendly enterprise products"
         />
 
         <div className="value-grid">

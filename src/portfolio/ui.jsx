@@ -1,5 +1,6 @@
 import {
   bulletListClassName,
+  buttonClassNames,
   cardLabelClassName,
   chipClassName,
   cx,
@@ -29,15 +30,15 @@ export function MetricCard({ icon, value, label, detail }) {
   const Icon = icon
 
   return (
-    <article className={cx(panelClassName, 'p-5')}>
+    <article className={cx(panelClassName, 'grid h-full content-start gap-3 p-6')}>
       <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-accent-soft text-accent">
         <Icon size={18} />
       </div>
-      <p className="mt-4 font-display text-[2rem] font-bold tracking-[-0.05em] text-ink">
+      <p className="font-display text-[1.95rem] font-bold tracking-[-0.05em] text-ink">
         {value}
       </p>
-      <p className="mt-1 font-semibold text-ink">{label}</p>
-      <p className="mt-1 leading-7 text-muted">{detail}</p>
+      <p className="text-[1.02rem] font-semibold text-ink">{label}</p>
+      <p className="text-sm leading-7 text-muted">{detail}</p>
     </article>
   )
 }
@@ -106,6 +107,21 @@ export function ProjectCard({ project }) {
           <li key={highlight}>{highlight}</li>
         ))}
       </ul>
+      {project.links?.length ? (
+        <div className="flex flex-wrap gap-3">
+          {project.links.map((link) => (
+            <a
+              className={cx(buttonClassNames.secondary, 'w-full sm:w-auto')}
+              href={link.href}
+              key={link.href}
+              rel={link.newTab ? 'noreferrer' : undefined}
+              target={link.newTab ? '_blank' : undefined}
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      ) : null}
       <div className="flex flex-wrap gap-3">
         {project.filters.map((filter) => (
           <span className={pillClassNames.muted} key={filter}>

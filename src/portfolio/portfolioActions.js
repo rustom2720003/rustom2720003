@@ -6,6 +6,8 @@ import {
   skillGroups,
 } from './portfolioData'
 
+const STATIC_RESUME_FILE_NAME = 'Rustom-Singh-Yadav-Resume.pdf'
+const STATIC_RESUME_URL = `${import.meta.env.BASE_URL}resume/${STATIC_RESUME_FILE_NAME}`
 const PDF_PAGE_WIDTH = 595.28
 const PDF_PAGE_HEIGHT = 841.89
 const PDF_MARGIN_X = 48
@@ -195,7 +197,7 @@ function buildResumeItems() {
     { style: 'name', text: profile.name },
     {
       style: 'contact',
-      text: `${profile.phoneDisplay} | ${profile.email} | LinkedIn: profile URL to be added`,
+      text: `${profile.phoneDisplay} | ${profile.email} | LinkedIn: ${profile.linkedinUrl}`,
     },
     { style: 'section', text: 'PROFESSIONAL OVERVIEW' },
     { style: 'paragraph', text: profile.overview },
@@ -364,16 +366,46 @@ function buildPdfBlob() {
   return new Blob([pdf], { type: 'application/pdf' })
 }
 
-export function downloadResume() {
-  const resumeBlob = buildPdfBlob()
-  const url = URL.createObjectURL(resumeBlob)
+function triggerDownload(url, fileName = STATIC_RESUME_FILE_NAME) {
   const anchor = document.createElement('a')
 
   anchor.href = url
-  anchor.download = 'Rustom-Singh-Yadav-Resume.pdf'
+  anchor.download = fileName
   document.body.appendChild(anchor)
   anchor.click()
   anchor.remove()
+}
+
+async function downloadAttachedResume() {
+  try {
+    const response = await fetch(STATIC_RESUME_URL, {
+      cache: 'no-store',
+      method: 'HEAD',
+    })
+
+    if (!response.ok) {
+      return false
+    }
+
+    triggerDownload(STATIC_RESUME_URL)
+
+    return true
+  } catch {
+    return false
+  }
+}
+
+export async function downloadResume() {
+  const hasAttachedResume = await downloadAttachedResume()
+
+  if (hasAttachedResume) {
+    return
+  }
+
+  const resumeBlob = buildPdfBlob()
+  const url = URL.createObjectURL(resumeBlob)
+
+  triggerDownload(url)
 
   window.setTimeout(() => URL.revokeObjectURL(url), 0)
 }
