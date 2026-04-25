@@ -46,13 +46,13 @@ function OverviewPage() {
         <article
           className={cx(
             panelClassName,
-            'grid gap-5 overflow-hidden p-4 sm:p-5 lg:grid-cols-[132px_minmax(0,1fr)_auto] lg:items-center',
+            'grid gap-5 overflow-hidden p-4 sm:p-5 lg:grid-cols-[156px_minmax(0,1fr)_auto] lg:items-center',
           )}
         >
           <div className="mx-auto lg:mx-0">
             <img
               alt={profile.photoAlt}
-              className="h-28 w-28 rounded-full border border-[color:var(--portfolio-glass-border-strong)] object-cover object-center shadow-[var(--portfolio-inline-shadow)]"
+              className="h-32 w-32 rounded-full border border-[color:var(--portfolio-glass-border-strong)] object-cover object-center shadow-[var(--portfolio-inline-shadow)] sm:h-36 sm:w-36"
               onError={(event) => {
                 event.currentTarget.onerror = null
                 event.currentTarget.src = profile.photoFallbackSrc

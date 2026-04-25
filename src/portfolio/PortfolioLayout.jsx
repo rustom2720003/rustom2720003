@@ -17,6 +17,10 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
     liveEnvironment.status === 'error'
       ? 'Location off'
       : liveEnvironment.timeSnapshot.clockLabel
+  const livePillTitle =
+    liveEnvironment.status === 'error'
+      ? 'Turn on location and retry'
+      : 'Refresh live time and temperature'
 
   return (
     <div className="relative min-h-screen overflow-x-hidden font-body text-ink">
@@ -30,7 +34,7 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: 'var(--portfolio-page-center-line)',
+            backgroundImage: 'none',
           }}
         />
         <div
@@ -49,11 +53,11 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
         <div className={cx(sectionClassName, 'relative py-0')}>
           <div
             className={cx(
-              'nav-shimmer flex items-center justify-between gap-4 rounded-full border border-[color:var(--portfolio-nav-border)] bg-[color:var(--portfolio-nav-background)] px-4 py-2.5 shadow-[var(--portfolio-strong-shadow)] backdrop-blur-2xl',
+              'nav-shimmer flex items-center justify-between gap-3 rounded-[2rem] border border-[color:var(--portfolio-nav-border)] bg-[color:var(--portfolio-nav-background)] px-4 py-2.5 shadow-[var(--portfolio-strong-shadow)] backdrop-blur-2xl',
               menuOpen && 'overflow-visible',
             )}
           >
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-2">
               <Link
                 className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-accent via-[#ef5db8] to-teal font-display text-[0.95rem] font-bold uppercase tracking-[0.16em] text-white shadow-[0_16px_34px_rgba(151,29,106,0.28)]"
                 onClick={() => setMenuOpen(false)}
@@ -62,7 +66,31 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
                 RSY
               </Link>
 
-              <div className="hidden items-center gap-2 rounded-full border border-[color:var(--portfolio-glass-border)] bg-[color:var(--portfolio-glass-strong)] px-4 py-2 text-sm text-ink shadow-[var(--portfolio-soft-shadow)] lg:flex">
+              <button
+                type="button"
+                className="inline-flex min-w-0 max-w-[8.9rem] items-center gap-1.5 rounded-full border border-[color:var(--portfolio-glass-border)] bg-[color:var(--portfolio-glass-strong)] px-2.5 py-2 text-[0.72rem] text-ink shadow-[var(--portfolio-soft-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-[color:var(--portfolio-glass-hover)] sm:max-w-[10.75rem] sm:px-3 sm:text-[0.78rem] md:max-w-[12.5rem] lg:hidden"
+                aria-label={livePillTitle}
+                onClick={refreshLiveEnvironment}
+                title={livePillTitle}
+              >
+                <span className="inline-flex min-w-0 items-center gap-1.5">
+                  <Clock3 className="shrink-0" size={14} />
+                  <span className="truncate">{navTimeLabel}</span>
+                </span>
+                <span className="h-4 w-px shrink-0 bg-line" />
+                <span className="inline-flex shrink-0 items-center gap-1 text-muted">
+                  <ThermometerSun size={14} />
+                  {navTemperature}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                className="hidden items-center gap-2 rounded-full border border-[color:var(--portfolio-glass-border)] bg-[color:var(--portfolio-glass-strong)] px-4 py-2 text-sm text-ink shadow-[var(--portfolio-soft-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-[color:var(--portfolio-glass-hover)] lg:inline-flex"
+                aria-label={livePillTitle}
+                onClick={refreshLiveEnvironment}
+                title={livePillTitle}
+              >
                 <span className="inline-flex items-center gap-1.5">
                   <Clock3 size={15} />
                   {navTimeLabel}
@@ -72,10 +100,10 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
                   <ThermometerSun size={15} />
                   {navTemperature}
                 </span>
-              </div>
+              </button>
             </div>
 
-            <div className="flex items-center gap-2 md:ml-auto">
+            <div className="flex shrink-0 items-center gap-2 md:ml-auto">
               <nav
                 className={cx(
                   'absolute left-4 right-4 top-[calc(100%+0.6rem)] flex-col gap-1 rounded-[1.2rem] border border-[color:var(--portfolio-nav-border)] bg-[color:var(--portfolio-nav-popup-background)] p-2 shadow-portfolio backdrop-blur-xl md:static md:left-auto md:right-auto md:top-auto md:flex md:flex-row md:items-center md:gap-2 md:border-0 md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none',
