@@ -92,7 +92,7 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
 
               <button
                 type="button"
-                className="inline-flex min-w-0 max-w-[11.75rem] items-center gap-2.5 rounded-[1.3rem] border border-[color:var(--portfolio-live-pill-border)] bg-[image:var(--portfolio-live-pill-gradient)] px-3.5 py-3.5 text-[0.88rem] font-bold text-[color:var(--portfolio-live-pill-text)] shadow-[var(--portfolio-live-pill-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-[color:var(--portfolio-live-pill-hover-border)] hover:bg-[image:var(--portfolio-live-pill-gradient-hover)] sm:max-w-[12.4rem] md:max-w-[12.5rem] md:text-[0.82rem] lg:hidden"
+                className="live-pill-active inline-flex min-w-0 max-w-[11.75rem] items-center gap-2.5 rounded-[1.3rem] border border-[color:var(--portfolio-live-pill-border)] bg-[image:var(--portfolio-live-pill-gradient)] px-3.5 py-3.5 pr-5 text-[0.88rem] font-bold text-[color:var(--portfolio-live-pill-text)] shadow-[var(--portfolio-live-pill-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-[color:var(--portfolio-live-pill-hover-border)] hover:bg-[image:var(--portfolio-live-pill-gradient-hover)] sm:max-w-[12.4rem] md:max-w-[12.5rem] md:text-[0.82rem] lg:hidden"
                 aria-label={livePillTitle}
                 onClick={refreshLiveEnvironment}
                 title={livePillTitle}
@@ -110,7 +110,7 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
 
               <button
                 type="button"
-                className="hidden items-center gap-2 rounded-full border border-[color:var(--portfolio-live-pill-border)] bg-[image:var(--portfolio-live-pill-gradient)] px-4 py-2 text-sm text-[color:var(--portfolio-live-pill-text)] shadow-[var(--portfolio-live-pill-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-[color:var(--portfolio-live-pill-hover-border)] hover:bg-[image:var(--portfolio-live-pill-gradient-hover)] lg:inline-flex"
+                className="live-pill-active hidden items-center gap-2 rounded-full border border-[color:var(--portfolio-live-pill-border)] bg-[image:var(--portfolio-live-pill-gradient)] px-4 py-2 pr-5 text-sm text-[color:var(--portfolio-live-pill-text)] shadow-[var(--portfolio-live-pill-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-[color:var(--portfolio-live-pill-hover-border)] hover:bg-[image:var(--portfolio-live-pill-gradient-hover)] lg:inline-flex"
                 aria-label={livePillTitle}
                 onClick={refreshLiveEnvironment}
                 title={livePillTitle}

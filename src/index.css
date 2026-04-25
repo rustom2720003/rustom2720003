@@ -69,6 +69,9 @@
     --portfolio-live-pill-subtle-text: rgba(228, 241, 252, 0.82);
     --portfolio-live-pill-divider: rgba(210, 230, 247, 0.22);
     --portfolio-live-pill-shadow: 0 18px 34px rgba(9, 36, 61, 0.28);
+    --portfolio-live-pill-glow: rgba(70, 166, 255, 0.26);
+    --portfolio-live-pill-sheen: rgba(255, 255, 255, 0.18);
+    --portfolio-live-pill-dot: #8de7ff;
     --portfolio-glass-strong: rgba(209, 223, 231, 0.78);
     --portfolio-glass-soft: rgba(194, 210, 219, 0.78);
     --portfolio-glass-inline: rgba(202, 217, 225, 0.82);
@@ -213,6 +216,9 @@
     --portfolio-live-pill-subtle-text: rgba(221, 236, 250, 0.8);
     --portfolio-live-pill-divider: rgba(179, 209, 240, 0.22);
     --portfolio-live-pill-shadow: 0 18px 34px rgba(0, 0, 0, 0.24);
+    --portfolio-live-pill-glow: rgba(63, 144, 255, 0.28);
+    --portfolio-live-pill-sheen: rgba(255, 255, 255, 0.16);
+    --portfolio-live-pill-dot: #8de7ff;
     --portfolio-glass-strong: rgba(57, 18, 53, 0.8);
     --portfolio-glass-soft: rgba(47, 14, 44, 0.74);
     --portfolio-glass-inline: rgba(52, 18, 49, 0.8);
@@ -382,6 +388,55 @@
   }
 }
 
+@keyframes livePillFloat {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -4px;
+  }
+}
+
+@keyframes livePillAura {
+  0%,
+  100% {
+    opacity: 0.38;
+  }
+
+  50% {
+    opacity: 0.82;
+  }
+}
+
+@keyframes livePillSweep {
+  0%,
+  12% {
+    transform: translateX(-155%) skewX(-20deg);
+  }
+
+  35%,
+  100% {
+    transform: translateX(170%) skewX(-20deg);
+  }
+}
+
+@keyframes livePillBeacon {
+  0%,
+  100% {
+    opacity: 0.78;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(141, 231, 255, 0.24);
+  }
+
+  55% {
+    opacity: 1;
+    transform: scale(1.16);
+    box-shadow: 0 0 0 0.42rem rgba(141, 231, 255, 0);
+  }
+}
+
 @layer components {
   .section-reveal {
     animation: sectionReveal 820ms cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -496,6 +551,49 @@
     pointer-events: none;
     animation: shimmerSweep 9s linear infinite;
   }
+
+  .live-pill-active {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    animation: livePillFloat 6.2s ease-in-out infinite;
+    will-change: translate;
+  }
+
+  .live-pill-active::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background:
+      linear-gradient(120deg, transparent 0%, var(--portfolio-live-pill-sheen) 24%, transparent 46%),
+      radial-gradient(circle at 20% 30%, var(--portfolio-live-pill-glow), transparent 58%);
+    opacity: 0.42;
+    pointer-events: none;
+    z-index: 0;
+    animation:
+      livePillAura 4.8s ease-in-out infinite,
+      livePillSweep 5.8s ease-in-out infinite;
+  }
+
+  .live-pill-active::after {
+    content: "";
+    position: absolute;
+    top: 0.72rem;
+    right: 0.78rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: var(--portfolio-live-pill-dot);
+    pointer-events: none;
+    z-index: 1;
+    animation: livePillBeacon 2.4s ease-in-out infinite;
+  }
+
+  .live-pill-active > * {
+    position: relative;
+    z-index: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -504,7 +602,10 @@
   .ambient-orb-1,
   .ambient-orb-2,
   .ambient-orb-3,
-  .nav-shimmer::after {
+  .nav-shimmer::after,
+  .live-pill-active,
+  .live-pill-active::before,
+  .live-pill-active::after {
     animation: none !important;
   }
 
