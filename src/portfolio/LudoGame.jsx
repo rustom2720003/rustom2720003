@@ -713,34 +713,37 @@ function LudoDie({
   isActiveTurn = false,
 }) {
   const pips = LUDO_DICE_PIPS[value] ?? LUDO_DICE_PIPS[1]
+  const sizeClassName = compact
+    ? 'h-[clamp(2.35rem,10.6vw,4.1rem)] w-[clamp(2.35rem,10.6vw,4.1rem)] rounded-[clamp(0.45rem,1.3vw,0.72rem)]'
+    : 'h-24 w-24 rounded-[0.9rem]'
 
   return (
     <button
+      aria-label={`${player.label} die showing ${value}`}
       type="button"
       className={cx(
-        'group relative inline-flex items-center justify-center border-0 bg-transparent p-0 transition duration-200',
-        compact
-          ? 'h-[clamp(2.45rem,11vw,4.4rem)] w-[clamp(2.45rem,11vw,4.4rem)] rounded-[clamp(0.62rem,1.8vw,1rem)]'
-          : 'h-24 w-24 rounded-[1.3rem]',
+        'group relative inline-grid shrink-0 place-items-center border-0 bg-transparent p-0 outline-none transition duration-200',
+        sizeClassName,
         canRoll
-          ? 'hover:-translate-y-0.5'
+          ? 'hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent'
           : isActiveTurn
             ? 'cursor-default'
             : 'cursor-default opacity-75',
         isActiveTurn &&
           !isRolling &&
-          'z-10 scale-[1.08] animate-[bounce_1.35s_ease-in-out_infinite] shadow-[0_0_0_2px_rgba(255,255,255,0.12),0_16px_28px_rgba(15,23,42,0.18)]',
-        isRolling && 'animate-[spin_0.9s_linear_infinite] scale-[1.1]',
+          'z-10 scale-[1.06] shadow-[0_0_0_3px_rgba(255,255,255,0.18),0_14px_28px_rgba(15,23,42,0.18)] before:absolute before:inset-[-0.26rem] before:rounded-[inherit] before:border before:border-white/35 before:content-[""] before:animate-ping',
+        isRolling && 'scale-[1.08] -rotate-6 animate-[pulse_0.48s_ease-in-out_infinite] shadow-[0_18px_34px_rgba(15,23,42,0.22)]',
       )}
       disabled={!canRoll}
       onClick={onRoll}
     >
       <span
         className={cx(
-          'grid h-full w-full grid-cols-3 grid-rows-3 rounded-[inherit] border border-white/45 bg-[radial-gradient(circle_at_30%_22%,rgba(255,255,255,0.98),rgba(255,255,255,0.92)_35%,rgba(226,232,240,0.88)_100%)] shadow-[inset_0_4px_8px_rgba(255,255,255,0.35),inset_0_-4px_10px_rgba(148,163,184,0.18)]',
+          'relative grid h-full w-full grid-cols-3 grid-rows-3 rounded-[inherit] border border-white/70 bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(241,245,249,0.96)_55%,rgba(226,232,240,0.95))] shadow-[0_8px_18px_rgba(15,23,42,0.12),inset_0_1px_4px_rgba(255,255,255,0.78),inset_0_-5px_10px_rgba(148,163,184,0.2)] transition duration-200',
           compact
-            ? 'gap-[clamp(0.08rem,0.28vw,0.28rem)] p-[clamp(0.24rem,0.82vw,0.52rem)]'
-            : 'gap-1.5 p-2.5',
+            ? 'gap-[clamp(0.08rem,0.3vw,0.22rem)] p-[clamp(0.34rem,1.1vw,0.58rem)]'
+            : 'gap-2 p-3',
+          canRoll && 'group-hover:shadow-[0_12px_22px_rgba(15,23,42,0.16),inset_0_1px_4px_rgba(255,255,255,0.78),inset_0_-5px_10px_rgba(148,163,184,0.2)]',
         )}
       >
         {Array.from({ length: 9 }, (_, index) => (
@@ -748,9 +751,11 @@ function LudoDie({
             className={cx(
               'self-center justify-self-center rounded-full transition duration-150',
               compact
-                ? 'h-[clamp(0.28rem,1.18vw,0.7rem)] w-[clamp(0.28rem,1.18vw,0.7rem)]'
-                : 'h-3 w-3',
-              pips.includes(index) ? player.pipTone : 'opacity-0',
+                ? 'h-[clamp(0.34rem,1.28vw,0.68rem)] w-[clamp(0.34rem,1.28vw,0.68rem)]'
+                : 'h-3.5 w-3.5',
+              pips.includes(index)
+                ? `${player.pipTone} shadow-[0_1px_3px_rgba(15,23,42,0.25)]`
+                : 'opacity-0',
             )}
             key={`pip-${player.id}-${value}-${index}`}
           />
