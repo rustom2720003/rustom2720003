@@ -16,6 +16,11 @@ const LUDO_PLAYER_COLOR_SETS = {
 const LUDO_LAST_TRACK_PROGRESS = 50
 const LUDO_FINAL_PROGRESS = 56
 const LUDO_SAFE_TRACK_INDICES = new Set([0, 8, 13, 21, 26, 34, 39, 47])
+const LUDO_PLACEMENT_LABELS = {
+  1: '1st',
+  2: '2nd',
+  3: '3rd',
+}
 const LUDO_DICE_PIPS = {
   1: [4],
   2: [0, 8],
@@ -325,9 +330,20 @@ function createInitialLudoState(playerCount, controllerMap) {
     lastRoll: null,
     moveCount: 0,
     winner: null,
+    placements: [],
+    latestPlacement: null,
+    roundComplete: false,
     turnSixCount: 0,
     message: getInitialLudoMessage(players),
   }
+}
+
+function getLudoPlacementLabel(rank) {
+  return LUDO_PLACEMENT_LABELS[rank] ?? `${rank}th`
+}
+
+function getLudoPlacementTarget(playerTotal) {
+  return Math.min(Math.max(playerTotal - 1, 1), 3)
 }
 
 function getLudoTrackIndex(player, progress) {
@@ -476,6 +492,7 @@ function resolveLudoRoll(currentState, roll) {
       currentRoll: null,
       legalMoves: [],
       lastRoll: roll,
+      latestPlacement: null,
       moveCount: currentState.moveCount + 1,
       turnSixCount: 0,
       message: `${activePlayer.label} rolled three 6s in a row, so the turn passes on.`,
@@ -498,6 +515,7 @@ function resolveLudoRoll(currentState, roll) {
       currentRoll: null,
       legalMoves: [],
       lastRoll: roll,
+      latestPlacement: null,
       moveCount: currentState.moveCount + 1,
       turnSixCount: 0,
       message: `${activePlayer.label} rolled ${roll}, but no token can move.`,
@@ -509,6 +527,7 @@ function resolveLudoRoll(currentState, roll) {
     currentRoll: roll,
     legalMoves,
     lastRoll: roll,
+    latestPlacement: null,
     moveCount: currentState.moveCount + 1,
     turnSixCount: nextSixCount,
     message:
@@ -532,20 +551,40 @@ function applyLudoMove(currentState, move) {
     nextPlayers[capture.playerIndex].tokens[capture.tokenIndex].progress = -1
   })
 
-  const winner =
+  const playerFinished =
     getFinishedTokenCount(movedPlayer) === movedPlayer.tokens.length
-      ? movedPlayer.id
+  const alreadyPlaced = currentState.placements.includes(movedPlayer.id)
+  const placements = playerFinished && !alreadyPlaced
+    ? [...currentState.placements, movedPlayer.id]
+    : currentState.placements
+  const latestPlacement =
+    playerFinished && !alreadyPlaced
+      ? {
+          playerId: movedPlayer.id,
+          rank: placements.length,
+          label: getLudoPlacementLabel(placements.length),
+        }
       : null
+  const winner =
+    currentState.winner ??
+    (latestPlacement?.rank === 1 ? movedPlayer.id : null)
+  const roundComplete =
+    placements.length >= getLudoPlacementTarget(nextPlayers.length)
   const getsBonusTurn =
-    !winner &&
+    !latestPlacement &&
+    !roundComplete &&
     (currentState.currentRoll === 6 || move.captures.length > 0 || move.finishes)
-  const nextPlayerIndex = winner
+  const nextPlayerIndex = roundComplete
     ? currentState.currentPlayerIndex
+    : latestPlacement
+      ? getNextLudoPlayerIndex(nextPlayers, currentState.currentPlayerIndex)
     : getsBonusTurn
       ? currentState.currentPlayerIndex
       : getNextLudoPlayerIndex(nextPlayers, currentState.currentPlayerIndex)
-  const message = winner
-    ? `${movedPlayer.label} brought all four tokens home and won the round.`
+  const message = latestPlacement
+    ? roundComplete
+      ? `${movedPlayer.label} takes ${latestPlacement.label} place. Round standings are settled.`
+      : `${movedPlayer.label} takes ${latestPlacement.label} place. The battle continues for the next spot.`
     : move.captures.length
       ? `${movedPlayer.label} captured a token and keeps the turn.`
       : move.finishes
@@ -562,6 +601,9 @@ function applyLudoMove(currentState, move) {
     currentPlayerIndex: nextPlayerIndex,
     currentRoll: null,
     legalMoves: [],
+    latestPlacement,
+    placements,
+    roundComplete,
     winner,
     turnSixCount: getsBonusTurn && currentState.currentRoll === 6 ? currentState.turnSixCount : 0,
     message,
@@ -676,13 +718,12 @@ function LudoDie({
     <button
       type="button"
       className={cx(
-        'group relative inline-flex items-center justify-center border transition duration-200',
+        'group relative inline-flex items-center justify-center border-0 bg-transparent p-0 transition duration-200',
         compact
-          ? 'h-[clamp(2.25rem,10vw,4.5rem)] w-[clamp(1.5rem,6.8vw,3rem)] rounded-[45%] p-[clamp(0.15rem,0.6vw,0.35rem)]'
-          : 'h-24 w-16 rounded-[45%] p-1.5',
-        player.diceTone,
+          ? 'h-[clamp(2.45rem,11vw,4.4rem)] w-[clamp(2.45rem,11vw,4.4rem)] rounded-[clamp(0.62rem,1.8vw,1rem)]'
+          : 'h-24 w-24 rounded-[1.3rem]',
         canRoll
-          ? 'hover:-translate-y-0.5 hover:border-line-strong'
+          ? 'hover:-translate-y-0.5'
           : isActiveTurn
             ? 'cursor-default'
             : 'cursor-default opacity-75',
@@ -696,10 +737,10 @@ function LudoDie({
     >
       <span
         className={cx(
-          'grid h-full w-full grid-cols-3 grid-rows-3 rounded-[45%] border border-white/45 bg-[radial-gradient(circle_at_30%_22%,rgba(255,255,255,0.98),rgba(255,255,255,0.92)_35%,rgba(226,232,240,0.88)_100%)] shadow-[inset_0_4px_8px_rgba(255,255,255,0.35),inset_0_-4px_10px_rgba(148,163,184,0.18)]',
+          'grid h-full w-full grid-cols-3 grid-rows-3 rounded-[inherit] border border-white/45 bg-[radial-gradient(circle_at_30%_22%,rgba(255,255,255,0.98),rgba(255,255,255,0.92)_35%,rgba(226,232,240,0.88)_100%)] shadow-[inset_0_4px_8px_rgba(255,255,255,0.35),inset_0_-4px_10px_rgba(148,163,184,0.18)]',
           compact
-            ? 'gap-[clamp(0.06rem,0.22vw,0.25rem)] p-[clamp(0.22rem,0.65vw,0.5rem)]'
-            : 'gap-1 p-2',
+            ? 'gap-[clamp(0.08rem,0.28vw,0.28rem)] p-[clamp(0.24rem,0.82vw,0.52rem)]'
+            : 'gap-1.5 p-2.5',
         )}
       >
         {Array.from({ length: 9 }, (_, index) => (
@@ -707,8 +748,8 @@ function LudoDie({
             className={cx(
               'self-center justify-self-center rounded-full transition duration-150',
               compact
-                ? 'h-[clamp(0.22rem,0.95vw,0.62rem)] w-[clamp(0.22rem,0.95vw,0.62rem)]'
-                : 'h-2.5 w-2.5',
+                ? 'h-[clamp(0.28rem,1.18vw,0.7rem)] w-[clamp(0.28rem,1.18vw,0.7rem)]'
+                : 'h-3 w-3',
               pips.includes(index) ? player.pipTone : 'opacity-0',
             )}
             key={`pip-${player.id}-${value}-${index}`}
@@ -734,11 +775,14 @@ function LudoGame() {
   const [gameState, setGameState] = useState(() =>
     createInitialLudoState(2, LUDO_DEFAULT_CONTROLLERS),
   )
+  const [celebration, setCelebration] = useState(null)
   const rollIntervalRef = useRef(null)
   const settleTimeoutRef = useRef(null)
+  const celebrationTimeoutRef = useRef(null)
 
   const activePlayer = gameState.players[gameState.currentPlayerIndex]
   const activeColorIds = getActiveLudoColorIds(playerCount)
+  const placementTarget = getLudoPlacementTarget(gameState.players.length)
   const finishedPlayers = gameState.players.filter(
     (player) => getFinishedTokenCount(player) === player.tokens.length,
   )
@@ -799,6 +843,10 @@ function LudoGame() {
     window.clearTimeout(settleTimeoutRef.current)
   }
 
+  const clearCelebrationTimer = () => {
+    window.clearTimeout(celebrationTimeoutRef.current)
+  }
+
   const recordWinner = (winnerId) => {
     if (!winnerId) {
       return
@@ -812,8 +860,10 @@ function LudoGame() {
 
   const resetRound = (nextPlayerCount = playerCount, nextControllerMap = controllerMap) => {
     clearRollTimers()
+    clearCelebrationTimer()
     setRollingPlayerId(null)
     setMoveFeedback('')
+    setCelebration(null)
     setDiceValues(createInitialDiceValues())
     setGameState(createInitialLudoState(nextPlayerCount, nextControllerMap))
   }
@@ -837,7 +887,7 @@ function LudoGame() {
   }
 
   const startRollForPlayer = (playerId, stateSnapshot) => {
-    if (rollingPlayerId || stateSnapshot.winner || stateSnapshot.currentRoll) {
+    if (rollingPlayerId || stateSnapshot.roundComplete || stateSnapshot.currentRoll) {
       return
     }
 
@@ -863,17 +913,26 @@ function LudoGame() {
 
     setMoveFeedback('')
     setGameState(nextState)
-    recordWinner(nextState.winner)
+
+    if (nextState.latestPlacement?.rank === 1) {
+      recordWinner(nextState.latestPlacement.playerId)
+    }
   }
 
   useEffect(() => {
     return () => {
       clearRollTimers()
+      clearCelebrationTimer()
     }
   }, [])
 
   useEffect(() => {
-    if (!activePlayer || gameState.winner || gameState.currentRoll || rollingPlayerId) {
+    if (
+      !activePlayer ||
+      gameState.roundComplete ||
+      gameState.currentRoll ||
+      rollingPlayerId
+    ) {
       return undefined
     }
 
@@ -891,7 +950,12 @@ function LudoGame() {
   }, [activePlayer, gameState, rollingPlayerId])
 
   useEffect(() => {
-    if (!activePlayer || gameState.winner || !gameState.currentRoll || rollingPlayerId) {
+    if (
+      !activePlayer ||
+      gameState.roundComplete ||
+      !gameState.currentRoll ||
+      rollingPlayerId
+    ) {
       return undefined
     }
 
@@ -912,6 +976,35 @@ function LudoGame() {
     }
   }, [activePlayer, gameState, rollingPlayerId])
 
+  useEffect(() => {
+    if (!gameState.latestPlacement) {
+      return undefined
+    }
+
+    const placedPlayer =
+      gameState.players.find(
+        (player) => player.id === gameState.latestPlacement.playerId,
+      ) ?? LUDO_PLAYER_DEFS[gameState.latestPlacement.playerId]
+
+    setCelebration({
+      ...gameState.latestPlacement,
+      player: placedPlayer,
+      message:
+        gameState.latestPlacement.rank === 1
+          ? `${placedPlayer.label} claims 1st place!`
+          : `${placedPlayer.label} secures ${gameState.latestPlacement.label} place!`,
+    })
+
+    clearCelebrationTimer()
+    celebrationTimeoutRef.current = window.setTimeout(() => {
+      setCelebration(null)
+    }, 2200)
+
+    return () => {
+      clearCelebrationTimer()
+    }
+  }, [gameState.latestPlacement, gameState.players])
+
   const handleRollClick = (playerId) => {
     if (!activePlayer || activePlayer.id !== playerId) {
       return
@@ -919,7 +1012,7 @@ function LudoGame() {
 
     if (
       activePlayer.controller !== 'human' ||
-      gameState.winner ||
+      gameState.roundComplete ||
       gameState.currentRoll ||
       rollingPlayerId
     ) {
@@ -968,8 +1061,8 @@ function LudoGame() {
   const currentTurnSummary = activePlayer
     ? `${activePlayer.label} ${activePlayer.controller === 'ai' ? 'AI' : 'player'}`
     : '--'
-  const turnHint = gameState.winner
-    ? 'Round complete.'
+  const turnHint = gameState.roundComplete
+    ? 'Top placements are settled for this round.'
     : activePlayer?.controller === 'ai'
       ? rollingPlayerId === activePlayer?.id
         ? `${activePlayer.label} AI is rolling the die.`
@@ -979,6 +1072,20 @@ function LudoGame() {
       : gameState.currentRoll
         ? 'Tap one of the highlighted tokens on the board.'
         : `Tap ${activePlayer?.label}'s die between the home tokens.`
+  const placementByPlayerId = gameState.placements.reduce((placementMap, playerId, index) => {
+    placementMap[playerId] = getLudoPlacementLabel(index + 1)
+    return placementMap
+  }, {})
+
+  if (gameState.roundComplete) {
+    gameState.players
+      .filter((player) => !placementByPlayerId[player.id])
+      .forEach((player, index) => {
+        placementByPlayerId[player.id] = getLudoPlacementLabel(
+          gameState.placements.length + index + 1,
+        )
+      })
+  }
 
   return (
     <div className="grid gap-5">
@@ -986,7 +1093,7 @@ function LudoGame() {
         <LudoMetric
           hint="Current turn owner"
           label="Active turn"
-          value={gameState.winner ? 'Round over' : currentTurnSummary}
+          value={gameState.roundComplete ? 'Standings settled' : currentTurnSummary}
         />
         <LudoMetric
           hint="Most recent dice result"
@@ -994,9 +1101,9 @@ function LudoGame() {
           value={gameState.lastRoll ?? '--'}
         />
         <LudoMetric
-          hint="Completed dice throws"
-          label="Rolls played"
-          value={gameState.moveCount}
+          hint="Placements decided this round"
+          label="Standings"
+          value={`${gameState.placements.length}/${placementTarget}`}
         />
       </div>
 
@@ -1021,7 +1128,50 @@ function LudoGame() {
           </div>
 
           <div className="w-full overflow-hidden">
-            <div className="mx-auto w-full max-w-[44rem] rounded-[1.3rem] border border-line bg-[radial-gradient(circle_at_top_left,rgba(244,63,94,0.18),transparent_24%),radial-gradient(circle_at_top_right,rgba(56,189,248,0.18),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(250,204,21,0.18),transparent_24%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.18),transparent_24%),linear-gradient(145deg,rgba(51,65,85,0.22),rgba(15,23,42,0.34))] p-1.5 shadow-[var(--portfolio-soft-shadow)] sm:rounded-[1.7rem] sm:p-3">
+            <div className="relative mx-auto w-full max-w-[44rem] overflow-hidden rounded-[1.3rem] border border-line bg-[radial-gradient(circle_at_top_left,rgba(244,63,94,0.18),transparent_24%),radial-gradient(circle_at_top_right,rgba(56,189,248,0.18),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(250,204,21,0.18),transparent_24%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.18),transparent_24%),linear-gradient(145deg,rgba(51,65,85,0.22),rgba(15,23,42,0.34))] p-1.5 shadow-[var(--portfolio-soft-shadow)] sm:rounded-[1.7rem] sm:p-3">
+              {celebration ? (
+                <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center overflow-hidden">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(15,23,42,0.08),transparent_62%)]" />
+                  <span
+                    className={cx(
+                      'absolute left-[14%] top-[18%] h-20 w-20 rounded-full blur-2xl animate-pulse',
+                      celebration.player.cellTone,
+                    )}
+                  />
+                  <span
+                    className={cx(
+                      'absolute right-[12%] top-[24%] h-16 w-16 rounded-full blur-2xl animate-pulse',
+                      celebration.player.cellTone,
+                    )}
+                  />
+                  <span
+                    className={cx(
+                      'absolute bottom-[16%] left-[20%] h-16 w-16 rounded-full blur-2xl animate-pulse',
+                      celebration.player.cellTone,
+                    )}
+                  />
+                  <div
+                    className={cx(
+                      'relative mx-4 flex max-w-[20rem] flex-col items-center gap-2 rounded-[1.6rem] border px-5 py-4 text-center shadow-[0_30px_60px_rgba(15,23,42,0.22)] backdrop-blur-md animate-[bounce_1.1s_ease-in-out_2]',
+                      celebration.player.summaryTone,
+                    )}
+                  >
+                    <span className="absolute inset-[-18px] rounded-[1.9rem] border border-white/18 animate-ping" />
+                    <span className={cardLabelClassName}>Board Celebration</span>
+                    <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/14 text-white shadow-[var(--portfolio-soft-shadow)]">
+                      <Trophy size={22} />
+                    </span>
+                    <p className="font-display text-[1.45rem] leading-[1.05] tracking-[-0.04em] text-ink">
+                      {celebration.message}
+                    </p>
+                    <p className="text-sm leading-6 text-muted">
+                      {celebration.rank === placementTarget
+                        ? 'This round ranking is complete.'
+                        : `${placementTarget - celebration.rank} placement${placementTarget - celebration.rank === 1 ? '' : 's'} still to decide.`}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
               <div className="grid gap-[0.2rem] sm:gap-1">
                 {Array.from({ length: 15 }, (_, rowIndex) => (
                   <div
@@ -1145,7 +1295,7 @@ function LudoGame() {
                             <div className="absolute inset-0 z-10 flex items-center justify-center overflow-visible">
                               <LudoDie
                                 canRoll={
-                                  !gameState.winner &&
+                                  !gameState.roundComplete &&
                                   !gameState.currentRoll &&
                                   !rollingPlayerId &&
                                   activePlayer?.id === diceAnchorPlayer.id &&
@@ -1153,7 +1303,7 @@ function LudoGame() {
                                 }
                                 compact
                                 isActiveTurn={
-                                  !gameState.winner &&
+                                  !gameState.roundComplete &&
                                   activePlayer?.id === diceAnchorPlayer.id
                                 }
                                 isRolling={rollingPlayerId === diceAnchorPlayer.id}
@@ -1319,6 +1469,9 @@ function LudoGame() {
                 Safe squares are star marked
               </span>
               <span className={chipClassName}>
+                {gameState.placements.length}/{placementTarget} places decided
+              </span>
+              <span className={chipClassName}>
                 {turnHint}
               </span>
             </div>
@@ -1351,7 +1504,14 @@ function LudoGame() {
                       </span>
                       <span className="font-medium text-ink">{player.label}</span>
                     </div>
-                    <span className={chipClassName}>{scoreboard[player.id]} wins</span>
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      <span className={chipClassName}>{scoreboard[player.id]} wins</span>
+                      <span className={chipClassName}>
+                        {placementByPlayerId[player.id]
+                          ? `${placementByPlayerId[player.id]} place`
+                          : 'In play'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
