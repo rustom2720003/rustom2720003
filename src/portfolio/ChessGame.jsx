@@ -44,6 +44,14 @@ const CHESS_PIECE_SYMBOLS = {
     pawn: '\u265F',
   },
 }
+const CHESS_PIECE_FONT_FAMILY =
+  '"Segoe UI Symbol","Noto Sans Symbols 2","Noto Sans Symbols","Arial Unicode MS",sans-serif'
+const CHESS_PIECE_TOKEN_CLASSNAMES = {
+  white:
+    'border-white/75 bg-gradient-to-br from-white via-slate-100 to-slate-200 text-slate-900 shadow-[0_12px_26px_rgba(148,163,184,0.24)]',
+  black:
+    'border-slate-400/65 bg-gradient-to-br from-slate-200 via-slate-300 to-slate-400 text-slate-950 shadow-[0_12px_26px_rgba(15,23,42,0.2)]',
+}
 const CHESS_KNIGHT_OFFSETS = [
   { row: -2, col: -1 },
   { row: -2, col: 1 },
@@ -739,6 +747,27 @@ function ChessMetric({ label, value, hint }) {
   )
 }
 
+function ChessPieceToken({ piece, isSelected }) {
+  return (
+    <span className="pointer-events-none absolute inset-[3px] flex items-center justify-center sm:inset-1">
+      <span
+        aria-hidden="true"
+        className={cx(
+          'flex h-full w-full select-none items-center justify-center rounded-[0.82rem] border text-[1.95rem] leading-none transition duration-200 sm:text-[2.1rem]',
+          CHESS_PIECE_TOKEN_CLASSNAMES[piece.color],
+          isSelected && 'scale-[1.04]',
+        )}
+        style={{
+          fontFamily: CHESS_PIECE_FONT_FAMILY,
+          transform: 'translateY(1px)',
+        }}
+      >
+        {CHESS_PIECE_SYMBOLS[piece.color][piece.type]}
+      </span>
+    </span>
+  )
+}
+
 function ChessCapturedRow({ label, pieces, accentClassName }) {
   return (
     <div className="rounded-[1.2rem] border border-line bg-[color:var(--portfolio-glass-soft)] px-4 py-3 shadow-[var(--portfolio-soft-shadow)]">
@@ -1005,7 +1034,7 @@ function ChessGame() {
                         key={`chess-square-${rowIndex}-${columnIndex}`}
                         type="button"
                         className={cx(
-                          'relative aspect-square rounded-[0.95rem] border p-1 transition duration-200',
+                          'relative aspect-square overflow-hidden rounded-[0.95rem] border p-0.5 transition duration-200 sm:p-1',
                           isLightSquare
                             ? 'bg-[color:var(--portfolio-glass-hover)]'
                             : 'bg-[color:var(--portfolio-glass-inline)]',
@@ -1022,21 +1051,10 @@ function ChessGame() {
                         onClick={() => handleSquareClick(rowIndex, columnIndex)}
                       >
                         {piece ? (
-                          <span
-                            className={cx(
-                              'flex h-full w-full items-center justify-center rounded-[0.75rem] border text-[1.9rem] shadow-[var(--portfolio-soft-shadow)] transition duration-200 sm:text-[2.1rem]',
-                              piece.color === 'white'
-                                ? 'border-white/60 bg-white/85 text-slate-900'
-                                : 'border-slate-800/25 bg-slate-900/84 text-white',
-                              isSelected && 'scale-[1.04]',
-                            )}
-                            style={{
-                              fontFamily:
-                                '"Segoe UI Symbol","Noto Sans Symbols","Arial Unicode MS",sans-serif',
-                            }}
-                          >
-                            {CHESS_PIECE_SYMBOLS[piece.color][piece.type]}
-                          </span>
+                          <ChessPieceToken
+                            isSelected={isSelected}
+                            piece={piece}
+                          />
                         ) : isLegalTarget ? (
                           <span className="absolute inset-0 flex items-center justify-center">
                             <span className="h-3.5 w-3.5 rounded-full bg-accent shadow-[0_0_0_8px_rgba(22,185,221,0.14)]" />
