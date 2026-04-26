@@ -9,6 +9,7 @@ import {
   ChevronDown,
   Coins,
   Crown,
+  Dice5,
   Gamepad2,
   Keyboard,
   Play,
@@ -17,6 +18,7 @@ import {
 } from 'lucide-react'
 import ChessGame from './ChessGame'
 import CoinTossGame from './CoinTossGame'
+import LudoGame from './LudoGame'
 import {
   buttonClassNames,
   cardLabelClassName,
@@ -117,6 +119,19 @@ const FUN_ZONE_GAMES = [
       'Track your wins, accuracy, streak, and recent toss history.',
     ],
     component: CoinTossGame,
+  },
+  {
+    id: 'ludo',
+    icon: Dice5,
+    title: 'Classic Ludo',
+    blurb: 'Play a full four-token ludo race with 2 to 4 players, AI support, and animated dice.',
+    tags: ['Classic', '2-4 Players', 'AI'],
+    rules: [
+      'Choose 2, 3, or 4 players, then decide which colors are Human or AI.',
+      'A 6 is needed to leave base, captures send opposing tokens back, and an exact roll is required to reach home.',
+      'Each player rolls from their own animated die, and AI players handle their turns automatically.',
+    ],
+    component: LudoGame,
   },
   {
     id: 'memory',
@@ -541,7 +556,7 @@ function FunZone() {
             </div>
 
             <div className="flex items-center gap-3 self-start lg:self-center">
-              <span className={chipClassName}>6 React mini-games</span>
+              <span className={chipClassName}>7 React mini-games</span>
               <span
                 className={cx(
                   'inline-flex h-11 w-11 items-center justify-center rounded-full border border-line bg-[color:var(--portfolio-glass-soft)] text-ink shadow-[var(--portfolio-soft-shadow)] transition duration-200',
@@ -562,8 +577,8 @@ function FunZone() {
               <span className={chipClassName}>Keyboard and mobile friendly</span>
             </div>
 
-            <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(320px,0.98fr)_minmax(340px,1.02fr)] xl:items-start">
-              <div className="grid gap-4">
+            <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(280px,0.96fr)_minmax(0,1.04fr)] xl:items-start">
+              <div className="grid min-w-0 gap-4">
                 {FUN_ZONE_GAMES.map((game) => {
                   const Icon = game.icon
                   const isSelected = selectedGameId === game.id
@@ -616,10 +631,10 @@ function FunZone() {
                 })}
               </div>
 
-              <div className="grid gap-4">
+              <div className="grid min-w-0 gap-4">
                 <article
                   ref={rulesSectionRef}
-                  className="scroll-mt-28 grid gap-5 rounded-[1.55rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-5 shadow-[var(--portfolio-soft-shadow)] sm:p-6"
+                  className="scroll-mt-28 grid min-w-0 gap-5 rounded-[1.55rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-5 shadow-[var(--portfolio-soft-shadow)] sm:p-6"
                 >
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
@@ -669,7 +684,7 @@ function FunZone() {
 
                 <div
                   ref={gameSectionRef}
-                  className="scroll-mt-28 rounded-[1.55rem] border border-line bg-[color:var(--portfolio-glass-strong)] p-4 shadow-[var(--portfolio-soft-shadow)] sm:p-5"
+                  className="scroll-mt-28 min-w-0 overflow-hidden rounded-[1.55rem] border border-line bg-[color:var(--portfolio-glass-strong)] p-4 shadow-[var(--portfolio-soft-shadow)] sm:p-5"
                 >
                   {activeGameId === selectedGameId ? (
                     <ActiveGame key={`${selectedGameId}-${gameRunKey}`} />

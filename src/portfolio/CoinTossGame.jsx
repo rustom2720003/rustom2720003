@@ -329,8 +329,8 @@ function CoinTossGame() {
       : 'text-ink'
 
   return (
-    <div className="mx-auto grid w-full max-w-[68rem] gap-5">
-      <div className="grid gap-3 sm:grid-cols-3">
+    <div className="grid min-w-0 w-full gap-5">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-3">
         <TossMetric
           hint="Correct predictions so far"
           label="Wins"
@@ -348,8 +348,8 @@ function CoinTossGame() {
         />
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(320px,1fr)_minmax(320px,1fr)] xl:items-start">
-        <div className="grid gap-4 rounded-[1.55rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-5 shadow-[var(--portfolio-soft-shadow)] sm:p-6">
+      <div className="grid min-w-0 gap-5 2xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] 2xl:items-start">
+        <div className="grid min-w-0 gap-4 rounded-[1.55rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-5 shadow-[var(--portfolio-soft-shadow)] sm:p-6">
           <div className="flex flex-wrap gap-3">
             {['Heads', 'Tails'].map((side) => (
               <button
@@ -434,8 +434,8 @@ function CoinTossGame() {
           </div>
         </div>
 
-        <div className="grid gap-4">
-          <div className="rounded-[1.35rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-5 shadow-[var(--portfolio-soft-shadow)]">
+        <div className="grid min-w-0 gap-4">
+          <div className="min-w-0 rounded-[1.35rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-5 shadow-[var(--portfolio-soft-shadow)]">
             <p className={cardLabelClassName}>Result</p>
             <p className="mt-3 text-base leading-8 text-muted">{resultText}</p>
             <div className="mt-4 flex flex-wrap gap-3">
@@ -446,7 +446,7 @@ function CoinTossGame() {
             </div>
           </div>
 
-          <div className="rounded-[1.35rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-5 shadow-[var(--portfolio-soft-shadow)]">
+          <div className="min-w-0 rounded-[1.35rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-5 shadow-[var(--portfolio-soft-shadow)]">
             <div className="flex items-center justify-between gap-4">
               <p className={cardLabelClassName}>Recent history</p>
               <span className={chipClassName}>
