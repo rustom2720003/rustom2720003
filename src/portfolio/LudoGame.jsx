@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Bot, Dice5, RotateCcw, Shield, Trophy, Users } from 'lucide-react'
+import { Bot, RotateCcw, Star, Trophy, Users } from 'lucide-react'
 import {
   buttonClassNames,
   cardLabelClassName,
@@ -86,9 +86,9 @@ const LUDO_PLAYER_DEFS = {
     startIndex: 0,
     pipTone: 'bg-rose-600',
     cellTone:
-      'bg-gradient-to-br from-rose-500/24 via-red-500/18 to-orange-400/18',
+      'bg-gradient-to-br from-rose-500/26 via-red-500/18 to-orange-400/14',
     laneTone:
-      'bg-gradient-to-br from-rose-500/30 via-red-500/22 to-orange-400/20',
+      'bg-[linear-gradient(145deg,rgba(159,18,57,0.8),rgba(153,27,27,0.72),rgba(154,52,18,0.64))]',
     tokenTone:
       'border-rose-300/45 bg-gradient-to-br from-rose-500 via-red-600 to-orange-500 text-white',
     summaryTone:
@@ -103,9 +103,9 @@ const LUDO_PLAYER_DEFS = {
     startIndex: 13,
     pipTone: 'bg-sky-600',
     cellTone:
-      'bg-gradient-to-br from-sky-500/24 via-cyan-500/18 to-blue-500/18',
+      'bg-gradient-to-br from-sky-500/24 via-cyan-500/18 to-blue-500/14',
     laneTone:
-      'bg-gradient-to-br from-sky-500/30 via-cyan-500/22 to-blue-500/20',
+      'bg-[linear-gradient(145deg,rgba(3,105,161,0.82),rgba(8,145,178,0.72),rgba(30,64,175,0.66))]',
     tokenTone:
       'border-sky-300/45 bg-gradient-to-br from-sky-500 via-cyan-600 to-blue-600 text-white',
     summaryTone:
@@ -120,9 +120,9 @@ const LUDO_PLAYER_DEFS = {
     startIndex: 26,
     pipTone: 'bg-amber-600',
     cellTone:
-      'bg-gradient-to-br from-amber-300/34 via-yellow-300/24 to-orange-300/18',
+      'bg-gradient-to-br from-amber-300/30 via-yellow-300/22 to-orange-300/14',
     laneTone:
-      'bg-gradient-to-br from-amber-300/40 via-yellow-300/30 to-orange-300/20',
+      'bg-[linear-gradient(145deg,rgba(180,83,9,0.76),rgba(202,138,4,0.7),rgba(161,98,7,0.64))]',
     tokenTone:
       'border-amber-200/55 bg-gradient-to-br from-amber-300 via-yellow-300 to-orange-300 text-slate-900',
     summaryTone:
@@ -137,9 +137,9 @@ const LUDO_PLAYER_DEFS = {
     startIndex: 39,
     pipTone: 'bg-emerald-600',
     cellTone:
-      'bg-gradient-to-br from-emerald-500/24 via-green-500/18 to-teal-400/18',
+      'bg-gradient-to-br from-emerald-500/24 via-green-500/18 to-teal-400/14',
     laneTone:
-      'bg-gradient-to-br from-emerald-500/30 via-green-500/22 to-teal-400/20',
+      'bg-[linear-gradient(145deg,rgba(5,150,105,0.82),rgba(22,163,74,0.72),rgba(13,148,136,0.64))]',
     tokenTone:
       'border-emerald-300/45 bg-gradient-to-br from-emerald-500 via-green-600 to-teal-500 text-white',
     summaryTone:
@@ -204,6 +204,12 @@ const LUDO_BASE_SLOTS = {
     { row: 12, column: 4 },
   ],
 }
+const LUDO_DICE_ANCHORS = {
+  red: { row: 3, column: 3 },
+  blue: { row: 3, column: 11 },
+  yellow: { row: 11, column: 11 },
+  green: { row: 11, column: 3 },
+}
 const LUDO_BASE_AREAS = {
   red: { rowStart: 0, rowEnd: 5, columnStart: 0, columnEnd: 5 },
   blue: { rowStart: 0, rowEnd: 5, columnStart: 9, columnEnd: 14 },
@@ -245,6 +251,14 @@ const ludoHomeLaneByKey = Object.entries(LUDO_HOME_LANES).reduce(
       }
     })
 
+    return map
+  },
+  {},
+)
+
+const ludoDiceAnchorByKey = Object.entries(LUDO_DICE_ANCHORS).reduce(
+  (map, [playerId, coordinate]) => {
+    map[`${coordinate.row}-${coordinate.column}`] = playerId
     return map
   },
   {},
@@ -614,39 +628,87 @@ function LudoToken({ player, tokenIndex, isMovable, onClick }) {
   return (
     <button
       className={cx(
-        'inline-flex h-6 w-6 items-center justify-center rounded-full border text-[0.62rem] font-black shadow-[var(--portfolio-soft-shadow)] transition duration-200 sm:h-7 sm:w-7 sm:text-[0.68rem]',
-        player.tokenTone,
+        'relative inline-flex h-[clamp(1.1rem,4.7vw,1.95rem)] w-[clamp(0.92rem,4vw,1.58rem)] items-end justify-center bg-transparent transition duration-200',
         isMovable &&
-          'scale-[1.06] shadow-[0_0_0_2px_rgba(46,115,255,0.32)] hover:-translate-y-0.5',
+          '-translate-y-0.5 scale-[1.08] animate-[bounce_1.2s_ease-in-out_infinite] drop-shadow-[0_0_16px_rgba(255,255,255,0.22)]',
       )}
       title={`${player.label} token ${tokenIndex + 1}`}
       {...interactiveProps}
     >
-      {tokenIndex + 1}
+      <span className="pointer-events-none relative block h-full w-full">
+        <span className="absolute left-1/2 top-[7%] h-[16%] w-[44%] -translate-x-1/2 rounded-full bg-white/35 blur-[1px]" />
+        <span
+          className={cx(
+            'absolute left-1/2 top-[14%] h-[25%] w-[50%] -translate-x-1/2 rounded-full border border-white/40 shadow-[inset_0_1px_2px_rgba(255,255,255,0.3)]',
+            player.tokenTone,
+          )}
+        />
+        <span
+          className={cx(
+            'absolute left-1/2 top-[34%] h-[28%] w-[58%] -translate-x-1/2 rounded-[999px] border border-white/32 shadow-[inset_0_1px_2px_rgba(255,255,255,0.22)]',
+            player.tokenTone,
+          )}
+        />
+        <span
+          className={cx(
+            'absolute bottom-[8%] left-1/2 h-[28%] w-[84%] -translate-x-1/2 rounded-full border border-white/24 shadow-[0_5px_10px_rgba(15,23,42,0.16),inset_0_1px_2px_rgba(255,255,255,0.2)]',
+            player.tokenTone,
+          )}
+        />
+      </span>
+      <span className="sr-only">{`${player.label} token ${tokenIndex + 1}`}</span>
     </button>
   )
 }
 
-function LudoDie({ player, value, isRolling, canRoll, onRoll }) {
+function LudoDie({
+  player,
+  value,
+  isRolling,
+  canRoll,
+  onRoll,
+  compact = false,
+  isActiveTurn = false,
+}) {
   const pips = LUDO_DICE_PIPS[value] ?? LUDO_DICE_PIPS[1]
 
   return (
     <button
       type="button"
       className={cx(
-        'group inline-flex h-20 w-20 items-center justify-center rounded-[1.4rem] border p-2 shadow-[var(--portfolio-soft-shadow)] transition duration-200',
+        'group relative inline-flex items-center justify-center border transition duration-200',
+        compact
+          ? 'h-[clamp(2.25rem,10vw,4.5rem)] w-[clamp(1.5rem,6.8vw,3rem)] rounded-[45%] p-[clamp(0.15rem,0.6vw,0.35rem)]'
+          : 'h-24 w-16 rounded-[45%] p-1.5',
         player.diceTone,
-        canRoll ? 'hover:-translate-y-0.5 hover:border-line-strong' : 'cursor-default opacity-80',
-        isRolling && 'animate-[spin_0.9s_linear_infinite] scale-[1.04]',
+        canRoll
+          ? 'hover:-translate-y-0.5 hover:border-line-strong'
+          : isActiveTurn
+            ? 'cursor-default'
+            : 'cursor-default opacity-75',
+        isActiveTurn &&
+          !isRolling &&
+          'z-10 scale-[1.08] animate-[bounce_1.35s_ease-in-out_infinite] shadow-[0_0_0_2px_rgba(255,255,255,0.12),0_16px_28px_rgba(15,23,42,0.18)]',
+        isRolling && 'animate-[spin_0.9s_linear_infinite] scale-[1.1]',
       )}
       disabled={!canRoll}
       onClick={onRoll}
     >
-      <span className="grid h-full w-full grid-cols-3 grid-rows-3 gap-1 rounded-[1rem] border border-white/45 bg-white/90 p-2">
+      <span
+        className={cx(
+          'grid h-full w-full grid-cols-3 grid-rows-3 rounded-[45%] border border-white/45 bg-[radial-gradient(circle_at_30%_22%,rgba(255,255,255,0.98),rgba(255,255,255,0.92)_35%,rgba(226,232,240,0.88)_100%)] shadow-[inset_0_4px_8px_rgba(255,255,255,0.35),inset_0_-4px_10px_rgba(148,163,184,0.18)]',
+          compact
+            ? 'gap-[clamp(0.06rem,0.22vw,0.25rem)] p-[clamp(0.22rem,0.65vw,0.5rem)]'
+            : 'gap-1 p-2',
+        )}
+      >
         {Array.from({ length: 9 }, (_, index) => (
           <span
             className={cx(
-              'h-2.5 w-2.5 self-center justify-self-center rounded-full transition duration-150',
+              'self-center justify-self-center rounded-full transition duration-150',
+              compact
+                ? 'h-[clamp(0.22rem,0.95vw,0.62rem)] w-[clamp(0.22rem,0.95vw,0.62rem)]'
+                : 'h-2.5 w-2.5',
               pips.includes(index) ? player.pipTone : 'opacity-0',
             )}
             key={`pip-${player.id}-${value}-${index}`}
@@ -906,6 +968,17 @@ function LudoGame() {
   const currentTurnSummary = activePlayer
     ? `${activePlayer.label} ${activePlayer.controller === 'ai' ? 'AI' : 'player'}`
     : '--'
+  const turnHint = gameState.winner
+    ? 'Round complete.'
+    : activePlayer?.controller === 'ai'
+      ? rollingPlayerId === activePlayer?.id
+        ? `${activePlayer.label} AI is rolling the die.`
+        : gameState.currentRoll
+          ? 'AI is choosing the strongest token move.'
+          : `${activePlayer?.label} AI will roll automatically.`
+      : gameState.currentRoll
+        ? 'Tap one of the highlighted tokens on the board.'
+        : `Tap ${activePlayer?.label}'s die between the home tokens.`
 
   return (
     <div className="grid gap-5">
@@ -927,7 +1000,7 @@ function LudoGame() {
         />
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)] xl:items-start">
+      <div className="grid gap-5 2xl:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)] 2xl:items-start">
         <div className="grid gap-4 rounded-[1.55rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-4 shadow-[var(--portfolio-soft-shadow)] sm:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <div>
@@ -947,22 +1020,33 @@ function LudoGame() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <div className="mx-auto w-full min-w-[31rem] max-w-[44rem] rounded-[1.45rem] border border-line bg-[color:var(--portfolio-glass-inline)] p-2 shadow-[var(--portfolio-soft-shadow)] sm:p-3">
-              <div className="grid gap-1">
+          <div className="w-full overflow-hidden">
+            <div className="mx-auto w-full max-w-[44rem] rounded-[1.3rem] border border-line bg-[radial-gradient(circle_at_top_left,rgba(244,63,94,0.18),transparent_24%),radial-gradient(circle_at_top_right,rgba(56,189,248,0.18),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(250,204,21,0.18),transparent_24%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.18),transparent_24%),linear-gradient(145deg,rgba(51,65,85,0.22),rgba(15,23,42,0.34))] p-1.5 shadow-[var(--portfolio-soft-shadow)] sm:rounded-[1.7rem] sm:p-3">
+              <div className="grid gap-[0.2rem] sm:gap-1">
                 {Array.from({ length: 15 }, (_, rowIndex) => (
                   <div
-                    className="grid grid-cols-[repeat(15,minmax(0,1fr))] gap-1"
+                    className="grid grid-cols-[repeat(15,minmax(0,1fr))] gap-[0.2rem] sm:gap-1"
                     key={`ludo-row-${rowIndex}`}
                   >
                     {Array.from({ length: 15 }, (_, columnIndex) => {
                       const key = `${rowIndex}-${columnIndex}`
                       const trackIndex = ludoTrackIndexByKey[key]
                       const baseSlotInfo = ludoBaseSlotByKey[key]
+                      const diceAnchorPlayerId = ludoDiceAnchorByKey[key]
                       const homeLaneInfo = ludoHomeLaneByKey[key]
                       const baseAreaOwnerId = ludoBaseAreaByKey[key]
                       const baseAreaOwner = baseAreaOwnerId
                         ? LUDO_PLAYER_DEFS[baseAreaOwnerId]
+                        : null
+                      const diceAnchorPlayer = diceAnchorPlayerId
+                        ? gameState.players.find(
+                            (player) => player.id === diceAnchorPlayerId,
+                          ) ?? LUDO_PLAYER_DEFS[diceAnchorPlayerId]
+                        : null
+                      const slotOwner = baseSlotInfo
+                        ? gameState.players.find(
+                            (player) => player.id === baseSlotInfo.playerId,
+                          ) ?? LUDO_PLAYER_DEFS[baseSlotInfo.playerId]
                         : null
                       const homeLaneOwner = homeLaneInfo
                         ? LUDO_PLAYER_DEFS[homeLaneInfo.playerId]
@@ -978,14 +1062,19 @@ function LudoGame() {
                           homeTokensByCell[key] ??
                           (rowIndex === 7 && columnIndex === 7 ? centerTokens : [])
                       const isCenter = rowIndex === 7 && columnIndex === 7
+                      const isDiceAnchor = Boolean(diceAnchorPlayerId)
+                      const isPathCell =
+                        trackIndex !== undefined || Boolean(homeLaneInfo) || isCenter
                       const isSafeTrack =
                         trackIndex !== undefined && LUDO_SAFE_TRACK_INDICES.has(trackIndex)
 
-                      let cellClassName =
-                        'relative aspect-square min-w-0 overflow-hidden rounded-[0.82rem] border border-line bg-[color:var(--portfolio-glass-hover)]'
+                      let cellClassName = 'relative aspect-square min-w-0 overflow-visible'
 
-                      if (baseAreaOwner) {
-                        cellClassName = cx(cellClassName, baseAreaOwner.cellTone)
+                      if (isPathCell) {
+                        cellClassName = cx(
+                          cellClassName,
+                          'rounded-[0.82rem] border border-white/10 bg-[linear-gradient(145deg,rgba(51,65,85,0.5),rgba(15,23,42,0.62))] shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_0_18px_rgba(15,23,42,0.12)] backdrop-blur-[2px]',
+                        )
                       }
 
                       if (trackIndex !== undefined) {
@@ -993,24 +1082,48 @@ function LudoGame() {
                           cellClassName,
                           startOwner
                             ? startOwner.laneTone
-                            : 'bg-[color:var(--portfolio-glass-soft)]',
-                          isSafeTrack && 'shadow-[0_0_0_2px_rgba(255,255,255,0.12)]',
+                            : 'bg-[linear-gradient(145deg,rgba(71,85,105,0.58),rgba(30,41,59,0.72))]',
+                          'shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_0_14px_rgba(15,23,42,0.16)]',
                         )
                       }
 
                       if (homeLaneOwner) {
-                        cellClassName = cx(cellClassName, homeLaneOwner.laneTone)
+                        cellClassName = cx(
+                          cellClassName,
+                          homeLaneOwner.laneTone,
+                          'shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_0_18px_rgba(15,23,42,0.2)]',
+                        )
                       }
 
                       if (isCenter) {
                         cellClassName = cx(
                           cellClassName,
-                          'bg-gradient-to-br from-fuchsia-500/24 via-violet-500/18 to-cyan-500/22',
+                          'bg-gradient-to-br from-fuchsia-500/26 via-violet-500/18 to-cyan-500/22 shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_0_24px_rgba(168,85,247,0.18)]',
                         )
+                      }
+
+                      if (!isPathCell && !baseSlotInfo && !isDiceAnchor) {
+                        cellClassName = 'relative aspect-square min-w-0 bg-transparent'
                       }
 
                       return (
                         <div className={cellClassName} key={key}>
+                          {isSafeTrack ? (
+                            <span
+                              className={cx(
+                                'pointer-events-none absolute text-amber-100 drop-shadow-[0_0_10px_rgba(251,191,36,0.38)]',
+                                tokens.length
+                                  ? 'right-1 top-1'
+                                  : 'inset-0 flex items-center justify-center',
+                              )}
+                            >
+                              <Star
+                                fill="currentColor"
+                                size={tokens.length ? 8 : 12}
+                              />
+                            </span>
+                          ) : null}
+
                           {isCenter ? (
                             <div className="flex h-full w-full flex-wrap items-center justify-center gap-1 p-1">
                               {tokens.length ? (
@@ -1025,6 +1138,56 @@ function LudoGame() {
                               ) : finishedPlayers.length ? (
                                 <span className="inline-flex h-full w-full items-center justify-center text-white/90">
                                   <Trophy size={18} />
+                                </span>
+                              ) : null}
+                            </div>
+                          ) : isDiceAnchor && diceAnchorPlayer ? (
+                            <div className="absolute inset-0 z-10 flex items-center justify-center overflow-visible">
+                              <LudoDie
+                                canRoll={
+                                  !gameState.winner &&
+                                  !gameState.currentRoll &&
+                                  !rollingPlayerId &&
+                                  activePlayer?.id === diceAnchorPlayer.id &&
+                                  diceAnchorPlayer.controller === 'human'
+                                }
+                                compact
+                                isActiveTurn={
+                                  !gameState.winner &&
+                                  activePlayer?.id === diceAnchorPlayer.id
+                                }
+                                isRolling={rollingPlayerId === diceAnchorPlayer.id}
+                                onRoll={() => handleRollClick(diceAnchorPlayer.id)}
+                                player={diceAnchorPlayer}
+                                value={diceValues[diceAnchorPlayer.id]}
+                              />
+                            </div>
+                          ) : baseSlotInfo && slotOwner ? (
+                            <div className="flex h-full w-full items-center justify-center">
+                              <span
+                                className={cx(
+                                  'inline-flex h-[82%] w-[82%] rounded-full border border-white/12 shadow-[0_0_20px_rgba(255,255,255,0.06)]',
+                                  baseAreaOwner?.cellTone ?? 'bg-white/6',
+                                )}
+                              />
+                              {tokens.length ? (
+                                <span className="absolute inset-0 flex items-center justify-center">
+                                  {tokens.map((token) => (
+                                    <LudoToken
+                                      isMovable={gameState.legalMoves.some(
+                                        (move) =>
+                                          move.playerId === token.player.id &&
+                                          move.tokenIndex === token.tokenIndex &&
+                                          activePlayer?.controller === 'human',
+                                      )}
+                                      key={`${token.player.id}-${token.tokenIndex}-${key}`}
+                                      onClick={() =>
+                                        handleTokenClick(token.player.id, token.tokenIndex)
+                                      }
+                                      player={token.player}
+                                      tokenIndex={token.tokenIndex}
+                                    />
+                                  ))}
                                 </span>
                               ) : null}
                             </div>
@@ -1047,14 +1210,6 @@ function LudoGame() {
                                 />
                               ))}
                             </div>
-                          ) : trackIndex !== undefined ? (
-                            <span className="absolute inset-0 flex items-center justify-center text-[0.58rem] font-semibold uppercase text-white/85">
-                              {isSafeTrack ? <Shield size={12} /> : null}
-                            </span>
-                          ) : baseSlotInfo ? (
-                            <span className="absolute inset-0 flex items-center justify-center">
-                              <span className="h-3 w-3 rounded-full border border-white/45 bg-white/30" />
-                            </span>
                           ) : null}
                         </div>
                       )
@@ -1161,79 +1316,11 @@ function LudoGame() {
                 Exact roll to reach home
               </span>
               <span className={chipClassName}>
-                6 or capture keeps the turn
+                Safe squares are star marked
               </span>
-            </div>
-          </div>
-
-          <div className="rounded-[1.35rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-5 shadow-[var(--portfolio-soft-shadow)]">
-            <div className="flex items-center justify-between gap-4">
-              <p className={cardLabelClassName}>Player dice</p>
-              <span className={chipClassName}>One die per player</span>
-            </div>
-
-            <div className="mt-4 grid gap-3">
-              {gameState.players.map((player) => {
-                const canRoll =
-                  !gameState.winner &&
-                  !gameState.currentRoll &&
-                  !rollingPlayerId &&
-                  activePlayer?.id === player.id &&
-                  player.controller === 'human'
-                const isRolling = rollingPlayerId === player.id
-                const homeCount = getFinishedTokenCount(player)
-
-                return (
-                  <div
-                    className={cx(
-                      'rounded-[1rem] border px-4 py-4 shadow-[var(--portfolio-soft-shadow)]',
-                      player.summaryTone,
-                    )}
-                    key={`dice-${player.id}`}
-                  >
-                    <div className="flex items-center justify-between gap-4">
-                      <div>
-                        <div className="flex items-center gap-3">
-                          <span
-                            className={cx(
-                              'inline-flex h-9 w-9 items-center justify-center rounded-full border text-xs font-black uppercase shadow-[var(--portfolio-soft-shadow)]',
-                              player.tokenTone,
-                            )}
-                          >
-                            {player.short}
-                          </span>
-                          <div>
-                            <p className="font-medium text-ink">{player.label}</p>
-                            <p className="text-xs text-muted">
-                              {player.controller === 'ai' ? 'AI dice' : 'Player dice'}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          <span className={chipClassName}>Home: {homeCount}/4</span>
-                          <span className={chipClassName}>
-                            {activePlayer?.id === player.id
-                              ? isRolling
-                                ? 'Rolling'
-                                : gameState.currentRoll
-                                  ? 'Choose token'
-                                  : 'Your turn'
-                              : 'Waiting'}
-                          </span>
-                        </div>
-                      </div>
-
-                      <LudoDie
-                        canRoll={canRoll}
-                        isRolling={isRolling}
-                        onRoll={() => handleRollClick(player.id)}
-                        player={player}
-                        value={diceValues[player.id]}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
+              <span className={chipClassName}>
+                {turnHint}
+              </span>
             </div>
           </div>
 
@@ -1274,17 +1361,7 @@ function LudoGame() {
           <div className="flex flex-wrap gap-3">
             <button
               type="button"
-              className={cx(buttonClassNames.primary, 'w-full sm:w-auto')}
-              disabled={Boolean(gameState.winner)}
-              onClick={() => activePlayer && handleRollClick(activePlayer.id)}
-            >
-              <Dice5 size={18} />
-              {gameState.winner ? 'Round finished' : 'Roll active player dice'}
-            </button>
-
-            <button
-              type="button"
-              className={cx(buttonClassNames.ghost, 'w-full sm:w-auto')}
+              className={cx(buttonClassNames.secondary, 'w-full sm:w-auto')}
               onClick={() => resetRound()}
             >
               <RotateCcw size={18} />
