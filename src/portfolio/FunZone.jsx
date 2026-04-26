@@ -7,12 +7,14 @@ import {
   Bot,
   Brain,
   ChevronDown,
+  Crown,
   Gamepad2,
   Keyboard,
   Play,
   RotateCcw,
   Sparkles,
 } from 'lucide-react'
+import ChessGame from './ChessGame'
 import {
   buttonClassNames,
   cardLabelClassName,
@@ -139,6 +141,19 @@ const FUN_ZONE_GAMES = [
       'Complete a row, column, or diagonal before your opponent to win.',
     ],
     component: TicTacToeGame,
+  },
+  {
+    id: 'chess',
+    icon: Crown,
+    title: 'Chess',
+    blurb: 'Play full-board chess in 2-player mode or challenge a lightweight AI.',
+    tags: ['Strategy', '2 Players', 'AI'],
+    rules: [
+      'Choose either 2 Players or vs AI before the round begins.',
+      'Tap one of your pieces to see legal moves, then tap a highlighted square to play it.',
+      'Pawns auto-promote to a queen for faster play, and the AI controls Black in vs AI mode.',
+    ],
+    component: ChessGame,
   },
   {
     id: 'snake',
@@ -511,7 +526,7 @@ function FunZone() {
             </div>
 
             <div className="flex items-center gap-3 self-start lg:self-center">
-              <span className={chipClassName}>4 React mini-games</span>
+              <span className={chipClassName}>5 React mini-games</span>
               <span
                 className={cx(
                   'inline-flex h-11 w-11 items-center justify-center rounded-full border border-line bg-[color:var(--portfolio-glass-soft)] text-ink shadow-[var(--portfolio-soft-shadow)] transition duration-200',
