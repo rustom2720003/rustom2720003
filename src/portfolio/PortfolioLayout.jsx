@@ -200,8 +200,7 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
 
       <footer className={cx(sectionClassName, 'pt-0 pb-10')}>
         <p className="rounded-[1.4rem] border border-[color:var(--portfolio-footer-border)] bg-[color:var(--portfolio-footer-background)] px-5 py-4 text-sm leading-7 text-muted shadow-[var(--portfolio-soft-shadow)] backdrop-blur-xl">
-          Portfolio for {profile.name} built with React components, routed
-          pages, mapped data, reusable UI blocks, and responsive styling.
+          Portfolio built by me using React, featuring component-based architecture, routed pages, dynamic data mapping, reusable UI elements, and responsive design.
         </p>
       </footer>
 

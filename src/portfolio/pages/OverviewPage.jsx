@@ -58,7 +58,7 @@ function OverviewPage() {
 
     const intervalId = window.setInterval(() => {
       setActivePhotoIndex((currentIndex) => (currentIndex + 1) % profilePhotos.length)
-    }, 5000)
+    }, 3000)
 
     return () => window.clearInterval(intervalId)
   }, [profilePhotos.length])
