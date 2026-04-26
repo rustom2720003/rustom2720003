@@ -26,6 +26,10 @@ const CHESS_PIECE_LABELS = {
   queen: 'Queen',
   king: 'King',
 }
+const CHESS_COLOR_LABELS = {
+  white: 'White',
+  black: 'Black',
+}
 const CHESS_PIECE_SYMBOLS = {
   white: {
     king: '\u2654',
@@ -161,11 +165,46 @@ function getOpponentColor(color) {
   return color === 'white' ? 'black' : 'white'
 }
 
+function getChessSquareName(row, column) {
+  return `${CHESS_FILES[column]}${CHESS_RANKS[row]}`
+}
+
+function getChessPieceName(piece) {
+  return CHESS_PIECE_LABELS[piece.type].toLowerCase()
+}
+
 function isSameChessSquare(firstSquare, secondSquare) {
   return (
     firstSquare?.row === secondSquare?.row &&
     firstSquare?.column === secondSquare?.column
   )
+}
+
+function isSameChessMoveTarget(move, targetSquare) {
+  return move.row === targetSquare.row && move.column === targetSquare.column
+}
+
+function findChessPathBlocker(board, fromSquare, toSquare) {
+  const rowStep = Math.sign(toSquare.row - fromSquare.row)
+  const columnStep = Math.sign(toSquare.column - fromSquare.column)
+  let row = fromSquare.row + rowStep
+  let column = fromSquare.column + columnStep
+
+  while (row !== toSquare.row || column !== toSquare.column) {
+    const piece = board[row][column]
+
+    if (piece) {
+      return {
+        piece,
+        square: { row, column },
+      }
+    }
+
+    row += rowStep
+    column += columnStep
+  }
+
+  return null
 }
 
 function collectDirectionalChessMoves(board, row, column, piece, directions) {
@@ -660,6 +699,217 @@ function getChessMaterialEdge(capturedByWhite, capturedByBlack) {
   return edge > 0 ? `White +${edge}` : `Black +${Math.abs(edge)}`
 }
 
+function getChessCastleInvalidReason(board, fromSquare, toSquare, piece) {
+  const castleSide = toSquare.column > fromSquare.column ? 'kingside' : 'queenside'
+  const rookColumn = castleSide === 'kingside' ? 7 : 0
+  const pathColumns =
+    castleSide === 'kingside' ? [5, 6] : [1, 2, 3]
+  const kingTravelColumns =
+    castleSide === 'kingside' ? [5, 6] : [3, 2]
+  const rook = board[fromSquare.row][rookColumn]
+  const opponentColor = getOpponentColor(piece.color)
+
+  if (piece.hasMoved) {
+    return 'Castling is not allowed because the king has already moved.'
+  }
+
+  if (!rook || rook.type !== 'rook' || rook.color !== piece.color) {
+    return `Castling on the ${castleSide} is not available because the rook is not in place.`
+  }
+
+  if (rook.hasMoved) {
+    return `Castling on the ${castleSide} is not allowed because that rook has already moved.`
+  }
+
+  if (isSquareUnderChessAttack(board, fromSquare.row, fromSquare.column, opponentColor)) {
+    return 'You cannot castle while your king is in check.'
+  }
+
+  const blockedColumn = pathColumns.find(
+    (column) => board[fromSquare.row][column],
+  )
+
+  if (blockedColumn !== undefined) {
+    return `Castling on the ${castleSide} requires the path to be clear, but ${getChessSquareName(fromSquare.row, blockedColumn)} is occupied.`
+  }
+
+  const attackedColumn = kingTravelColumns.find((column) =>
+    isSquareUnderChessAttack(board, fromSquare.row, column, opponentColor),
+  )
+
+  if (attackedColumn !== undefined) {
+    return `You cannot castle through or into check because ${getChessSquareName(fromSquare.row, attackedColumn)} is under attack.`
+  }
+
+  return `Castling on the ${castleSide} is not legal from this position.`
+}
+
+function getChessLineBlockReason(board, fromSquare, toSquare) {
+  const blocker = findChessPathBlocker(board, fromSquare, toSquare)
+
+  if (!blocker) {
+    return null
+  }
+
+  return `${CHESS_COLOR_LABELS[blocker.piece.color]} ${getChessPieceName(blocker.piece)} at ${getChessSquareName(blocker.square.row, blocker.square.column)} is blocking the path.`
+}
+
+function describeInvalidSelectedChessMove(board, fromSquare, toSquare) {
+  const piece = board[fromSquare.row][fromSquare.column]
+
+  if (!piece) {
+    return 'Select one of your pieces first.'
+  }
+
+  const targetPiece = board[toSquare.row][toSquare.column]
+  const rowDiff = toSquare.row - fromSquare.row
+  const columnDiff = toSquare.column - fromSquare.column
+  const absoluteRowDiff = Math.abs(rowDiff)
+  const absoluteColumnDiff = Math.abs(columnDiff)
+
+  if (piece.type === 'king' && rowDiff === 0 && absoluteColumnDiff === 2) {
+    return getChessCastleInvalidReason(board, fromSquare, toSquare, piece)
+  }
+
+  if (targetPiece?.color === piece.color) {
+    return `You cannot move to ${getChessSquareName(toSquare.row, toSquare.column)} because your own ${getChessPieceName(targetPiece)} is already there.`
+  }
+
+  if (piece.type === 'pawn') {
+    const direction = piece.color === 'white' ? -1 : 1
+    const startRow = piece.color === 'white' ? 6 : 1
+
+    if (columnDiff === 0) {
+      if (rowDiff === direction) {
+        if (targetPiece) {
+          return 'Pawns move straight only into empty squares.'
+        }
+      } else if (rowDiff === direction * 2) {
+        if (fromSquare.row !== startRow) {
+          return 'A pawn can move two squares only from its starting rank.'
+        }
+
+        const middleRow = fromSquare.row + direction
+
+        if (board[middleRow][fromSquare.column]) {
+          return `That pawn is blocked by a piece at ${getChessSquareName(middleRow, fromSquare.column)}.`
+        }
+
+        if (targetPiece) {
+          return 'The destination square must be empty for a two-square pawn move.'
+        }
+      } else if (rowDiff * direction < 0) {
+        return 'Pawns cannot move backward.'
+      } else {
+        return 'Pawns move straight ahead one square, or two squares from their starting rank.'
+      }
+    } else if (absoluteColumnDiff === 1 && rowDiff === direction) {
+      if (!targetPiece) {
+        return 'Pawns capture diagonally only when an opponent piece is on that square.'
+      }
+    } else if (rowDiff * direction < 0) {
+      return 'Pawns cannot move backward.'
+    } else {
+      return 'Pawns move straight ahead and capture one square diagonally.'
+    }
+  }
+
+  if (piece.type === 'knight') {
+    if (
+      !(
+        (absoluteRowDiff === 2 && absoluteColumnDiff === 1) ||
+        (absoluteRowDiff === 1 && absoluteColumnDiff === 2)
+      )
+    ) {
+      return 'Knights move in an L shape: two squares in one direction and one in the other.'
+    }
+  }
+
+  if (piece.type === 'bishop') {
+    if (absoluteRowDiff !== absoluteColumnDiff) {
+      return 'Bishops move diagonally.'
+    }
+
+    const blockReason = getChessLineBlockReason(board, fromSquare, toSquare)
+
+    if (blockReason) {
+      return blockReason
+    }
+  }
+
+  if (piece.type === 'rook') {
+    if (rowDiff !== 0 && columnDiff !== 0) {
+      return 'Rooks move horizontally or vertically.'
+    }
+
+    const blockReason = getChessLineBlockReason(board, fromSquare, toSquare)
+
+    if (blockReason) {
+      return blockReason
+    }
+  }
+
+  if (piece.type === 'queen') {
+    if (
+      rowDiff !== 0 &&
+      columnDiff !== 0 &&
+      absoluteRowDiff !== absoluteColumnDiff
+    ) {
+      return 'Queens move horizontally, vertically, or diagonally.'
+    }
+
+    const blockReason = getChessLineBlockReason(board, fromSquare, toSquare)
+
+    if (blockReason) {
+      return blockReason
+    }
+  }
+
+  if (piece.type === 'king' && Math.max(absoluteRowDiff, absoluteColumnDiff) > 1) {
+    return 'Kings move one square in any direction, unless they are castling.'
+  }
+
+  const matchingPseudoMove = getPseudoChessMoves(
+    board,
+    fromSquare.row,
+    fromSquare.column,
+  ).find((move) => isSameChessMoveTarget(move, toSquare))
+
+  if (matchingPseudoMove) {
+    const nextBoard = applyChessMove(board, fromSquare, matchingPseudoMove).board
+
+    if (isChessKingInCheck(nextBoard, piece.color)) {
+      return piece.type === 'king'
+        ? 'The king cannot move into check.'
+        : 'That move would leave your king in check.'
+    }
+  }
+
+  return `That move is not legal for this ${getChessPieceName(piece)}.`
+}
+
+function describeInvalidChessClick(gameState, row, column) {
+  const piece = gameState.board[row][column]
+
+  if (!gameState.selectedSquare) {
+    if (!piece) {
+      return `Select one of the ${CHESS_COLOR_LABELS[gameState.currentTurn].toLowerCase()} pieces first.`
+    }
+
+    if (piece.color !== gameState.currentTurn) {
+      return `It is ${CHESS_COLOR_LABELS[gameState.currentTurn]}'s turn, so you cannot move the ${piece.color} ${getChessPieceName(piece)} yet.`
+    }
+
+    return null
+  }
+
+  return describeInvalidSelectedChessMove(
+    gameState.board,
+    gameState.selectedSquare,
+    { row, column },
+  )
+}
+
 function resolveChessMove(gameState, fromSquare, move, mode) {
   const movingPiece = gameState.board[fromSquare.row][fromSquare.column]
   const appliedMove = applyChessMove(gameState.board, fromSquare, move)
@@ -803,6 +1053,7 @@ function ChessCapturedRow({ label, pieces, accentClassName }) {
 
 function ChessGame() {
   const [mode, setMode] = useState('ai')
+  const [moveFeedback, setMoveFeedback] = useState('')
   const [scoreboard, setScoreboard] = useState({
     white: 0,
     black: 0,
@@ -869,6 +1120,7 @@ function ChessGame() {
   }, [gameState, mode])
 
   const resetBoard = () => {
+    setMoveFeedback('')
     setGameState(createInitialChessState())
   }
 
@@ -882,23 +1134,28 @@ function ChessGame() {
     }
 
     setMode(nextMode)
+    setMoveFeedback('')
     setGameState(createInitialChessState())
   }
 
   const handleSquareClick = (row, column) => {
-    if (
-      gameState.status !== 'playing' ||
-      gameState.aiThinking ||
-      (mode === 'ai' && gameState.currentTurn === 'black')
-    ) {
+    if (gameState.status !== 'playing') {
+      setMoveFeedback('This round is over. Start a new chess round to continue.')
       return
     }
 
+    if (gameState.aiThinking || (mode === 'ai' && gameState.currentTurn === 'black')) {
+      setMoveFeedback('Please wait for the AI to finish its move.')
+      return
+    }
+
+    const nextSquare = { row, column }
     const selectedMove = gameState.legalMoves.find(
-      (move) => move.row === row && move.column === column,
+      (move) => isSameChessMoveTarget(move, nextSquare),
     )
 
     if (gameState.selectedSquare && selectedMove) {
+      setMoveFeedback('')
       const nextState = resolveChessMove(
         gameState,
         gameState.selectedSquare,
@@ -914,7 +1171,33 @@ function ChessGame() {
 
     const piece = gameState.board[row][column]
 
+    if (gameState.selectedSquare) {
+      if (isSameChessSquare(gameState.selectedSquare, nextSquare)) {
+        setMoveFeedback('')
+        setGameState({
+          ...gameState,
+          selectedSquare: null,
+          legalMoves: [],
+        })
+        return
+      }
+
+      if (piece && piece.color === gameState.currentTurn) {
+        setMoveFeedback('')
+        setGameState({
+          ...gameState,
+          selectedSquare: nextSquare,
+          legalMoves: getLegalChessMovesForSquare(gameState.board, row, column),
+        })
+        return
+      }
+
+      setMoveFeedback(describeInvalidChessClick(gameState, row, column))
+      return
+    }
+
     if (!piece || piece.color !== gameState.currentTurn) {
+      setMoveFeedback(describeInvalidChessClick(gameState, row, column))
       setGameState({
         ...gameState,
         selectedSquare: null,
@@ -923,17 +1206,7 @@ function ChessGame() {
       return
     }
 
-    const nextSquare = { row, column }
-
-    if (isSameChessSquare(gameState.selectedSquare, nextSquare)) {
-      setGameState({
-        ...gameState,
-        selectedSquare: null,
-        legalMoves: [],
-      })
-      return
-    }
-
+    setMoveFeedback('')
     setGameState({
       ...gameState,
       selectedSquare: nextSquare,
@@ -1108,6 +1381,15 @@ function ChessGame() {
           <div className="rounded-[1.35rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-5 shadow-[var(--portfolio-soft-shadow)]">
             <p className={cardLabelClassName}>Round status</p>
             <p className="mt-3 text-base leading-8 text-muted">{statusText}</p>
+            {moveFeedback ? (
+              <div
+                aria-live="polite"
+                className="mt-4 rounded-[1.1rem] border border-rose-300/35 bg-rose-500/10 px-4 py-3 shadow-[var(--portfolio-soft-shadow)]"
+              >
+                <p className={cardLabelClassName}>Why that move is invalid</p>
+                <p className="mt-2 text-sm leading-7 text-ink">{moveFeedback}</p>
+              </div>
+            ) : null}
             <div className="mt-4 flex flex-wrap gap-3">
               <span className={chipClassName}>
                 {gameState.currentTurn === 'white' ? 'White to move' : 'Black to move'}

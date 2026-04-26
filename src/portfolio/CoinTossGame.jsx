@@ -19,11 +19,202 @@ function TossMetric({ label, value, hint }) {
   )
 }
 
+function AnimatedHeadMark() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-16 w-16 overflow-visible"
+      viewBox="0 0 96 96"
+    >
+      <circle cx="48" cy="48" fill="currentColor" opacity="0.08" r="30">
+        <animate
+          attributeName="opacity"
+          dur="2.5s"
+          repeatCount="indefinite"
+          values="0.08;0.15;0.08"
+        />
+        <animate
+          attributeName="r"
+          dur="2.5s"
+          repeatCount="indefinite"
+          values="30;34;30"
+        />
+      </circle>
+
+      <g>
+        <animateTransform
+          attributeName="transform"
+          dur="2.1s"
+          repeatCount="indefinite"
+          type="translate"
+          values="0 0;0 -2;0 0"
+        />
+        <circle cx="48" cy="30" fill="currentColor" opacity="0.94" r="13" />
+        <path
+          d="M29 72c3.5-11.5 11.7-19 19-19s15.5 7.5 19 19"
+          fill="none"
+          opacity="0.94"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeWidth="8"
+        />
+        <path
+          d="M38 25c2.5-3.5 7-5.5 10-5.5s7.5 2 10 5.5"
+          fill="none"
+          opacity="0.2"
+          stroke="#ffffff"
+          strokeLinecap="round"
+          strokeWidth="3"
+        />
+        <circle cx="43" cy="29" fill="#ffffff" opacity="0.55" r="1.8">
+          <animate
+            attributeName="r"
+            dur="2.8s"
+            repeatCount="indefinite"
+            values="1.8;1.2;1.8"
+          />
+        </circle>
+        <circle cx="53" cy="29" fill="#ffffff" opacity="0.55" r="1.8">
+          <animate
+            attributeName="r"
+            dur="2.8s"
+            repeatCount="indefinite"
+            values="1.8;1.2;1.8"
+          />
+        </circle>
+      </g>
+
+      <circle cx="24" cy="30" fill="#ffffff" opacity="0.3" r="3">
+        <animate
+          attributeName="cy"
+          dur="2.2s"
+          repeatCount="indefinite"
+          values="30;24;30"
+        />
+      </circle>
+      <circle cx="72" cy="62" fill="#ffffff" opacity="0.24" r="2.5">
+        <animate
+          attributeName="cy"
+          dur="2.4s"
+          repeatCount="indefinite"
+          values="62;56;62"
+        />
+      </circle>
+    </svg>
+  )
+}
+
+function AnimatedTailMark() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-16 w-16 overflow-visible"
+      viewBox="0 0 96 96"
+    >
+      <circle cx="48" cy="48" fill="currentColor" opacity="0.08" r="29">
+        <animate
+          attributeName="opacity"
+          dur="2.4s"
+          repeatCount="indefinite"
+          values="0.08;0.14;0.08"
+        />
+        <animate
+          attributeName="r"
+          dur="2.4s"
+          repeatCount="indefinite"
+          values="29;33;29"
+        />
+      </circle>
+
+      <g>
+        <animateTransform
+          attributeName="transform"
+          dur="1.7s"
+          repeatCount="indefinite"
+          type="rotate"
+          values="-10 36 48;10 36 48;-10 36 48"
+        />
+        <circle cx="33" cy="48" fill="currentColor" opacity="0.34" r="7" />
+        <path
+          d="M34 48c10-19 26-31 43-32-7 11-10 22-10 32s3 21 10 32c-17-1-33-13-43-32Z"
+          fill="currentColor"
+          opacity="0.92"
+        />
+        <path
+          d="M39 48c9-8 18-11 27-11-3.5 4.5-5.5 8-5.5 11S62.5 54.5 66 59c-9 0-18-3-27-11Z"
+          fill="#ffffff"
+          opacity="0.22"
+        />
+      </g>
+
+      <circle cx="72" cy="30" fill="#ffffff" opacity="0.28" r="2.8">
+        <animate
+          attributeName="cy"
+          dur="2s"
+          repeatCount="indefinite"
+          values="30;24;30"
+        />
+      </circle>
+      <circle cx="66" cy="67" fill="#ffffff" opacity="0.2" r="2.2">
+        <animate
+          attributeName="cy"
+          dur="2.2s"
+          repeatCount="indefinite"
+          values="67;61;67"
+        />
+      </circle>
+    </svg>
+  )
+}
+
+function CoinFace({ side }) {
+  const isHeads = side === 'Heads'
+  const Mark = isHeads ? AnimatedHeadMark : AnimatedTailMark
+
+  return (
+    <div
+      className={cx(
+        'absolute inset-0 overflow-hidden rounded-full border shadow-[0_22px_44px_rgba(15,23,42,0.2)]',
+        isHeads
+          ? 'border-amber-100/75 bg-gradient-to-br from-yellow-100 via-amber-200 to-orange-300 text-amber-950'
+          : 'border-sky-100/70 bg-gradient-to-br from-slate-100 via-cyan-200 to-sky-400 text-slate-950',
+      )}
+      style={{
+        backfaceVisibility: 'hidden',
+        transform: isHeads ? 'rotateY(0deg)' : 'rotateY(180deg)',
+      }}
+    >
+      <span className="absolute inset-[8%] rounded-full border border-white/35" />
+      <span className="absolute inset-[17%] rounded-full border border-black/10" />
+
+      <div className="relative flex h-full w-full flex-col items-center justify-center gap-2 px-3 text-center">
+        <span
+          className={cx(
+            'inline-flex h-[4.35rem] w-[4.35rem] items-center justify-center rounded-full border shadow-[inset_0_1px_2px_rgba(255,255,255,0.18)]',
+            isHeads
+              ? 'border-amber-950/10 bg-white/45'
+              : 'border-slate-900/10 bg-white/35',
+          )}
+        >
+          <Mark />
+        </span>
+        <span className="font-display text-[1.35rem] leading-none tracking-[-0.05em]">
+          {side}
+        </span>
+        <span className="text-[0.62rem] font-semibold uppercase tracking-[0.22em] opacity-75">
+          {isHeads ? 'Animated head' : 'Animated tail'}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 function CoinTossGame() {
   const tossDurationMs = 4000
-  const flipCadenceMs = 220
+  const spinSteps = Math.round(tossDurationMs / 220)
   const [selectedSide, setSelectedSide] = useState('Heads')
   const [coinFace, setCoinFace] = useState('Heads')
+  const [coinRotation, setCoinRotation] = useState(0)
   const [lastCall, setLastCall] = useState(null)
   const [result, setResult] = useState(null)
   const [isTossing, setIsTossing] = useState(false)
@@ -35,11 +226,9 @@ function CoinTossGame() {
     bestStreak: 0,
   })
   const [history, setHistory] = useState([])
-  const flipIntervalRef = useRef(null)
   const settleTimeoutRef = useRef(null)
 
   const clearTimers = () => {
-    window.clearInterval(flipIntervalRef.current)
     window.clearTimeout(settleTimeoutRef.current)
   }
 
@@ -53,6 +242,7 @@ function CoinTossGame() {
     clearTimers()
     setSelectedSide('Heads')
     setCoinFace('Heads')
+    setCoinRotation(0)
     setLastCall(null)
     setResult(null)
     setIsTossing(false)
@@ -73,21 +263,22 @@ function CoinTossGame() {
 
     clearTimers()
     const currentCall = selectedSide
+    const nextResult = Math.random() < 0.5 ? 'Heads' : 'Tails'
+    const finalFaceRotation = nextResult === 'Heads' ? 0 : 180
 
     setIsTossing(true)
     setResult(null)
     setLastCall(currentCall)
+    setCoinRotation((currentRotation) => {
+      const normalizedRotation = ((currentRotation % 360) + 360) % 360
+      const finalOffset =
+        ((finalFaceRotation - normalizedRotation) + 360) % 360
 
-    flipIntervalRef.current = window.setInterval(() => {
-      setCoinFace((currentFace) =>
-        currentFace === 'Heads' ? 'Tails' : 'Heads',
-      )
-    }, flipCadenceMs)
+      return currentRotation + spinSteps * 180 + finalOffset
+    })
 
     settleTimeoutRef.current = window.setTimeout(() => {
       clearTimers()
-
-      const nextResult = Math.random() < 0.5 ? 'Heads' : 'Tails'
       const isWin = currentCall === nextResult
 
       setCoinFace(nextResult)
@@ -124,8 +315,14 @@ function CoinTossGame() {
       ? `You called ${lastCall} and won the toss.`
       : `It landed on ${result}. Better luck on the next toss.`
     : isTossing
-      ? 'Coin is in the air...'
+      ? 'Coin is flipping through the air...'
       : 'Choose Heads or Tails, then flip the coin.'
+  const coinFaceLabel = isTossing ? 'FLIPPING' : coinFace.toUpperCase()
+  const coinFaceTextClassName = isTossing
+    ? 'text-white'
+    : result === 'Tails'
+      ? 'text-white'
+      : 'text-ink'
 
   return (
     <div className="grid gap-5">
@@ -181,13 +378,32 @@ function CoinTossGame() {
             )}
           >
             <div className="grid gap-4">
-              <span className="mx-auto inline-flex h-20 w-20 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-[var(--portfolio-soft-shadow)]">
-                <Coins size={34} />
-              </span>
+              <div className="mx-auto flex items-center justify-center [perspective:1400px]">
+                <div
+                  className="relative h-36 w-36 will-change-transform sm:h-40 sm:w-40"
+                  style={{
+                    transform: `rotateY(${coinRotation}deg)`,
+                    transformStyle: 'preserve-3d',
+                    transition: `transform ${isTossing ? tossDurationMs : 620}ms ${
+                      isTossing
+                        ? 'cubic-bezier(0.2, 0.82, 0.18, 1)'
+                        : 'cubic-bezier(0.22, 1, 0.36, 1)'
+                    }`,
+                  }}
+                >
+                  <CoinFace side="Heads" />
+                  <CoinFace side="Tails" />
+                </div>
+              </div>
               <div className="grid gap-2">
                 <p className={cardLabelClassName}>Current face</p>
-                <p className="font-display text-[2.15rem] leading-none tracking-[-0.05em] text-white">
-                  {coinFace.toUpperCase()}
+                <p
+                  className={cx(
+                    'font-display text-[2.15rem] leading-none tracking-[-0.05em]',
+                    coinFaceTextClassName,
+                  )}
+                >
+                  {coinFaceLabel}
                 </p>
               </div>
             </div>
