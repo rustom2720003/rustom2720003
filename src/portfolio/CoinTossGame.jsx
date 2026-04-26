@@ -129,22 +129,29 @@ function AnimatedTailMark() {
       <g>
         <animateTransform
           attributeName="transform"
-          dur="1.7s"
+          dur="1.9s"
           repeatCount="indefinite"
           type="rotate"
-          values="-10 36 48;10 36 48;-10 36 48"
-        />
-        <circle cx="33" cy="48" fill="currentColor" opacity="0.34" r="7" />
-        <path
-          d="M34 48c10-19 26-31 43-32-7 11-10 22-10 32s3 21 10 32c-17-1-33-13-43-32Z"
-          fill="currentColor"
-          opacity="0.92"
+          values="-12 48 48;12 48 48;-12 48 48"
         />
         <path
-          d="M39 48c9-8 18-11 27-11-3.5 4.5-5.5 8-5.5 11S62.5 54.5 66 59c-9 0-18-3-27-11Z"
-          fill="#ffffff"
-          opacity="0.22"
+          d="M31 69c11-8 19-20 21-34 1-8-1-15-5-21 13 6 22 17 25 31 3 13-1 25-11 34-7 7-17 12-26 14 5-4 9-11 11-18"
+          fill="none"
+          opacity="0.94"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="8"
         />
+        <path
+          d="M45 22c9 5 15 13 17 23"
+          fill="none"
+          opacity="0.38"
+          stroke="#ffffff"
+          strokeLinecap="round"
+          strokeWidth="4"
+        />
+        <circle cx="42" cy="63" fill="#ffffff" opacity="0.26" r="2.8" />
       </g>
 
       <circle cx="72" cy="30" fill="#ffffff" opacity="0.28" r="2.8">
@@ -200,9 +207,6 @@ function CoinFace({ side }) {
         </span>
         <span className="font-display text-[1.35rem] leading-none tracking-[-0.05em]">
           {side}
-        </span>
-        <span className="text-[0.62rem] font-semibold uppercase tracking-[0.22em] opacity-75">
-          {isHeads ? 'Animated head' : 'Animated tail'}
         </span>
       </div>
     </div>
@@ -325,7 +329,7 @@ function CoinTossGame() {
       : 'text-ink'
 
   return (
-    <div className="grid gap-5">
+    <div className="mx-auto grid w-full max-w-[68rem] gap-5">
       <div className="grid gap-3 sm:grid-cols-3">
         <TossMetric
           hint="Correct predictions so far"
@@ -344,7 +348,7 @@ function CoinTossGame() {
         />
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(280px,1.1fr)] xl:items-center">
+      <div className="grid gap-5 xl:grid-cols-[minmax(320px,1fr)_minmax(320px,1fr)] xl:items-start">
         <div className="grid gap-4 rounded-[1.55rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-5 shadow-[var(--portfolio-soft-shadow)] sm:p-6">
           <div className="flex flex-wrap gap-3">
             {['Heads', 'Tails'].map((side) => (

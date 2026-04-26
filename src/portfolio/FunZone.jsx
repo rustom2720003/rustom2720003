@@ -106,6 +106,19 @@ const SNAKE_OPPOSITES = {
 
 const FUN_ZONE_GAMES = [
   {
+    id: 'cointoss',
+    icon: Coins,
+    title: 'Coin Toss',
+    blurb: 'Call Heads or Tails, flip the coin, and track your streak.',
+    tags: ['Instant', 'Luck', 'Quick'],
+    rules: [
+      'Pick Heads or Tails before flipping the coin.',
+      'The coin will spin briefly, then reveal the final result.',
+      'Track your wins, accuracy, streak, and recent toss history.',
+    ],
+    component: CoinTossGame,
+  },
+  {
     id: 'memory',
     icon: Brain,
     title: 'Memory Card Game',
@@ -156,19 +169,6 @@ const FUN_ZONE_GAMES = [
       'Pawns auto-promote to a queen for faster play, and the AI controls Black in vs AI mode.',
     ],
     component: ChessGame,
-  },
-  {
-    id: 'cointoss',
-    icon: Coins,
-    title: 'Coin Toss',
-    blurb: 'Call Heads or Tails, flip the coin, and track your streak.',
-    tags: ['Instant', 'Luck', 'Quick'],
-    rules: [
-      'Pick Heads or Tails before flipping the coin.',
-      'The coin will spin briefly, then reveal the final result.',
-      'Track your wins, accuracy, streak, and recent toss history.',
-    ],
-    component: CoinTossGame,
   },
   {
     id: 'snake',
@@ -562,7 +562,7 @@ function FunZone() {
               <span className={chipClassName}>Keyboard and mobile friendly</span>
             </div>
 
-            <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+            <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(320px,0.98fr)_minmax(340px,1.02fr)] xl:items-start">
               <div className="grid gap-4">
                 {FUN_ZONE_GAMES.map((game) => {
                   const Icon = game.icon
