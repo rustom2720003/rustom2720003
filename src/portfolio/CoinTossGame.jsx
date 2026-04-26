@@ -20,6 +20,8 @@ function TossMetric({ label, value, hint }) {
 }
 
 function CoinTossGame() {
+  const tossDurationMs = 4000
+  const flipCadenceMs = 220
   const [selectedSide, setSelectedSide] = useState('Heads')
   const [coinFace, setCoinFace] = useState('Heads')
   const [lastCall, setLastCall] = useState(null)
@@ -80,7 +82,7 @@ function CoinTossGame() {
       setCoinFace((currentFace) =>
         currentFace === 'Heads' ? 'Tails' : 'Heads',
       )
-    }, 120)
+    }, flipCadenceMs)
 
     settleTimeoutRef.current = window.setTimeout(() => {
       clearTimers()
@@ -112,7 +114,7 @@ function CoinTossGame() {
           ...currentHistory,
         ].slice(0, 8),
       )
-    }, 980)
+    }, tossDurationMs)
   }
 
   const accuracy =

@@ -9,7 +9,6 @@ import {
   ChevronDown,
   Coins,
   Crown,
-  Dice5,
   Gamepad2,
   Keyboard,
   Play,
@@ -18,7 +17,6 @@ import {
 } from 'lucide-react'
 import ChessGame from './ChessGame'
 import CoinTossGame from './CoinTossGame'
-import LudoGame from './LudoGame'
 import {
   buttonClassNames,
   cardLabelClassName,
@@ -158,19 +156,6 @@ const FUN_ZONE_GAMES = [
       'Pawns auto-promote to a queen for faster play, and the AI controls Black in vs AI mode.',
     ],
     component: ChessGame,
-  },
-  {
-    id: 'ludo',
-    icon: Dice5,
-    title: 'Ludo',
-    blurb: 'Play a quick single-token ludo race with 2 to 4 local players.',
-    tags: ['Quick race', '2-4 Players', 'Dice'],
-    rules: [
-      'Choose 2, 3, or 4 players before the round begins.',
-      'Each color has one token in this quick version, and a 6 is needed to leave base.',
-      'First token to complete the loop and home stretch wins the round.',
-    ],
-    component: LudoGame,
   },
   {
     id: 'cointoss',
@@ -556,7 +541,7 @@ function FunZone() {
             </div>
 
             <div className="flex items-center gap-3 self-start lg:self-center">
-              <span className={chipClassName}>7 React mini-games</span>
+              <span className={chipClassName}>6 React mini-games</span>
               <span
                 className={cx(
                   'inline-flex h-11 w-11 items-center justify-center rounded-full border border-line bg-[color:var(--portfolio-glass-soft)] text-ink shadow-[var(--portfolio-soft-shadow)] transition duration-200',
