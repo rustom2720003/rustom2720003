@@ -157,6 +157,7 @@ const FUN_ZONE_GAMES = [
 
 const directionButtonClassName =
   'inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-line bg-[color:var(--portfolio-glass-soft)] text-ink shadow-[var(--portfolio-soft-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-[color:var(--portfolio-glass-hover)]'
+const compactFunZoneMediaQuery = '(max-width: 1279px)'
 
 function shuffleItems(items) {
   const nextItems = [...items]
@@ -448,19 +449,39 @@ function FunZone() {
   const [selectedGameId, setSelectedGameId] = useState(FUN_ZONE_GAMES[0].id)
   const [activeGameId, setActiveGameId] = useState(null)
   const [gameRunKey, setGameRunKey] = useState(0)
+  const rulesSectionRef = useRef(null)
+  const gameSectionRef = useRef(null)
 
   const selectedGame =
     FUN_ZONE_GAMES.find((game) => game.id === selectedGameId) ?? FUN_ZONE_GAMES[0]
   const ActiveGame = selectedGame.component
 
+  const scrollSectionIntoView = (sectionRef) => {
+    if (
+      typeof window === 'undefined' ||
+      !window.matchMedia(compactFunZoneMediaQuery).matches
+    ) {
+      return
+    }
+
+    window.requestAnimationFrame(() => {
+      sectionRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
+    })
+  }
+
   const handleSelectGame = (gameId) => {
     setSelectedGameId(gameId)
     setActiveGameId(null)
+    scrollSectionIntoView(rulesSectionRef)
   }
 
   const handleStartGame = () => {
     setActiveGameId(selectedGameId)
     setGameRunKey((previousKey) => previousKey + 1)
+    scrollSectionIntoView(gameSectionRef)
   }
 
   return (
@@ -566,7 +587,10 @@ function FunZone() {
               </div>
 
               <div className="grid gap-4">
-                <article className="grid gap-5 rounded-[1.55rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-5 shadow-[var(--portfolio-soft-shadow)] sm:p-6">
+                <article
+                  ref={rulesSectionRef}
+                  className="scroll-mt-28 grid gap-5 rounded-[1.55rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-5 shadow-[var(--portfolio-soft-shadow)] sm:p-6"
+                >
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
                       <p className={cardLabelClassName}>Selected game</p>
@@ -613,7 +637,10 @@ function FunZone() {
                   </div>
                 </article>
 
-                <div className="rounded-[1.55rem] border border-line bg-[color:var(--portfolio-glass-strong)] p-4 shadow-[var(--portfolio-soft-shadow)] sm:p-5">
+                <div
+                  ref={gameSectionRef}
+                  className="scroll-mt-28 rounded-[1.55rem] border border-line bg-[color:var(--portfolio-glass-strong)] p-4 shadow-[var(--portfolio-soft-shadow)] sm:p-5"
+                >
                   {activeGameId === selectedGameId ? (
                     <ActiveGame key={`${selectedGameId}-${gameRunKey}`} />
                   ) : (
