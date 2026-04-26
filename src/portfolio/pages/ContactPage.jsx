@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Copy, Mail, MessageCircle } from 'lucide-react'
 import { contactCards, profile } from '../portfolioData'
+import FunZone from '../FunZone'
 import {
   buttonClassNames,
   cardLabelClassName,
@@ -90,6 +91,8 @@ function ContactPage() {
           WhatsApp me
         </a>
       </div>
+
+      <FunZone />
     </PageSection>
   )
 }

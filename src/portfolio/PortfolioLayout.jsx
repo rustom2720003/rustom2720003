@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Clock3, Menu, MoonStar, SunMedium, ThermometerSun, X } from 'lucide-react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
-import { navigationLinks, profile } from './portfolioData'
+import { navigationLinks } from './portfolioData'
 import { cx, sectionClassName } from './classes'
 import RemarksWidget from './RemarksWidget'
 import { useLiveEnvironment } from './useLiveEnvironment'
