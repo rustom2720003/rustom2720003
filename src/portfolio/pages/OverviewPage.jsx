@@ -73,7 +73,7 @@ function OverviewPage() {
           )}
         >
           <div className="mx-auto lg:mx-0">
-            <div className="profile-portrait-shell relative h-36 w-36 sm:h-40 sm:w-40">
+            <div className="profile-portrait-shell relative h-72 w-72 sm:h-40 sm:w-40">
               <div
                 aria-hidden
                 className="absolute inset-[-12%] z-0 rounded-full opacity-80 blur-2xl"
