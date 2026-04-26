@@ -1,5 +1,14 @@
-import { useState } from 'react'
-import { Clock3, Menu, MoonStar, SunMedium, ThermometerSun, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import {
+  Clock3,
+  Menu,
+  MoonStar,
+  SunMedium,
+  ThermometerSun,
+  Volume2,
+  VolumeX,
+  X,
+} from 'lucide-react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { navigationLinks } from './portfolioData'
 import { cx, sectionClassName } from './classes'
@@ -27,6 +36,71 @@ const mobileNavToneClasses = [
       'bg-[image:var(--portfolio-mobile-tone-3-active)] text-white shadow-[var(--portfolio-mobile-tone-3-shadow)]',
   },
 ]
+
+const backgroundMusicSource = `${import.meta.env.BASE_URL}music/Sitaare.mp3`
+
+function BackgroundMusicControl() {
+  const [isPlaying, setIsPlaying] = useState(false)
+  const audioRef = useRef(null)
+
+  const stopMusic = (updateState = true) => {
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+    }
+
+    if (updateState) {
+      setIsPlaying(false)
+    }
+  }
+
+  const startMusic = async () => {
+    if (!audioRef.current) {
+      return
+    }
+
+    try {
+      audioRef.current.volume = 0.32
+      await audioRef.current.play()
+      setIsPlaying(true)
+    } catch {
+      setIsPlaying(false)
+    }
+  }
+
+  useEffect(() => () => stopMusic(false), [])
+
+  const toggleMusic = () => {
+    if (isPlaying) {
+      stopMusic()
+      return
+    }
+
+    startMusic()
+  }
+
+  return (
+    <>
+      <audio
+        loop
+        preload="none"
+        ref={audioRef}
+        src={backgroundMusicSource}
+      />
+      <button
+        type="button"
+        className="inline-flex h-[3.75rem] items-center justify-center gap-2 rounded-[1.25rem] border border-white/10 bg-[image:var(--portfolio-mobile-control-gradient)] px-[1.125rem] text-sm font-bold tracking-[0.04em] text-white shadow-[var(--portfolio-mobile-control-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-white/18 hover:bg-[image:var(--portfolio-mobile-control-gradient-hover)] md:h-12 md:rounded-full md:border-[color:var(--portfolio-glass-border)] md:bg-[color:var(--portfolio-glass-strong)] md:px-4 md:text-sm md:font-medium md:tracking-normal md:text-ink md:shadow-[var(--portfolio-soft-shadow)] md:hover:border-line-strong md:hover:bg-[color:var(--portfolio-glass-hover)]"
+        aria-label={isPlaying ? 'Turn Sitaare music off' : 'Turn Sitaare music on'}
+        aria-pressed={isPlaying}
+        onClick={toggleMusic}
+        title={isPlaying ? 'Turn Sitaare music off' : 'Turn Sitaare music on'}
+      >
+        {isPlaying ? <Volume2 size={18} /> : <VolumeX size={18} />}
+        <span className="hidden min-[560px]:inline">Sitaare</span>
+      </button>
+    </>
+  )
+}
 
 function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -160,6 +234,8 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
                   )
                 })}
               </nav>
+
+              <BackgroundMusicControl />
 
               <button
                 type="button"
