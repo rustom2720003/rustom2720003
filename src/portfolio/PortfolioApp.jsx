@@ -1,7 +1,8 @@
-import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { HashRouter, Route, Routes } from 'react-router-dom'
 import PortfolioLayout from './PortfolioLayout.jsx'
 import ContactPage from './pages/ContactPage.jsx'
 import ExperiencePage from './pages/ExperiencePage.jsx'
+import NotFoundPage from './pages/NotFoundPage.jsx'
 import OverviewPage from './pages/OverviewPage.jsx'
 import ProjectsPage from './pages/ProjectsPage.jsx'
 import ResumePage from './pages/ResumePage.jsx'
@@ -25,7 +26,7 @@ function PortfolioApp() {
           <Route path="skills" element={<SkillsPage />} />
           <Route path="resume" element={<ResumePage />} />
           <Route path="contact" element={<ContactPage />} />
-          <Route path="*" element={<Navigate replace to="/" />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </HashRouter>
