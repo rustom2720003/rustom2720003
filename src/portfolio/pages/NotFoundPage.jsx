@@ -17,9 +17,24 @@ const orbitDots = [
   'bottom-[24%] right-[16%] h-2 w-2 bg-amber-300',
 ]
 
+function getMissingPageName(pathname) {
+  const cleanPath = pathname.replace(/^\/+|\/+$/g, '')
+
+  if (!cleanPath) {
+    return 'Unknown'
+  }
+
+  try {
+    return decodeURIComponent(cleanPath)
+  } catch {
+    return cleanPath
+  }
+}
+
 function NotFoundPage() {
   const location = useLocation()
   const attemptedPath = `${location.pathname}${location.search}${location.hash}`
+  const missingPageName = getMissingPageName(location.pathname)
 
   return (
     <PageSection className="grid min-h-[calc(100vh-13rem)] place-items-center py-8">
@@ -39,13 +54,13 @@ function NotFoundPage() {
               404
             </h1>
             <h2 className="mt-5 max-w-xl font-display text-[clamp(2rem,4vw,3.35rem)] leading-none tracking-[-0.05em] text-ink">
-              This route slipped out of orbit.
+              "{missingPageName}" Page is not available.
             </h2>
           </div>
 
           <p className="max-w-2xl text-[1.04rem] leading-8 text-muted">
-            The page you opened does not exist in this portfolio. Head back home
-            or jump into the project gallery from here.
+            This route does not exist in the portfolio yet. Head back home or
+            jump into the project gallery from here.
           </p>
 
           <div className="flex flex-wrap gap-3">

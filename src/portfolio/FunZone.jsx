@@ -106,7 +106,7 @@ const SNAKE_OPPOSITES = {
   ArrowRight: 'ArrowLeft',
 }
 
-const FUN_ZONE_GAMES = [
+export const FUN_ZONE_GAMES = [
   {
     id: 'cointoss',
     icon: Coins,

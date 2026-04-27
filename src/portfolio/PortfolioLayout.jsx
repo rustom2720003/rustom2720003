@@ -9,7 +9,7 @@ import {
   VolumeX,
   X,
 } from 'lucide-react'
-import { Link, NavLink, Outlet } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { navigationLinks } from './portfolioData'
 import { cx, sectionClassName } from './classes'
 import RemarksWidget from './RemarksWidget'
@@ -104,6 +104,7 @@ function BackgroundMusicControl() {
 
 function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const { pathname } = useLocation()
   const isDarkTheme = theme === 'dark'
   const { liveEnvironment, refreshLiveEnvironment } = useLiveEnvironment()
   const visitorAnalytics = useVisitorAnalytics()
@@ -119,6 +120,14 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
     liveEnvironment.status === 'error'
       ? 'Turn on location and retry'
       : 'Refresh live time and temperature'
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'auto',
+    })
+  }, [pathname])
 
   return (
     <div className="relative min-h-screen overflow-x-hidden font-body text-ink">

@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Copy, Mail, MessageCircle } from 'lucide-react'
+import { ChevronRight, Copy, Gamepad2, Mail, MessageCircle, Sparkles } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { contactCards, profile } from '../portfolioData'
-import FunZone from '../FunZone'
 import {
   buttonClassNames,
   cardLabelClassName,
+  chipClassName,
   cx,
   panelClassName,
 } from '../classes'
@@ -92,7 +93,40 @@ function ContactPage() {
         </a>
       </div>
 
-      <FunZone />
+      <Link
+        className={cx(
+          panelClassName,
+          'mt-10 flex flex-col gap-5 overflow-hidden p-5 transition duration-200 hover:-translate-y-1 hover:border-line-strong sm:p-6 lg:flex-row lg:items-center lg:justify-between',
+        )}
+        to="/games"
+      >
+        <div className="flex items-start gap-4">
+          <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent shadow-[var(--portfolio-soft-shadow)]">
+            <Sparkles size={20} />
+          </span>
+          <div className="grid gap-2">
+            <p className={cardLabelClassName}>Fun Zone</p>
+            <h3 className="font-display text-[clamp(1.8rem,4vw,2.6rem)] leading-none tracking-[-0.05em] text-ink">
+              Until I reply, you can enjoy the Fun Zone.
+            </h3>
+            <p className="max-w-3xl leading-8 text-muted">
+              Pick a mini-game, read the rules, and play it on a dedicated game
+              page while you wait to hear back from me.
+            </p>
+            <div className="flex flex-wrap gap-2 pt-1">
+              <span className={chipClassName}>7 React mini-games</span>
+              <span className={chipClassName}>Dedicated game routes</span>
+              <span className={chipClassName}>Keyboard and mobile friendly</span>
+            </div>
+          </div>
+        </div>
+
+        <span className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-[color:var(--portfolio-glass-soft)] px-4 py-2 text-sm font-semibold text-ink shadow-[var(--portfolio-soft-shadow)] transition duration-200 lg:shrink-0">
+          <Gamepad2 size={17} />
+          Open games
+          <ChevronRight size={17} />
+        </span>
+      </Link>
     </PageSection>
   )
 }
