@@ -5,7 +5,7 @@ import {
   cardLabelClassName,
   chipClassName,
   cx,
-} from './classes'
+} from '../../classes'
 
 const CHESS_BOARD_SIZE = 8
 const CHESS_FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']

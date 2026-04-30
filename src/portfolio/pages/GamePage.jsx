@@ -1,6 +1,6 @@
 import { ArrowLeft, Play } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
-import { FUN_ZONE_GAMES } from '../FunZone'
+import { useGames } from '../games/GamesContext'
 import {
   buttonClassNames,
   cardLabelClassName,
@@ -13,7 +13,8 @@ import NotFoundPage from './NotFoundPage'
 
 function GamePage() {
   const { gameId } = useParams()
-  const game = FUN_ZONE_GAMES.find((gameItem) => gameItem.id === gameId)
+  const { getGameById } = useGames()
+  const game = getGameById(gameId)
 
   if (!game) {
     return <NotFoundPage />

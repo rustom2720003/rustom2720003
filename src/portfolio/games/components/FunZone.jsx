@@ -4,28 +4,18 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
-  Bot,
-  Brain,
   ChevronDown,
-  Coins,
-  Crown,
-  Dice5,
-  Gamepad2,
-  Keyboard,
   Play,
   RotateCcw,
   Sparkles,
 } from 'lucide-react'
-import ChessGame from './ChessGame'
-import CoinTossGame from './CoinTossGame'
-import LudoGame from './LudoGame'
 import {
   buttonClassNames,
   cardLabelClassName,
   chipClassName,
   cx,
   panelClassName,
-} from './classes'
+} from '../../classes'
 
 const MEMORY_PAIRS = [
   {
@@ -105,100 +95,6 @@ const SNAKE_OPPOSITES = {
   ArrowLeft: 'ArrowRight',
   ArrowRight: 'ArrowLeft',
 }
-
-export const FUN_ZONE_GAMES = [
-  {
-    id: 'cointoss',
-    icon: Coins,
-    title: 'Coin Toss',
-    blurb: 'Call Heads or Tails, flip the coin, and track your streak.',
-    tags: ['Instant', 'Luck', 'Quick'],
-    rules: [
-      'Pick Heads or Tails before flipping the coin.',
-      'The coin will spin briefly, then reveal the final result.',
-      'Track your wins, accuracy, streak, and recent toss history.',
-    ],
-    component: CoinTossGame,
-  },
-  {
-    id: 'ludo',
-    icon: Dice5,
-    title: 'Classic Ludo',
-    blurb: 'Play a full four-token ludo race with 2 to 4 players, AI support, and animated dice.',
-    tags: ['Classic', '2-4 Players', 'AI'],
-    rules: [
-      'Choose 2, 3, or 4 players, then decide which colors are Human or AI.',
-      'A 6 is needed to leave base, captures send opposing tokens back, and an exact roll is required to reach home.',
-      'Each player rolls from their own animated die, and AI players handle their turns automatically.',
-    ],
-    component: LudoGame,
-  },
-  {
-    id: 'memory',
-    icon: Brain,
-    title: 'Memory Card Game',
-    blurb: 'Flip React-inspired pairs and clear the board in the fewest moves.',
-    tags: ['Quick', 'Visual', 'Mobile friendly'],
-    rules: [
-      'Tap a card to reveal it, then tap a second card to find its pair.',
-      'Matched pairs stay open while mismatched cards flip back after a short pause.',
-      'Clear all six pairs to finish the round.',
-    ],
-    component: MemoryCardGame,
-  },
-  {
-    id: 'typing',
-    icon: Keyboard,
-    title: 'Typing Challenge',
-    blurb: 'Race through React-friendly lines and check your speed and accuracy.',
-    tags: ['Focus', 'Keyboard', 'Stats'],
-    rules: [
-      'The timer starts on your first keystroke.',
-      'Type the shown line as accurately as possible before time runs out.',
-      'Watch your progress, words per minute, and accuracy update live.',
-    ],
-    component: TypingChallengeGame,
-  },
-  {
-    id: 'tictactoe',
-    icon: Bot,
-    title: 'Tic-Tac-Toe',
-    blurb: 'Play with a friend or switch to AI mode for a sharper challenge.',
-    tags: ['Classic', '2 Players', 'AI'],
-    rules: [
-      'Choose either 2 Players or vs AI before starting the round.',
-      'Player X always moves first, and in AI mode the computer plays as O.',
-      'Complete a row, column, or diagonal before your opponent to win.',
-    ],
-    component: TicTacToeGame,
-  },
-  {
-    id: 'chess',
-    icon: Crown,
-    title: 'Chess',
-    blurb: 'Play full-board chess in 2-player mode or challenge a lightweight AI.',
-    tags: ['Strategy', '2 Players', 'AI'],
-    rules: [
-      'Choose either 2 Players or vs AI before the round begins.',
-      'Tap one of your pieces to see legal moves, then tap a highlighted square to play it.',
-      'Pawns auto-promote to a queen for faster play, and the AI controls Black in vs AI mode.',
-    ],
-    component: ChessGame,
-  },
-  {
-    id: 'snake',
-    icon: Gamepad2,
-    title: 'Snake Game',
-    blurb: 'Guide the snake, collect food, and keep growing without crashing.',
-    tags: ['Arcade', 'Arrow keys', 'Fast paced'],
-    rules: [
-      'Use arrow keys or the touch controls to steer the snake.',
-      'Each food pickup grows the snake and increases your score.',
-      'Avoid walls and your own body to survive longer.',
-    ],
-    component: SnakeGame,
-  },
-]
 
 const directionButtonClassName =
   'inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-line bg-[color:var(--portfolio-glass-soft)] text-ink shadow-[var(--portfolio-soft-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-[color:var(--portfolio-glass-hover)]'
@@ -489,17 +385,17 @@ function GameMetric({ label, value, hint }) {
   )
 }
 
-function FunZone() {
+function FunZone({ games = [] }) {
   const [expanded, setExpanded] = useState(false)
-  const [selectedGameId, setSelectedGameId] = useState(FUN_ZONE_GAMES[0].id)
+  const [selectedGameId, setSelectedGameId] = useState(games[0]?.id)
   const [activeGameId, setActiveGameId] = useState(null)
   const [gameRunKey, setGameRunKey] = useState(0)
   const rulesSectionRef = useRef(null)
   const gameSectionRef = useRef(null)
 
   const selectedGame =
-    FUN_ZONE_GAMES.find((game) => game.id === selectedGameId) ?? FUN_ZONE_GAMES[0]
-  const ActiveGame = selectedGame.component
+    games.find((game) => game.id === selectedGameId) ?? games[0]
+  const ActiveGame = selectedGame?.component
 
   const scrollSectionIntoView = (sectionRef) => {
     if (
@@ -556,7 +452,7 @@ function FunZone() {
             </div>
 
             <div className="flex items-center gap-3 self-start lg:self-center">
-              <span className={chipClassName}>7 React mini-games</span>
+              <span className={chipClassName}>{games.length} React mini-games</span>
               <span
                 className={cx(
                   'inline-flex h-11 w-11 items-center justify-center rounded-full border border-line bg-[color:var(--portfolio-glass-soft)] text-ink shadow-[var(--portfolio-soft-shadow)] transition duration-200',
@@ -579,7 +475,7 @@ function FunZone() {
 
             <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(280px,0.96fr)_minmax(0,1.04fr)] xl:items-start">
               <div className="grid min-w-0 gap-4">
-                {FUN_ZONE_GAMES.map((game) => {
+                {games.map((game) => {
                   const Icon = game.icon
                   const isSelected = selectedGameId === game.id
 
@@ -640,10 +536,10 @@ function FunZone() {
                     <div className="min-w-0">
                       <p className={cardLabelClassName}>Selected game</p>
                       <h4 className="mt-2 font-display text-[1.7rem] leading-[1.05] tracking-[-0.04em] text-ink">
-                        {selectedGame.title}
+                        {selectedGame?.title}
                       </h4>
                       <p className="mt-3 leading-8 text-muted">
-                        {selectedGame.blurb}
+                        {selectedGame?.blurb}
                       </p>
                     </div>
                     <span className={chipClassName}>Rules shown first</span>
@@ -652,7 +548,7 @@ function FunZone() {
                   <div className="grid gap-3">
                     <p className={cardLabelClassName}>How to play</p>
                     <ol className="grid gap-2 pl-5 text-sm leading-7 text-muted">
-                      {selectedGame.rules.map((rule) => (
+                      {selectedGame?.rules.map((rule) => (
                         <li className="list-decimal" key={rule}>
                           {rule}
                         </li>
@@ -693,7 +589,7 @@ function FunZone() {
                       <div className="grid max-w-md gap-3">
                         <p className={cardLabelClassName}>Ready when you are</p>
                         <h4 className="font-display text-[1.55rem] leading-[1.08] text-ink">
-                          Start {selectedGame.title} to begin.
+                          Start {selectedGame?.title} to begin.
                         </h4>
                         <p className="leading-8 text-muted">
                           The chosen game will open here after you press the
@@ -712,7 +608,7 @@ function FunZone() {
   )
 }
 
-function MemoryCardGame() {
+export function MemoryCardGame() {
   const [cards, setCards] = useState(createMemoryDeck)
   const [openCards, setOpenCards] = useState([])
   const [moves, setMoves] = useState(0)
@@ -863,7 +759,7 @@ function MemoryCardGame() {
   )
 }
 
-function TypingChallengeGame() {
+export function TypingChallengeGame() {
   const [prompt, setPrompt] = useState(randomPrompt)
   const [typedText, setTypedText] = useState('')
   const [timeLeft, setTimeLeft] = useState(TYPING_TIME_LIMIT)
@@ -1004,7 +900,7 @@ function TypingChallengeGame() {
   )
 }
 
-function TicTacToeGame() {
+export function TicTacToeGame() {
   const [board, setBoard] = useState(Array(9).fill(null))
   const [mode, setMode] = useState('ai')
   const [currentPlayer, setCurrentPlayer] = useState('X')
@@ -1216,7 +1112,7 @@ function TicTacToeGame() {
   )
 }
 
-function SnakeGame() {
+export function SnakeGame() {
   const [game, setGame] = useState(createSnakeState)
   const directionRef = useRef('ArrowRight')
   const nextDirectionRef = useRef('ArrowRight')

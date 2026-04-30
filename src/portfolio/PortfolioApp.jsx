@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { GamesProvider } from './games/GamesContext.jsx'
 import PortfolioLayout from './PortfolioLayout.jsx'
 import ContactPage from './pages/ContactPage.jsx'
 import ExperiencePage from './pages/ExperiencePage.jsx'
@@ -18,25 +19,27 @@ function PortfolioApp() {
 
   return (
     <BrowserRouter basename={routerBasename}>
-      <Routes>
-        <Route
-          element={
-            <PortfolioLayout onToggleTheme={toggleTheme} theme={theme} />
-          }
-        >
-          <Route index element={<OverviewPage />} />
-          <Route path="experience" element={<ExperiencePage />} />
-          <Route path="projects" element={<ProjectsPage />} />
-          <Route path="skills" element={<SkillsPage />} />
-          <Route path="games">
-            <Route index element={<GamesPage />} />
-            <Route path=":gameId" element={<GamePage />} />
+      <GamesProvider>
+        <Routes>
+          <Route
+            element={
+              <PortfolioLayout onToggleTheme={toggleTheme} theme={theme} />
+            }
+          >
+            <Route index element={<OverviewPage />} />
+            <Route path="experience" element={<ExperiencePage />} />
+            <Route path="projects" element={<ProjectsPage />} />
+            <Route path="skills" element={<SkillsPage />} />
+            <Route path="games">
+              <Route index element={<GamesPage />} />
+              <Route path=":gameId" element={<GamePage />} />
+            </Route>
+            <Route path="resume" element={<ResumePage />} />
+            <Route path="contact" element={<ContactPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
-          <Route path="resume" element={<ResumePage />} />
-          <Route path="contact" element={<ContactPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
+        </Routes>
+      </GamesProvider>
     </BrowserRouter>
   )
 }

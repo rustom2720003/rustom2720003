@@ -1,6 +1,6 @@
 import { ArrowLeft, ArrowRight, Gamepad2, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { FUN_ZONE_GAMES } from '../FunZone'
+import { useGames } from '../games/GamesContext'
 import {
   buttonClassNames,
   cardLabelClassName,
@@ -11,6 +11,8 @@ import {
 import { PageSection, SectionHeading } from '../ui'
 
 function GamesPage() {
+  const { games } = useGames()
+
   return (
     <PageSection>
       <Link className={cx(buttonClassNames.ghost, 'mb-5 w-full sm:w-fit')} to="/contact">
@@ -27,14 +29,14 @@ function GamesPage() {
       <div className="mb-5 flex flex-wrap gap-3">
         <span className={chipClassName}>
           <Gamepad2 size={15} />
-          {FUN_ZONE_GAMES.length} React mini-games
+          {games.length} React mini-games
         </span>
         <span className={chipClassName}>Nested game routes</span>
         <span className={chipClassName}>Keyboard and mobile friendly</span>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {FUN_ZONE_GAMES.map((game) => {
+        {games.map((game) => {
           const Icon = game.icon
 
           return (

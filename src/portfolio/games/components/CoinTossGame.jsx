@@ -5,7 +5,7 @@ import {
   cardLabelClassName,
   chipClassName,
   cx,
-} from './classes'
+} from '../../classes'
 
 function TossMetric({ label, value, hint }) {
   return (

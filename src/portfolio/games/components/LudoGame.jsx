@@ -5,7 +5,7 @@ import {
   cardLabelClassName,
   chipClassName,
   cx,
-} from './classes'
+} from '../../classes'
 
 const LUDO_PLAYER_COUNT_OPTIONS = [2, 3, 4]
 const LUDO_PLAYER_COLOR_SETS = {
