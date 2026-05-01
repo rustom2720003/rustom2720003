@@ -406,11 +406,13 @@ function playLudoDiceRollSound() {
   try {
     const audioContext = new AudioContext()
     const masterGain = audioContext.createGain()
-    const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.32, audioContext.sampleRate)
+    const compressor = audioContext.createDynamicsCompressor()
+    const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.52, audioContext.sampleRate)
     const noiseData = noiseBuffer.getChannelData(0)
 
     for (let index = 0; index < noiseData.length; index += 1) {
-      noiseData[index] = (Math.random() * 2 - 1) * (1 - index / noiseData.length)
+      const fade = 1 - index / noiseData.length
+      noiseData[index] = (Math.random() * 2 - 1) * fade * fade
     }
 
     const noise = audioContext.createBufferSource()
@@ -418,42 +420,48 @@ function playLudoDiceRollSound() {
     const noiseGain = audioContext.createGain()
     noise.buffer = noiseBuffer
     filter.type = 'bandpass'
-    filter.frequency.setValueAtTime(900, audioContext.currentTime)
-    filter.Q.setValueAtTime(1.8, audioContext.currentTime)
+    filter.frequency.setValueAtTime(1250, audioContext.currentTime)
+    filter.Q.setValueAtTime(2.5, audioContext.currentTime)
     noiseGain.gain.setValueAtTime(0.0001, audioContext.currentTime)
-    noiseGain.gain.exponentialRampToValueAtTime(0.32, audioContext.currentTime + 0.02)
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.34)
+    noiseGain.gain.exponentialRampToValueAtTime(0.82, audioContext.currentTime + 0.018)
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.52)
     noise.connect(filter)
     filter.connect(noiseGain)
     noiseGain.connect(masterGain)
     masterGain.gain.setValueAtTime(0.0001, audioContext.currentTime)
-    masterGain.gain.exponentialRampToValueAtTime(0.24, audioContext.currentTime + 0.02)
-    masterGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5)
-    masterGain.connect(audioContext.destination)
+    masterGain.gain.exponentialRampToValueAtTime(0.72, audioContext.currentTime + 0.018)
+    masterGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.72)
+    compressor.threshold.setValueAtTime(-18, audioContext.currentTime)
+    compressor.knee.setValueAtTime(18, audioContext.currentTime)
+    compressor.ratio.setValueAtTime(8, audioContext.currentTime)
+    compressor.attack.setValueAtTime(0.002, audioContext.currentTime)
+    compressor.release.setValueAtTime(0.16, audioContext.currentTime)
+    masterGain.connect(compressor)
+    compressor.connect(audioContext.destination)
     noise.start(audioContext.currentTime)
-    noise.stop(audioContext.currentTime + 0.34)
+    noise.stop(audioContext.currentTime + 0.52)
 
-    for (let index = 0; index < 9; index += 1) {
+    for (let index = 0; index < 14; index += 1) {
       const oscillator = audioContext.createOscillator()
       const clickGain = audioContext.createGain()
-      const startTime = audioContext.currentTime + index * 0.045
+      const startTime = audioContext.currentTime + index * 0.036
 
-      oscillator.type = index % 2 ? 'square' : 'triangle'
-      oscillator.frequency.setValueAtTime(180 + Math.random() * 520, startTime)
+      oscillator.type = index % 2 ? 'square' : 'sawtooth'
+      oscillator.frequency.setValueAtTime(260 + Math.random() * 820, startTime)
       clickGain.gain.setValueAtTime(0.0001, startTime)
-      clickGain.gain.exponentialRampToValueAtTime(0.26, startTime + 0.006)
-      clickGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.04)
+      clickGain.gain.exponentialRampToValueAtTime(0.48, startTime + 0.005)
+      clickGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.052)
       oscillator.connect(clickGain)
       clickGain.connect(masterGain)
       oscillator.start(startTime)
-      oscillator.stop(startTime + 0.05)
+      oscillator.stop(startTime + 0.06)
     }
 
     window.setTimeout(() => {
       if (audioContext.state !== 'closed') {
         audioContext.close()
       }
-    }, 650)
+    }, 850)
   } catch {
     // Audio playback can be blocked by browser policy; the dice roll still works.
   }
@@ -473,25 +481,37 @@ function playLudoTokenStepSound(stepIndex = 0) {
   try {
     const audioContext = new AudioContext()
     const oscillator = audioContext.createOscillator()
+    const snapOscillator = audioContext.createOscillator()
     const gain = audioContext.createGain()
+    const snapGain = audioContext.createGain()
     const startTime = audioContext.currentTime
 
-    oscillator.type = 'triangle'
-    oscillator.frequency.setValueAtTime(360 + (stepIndex % 3) * 45, startTime)
+    oscillator.type = 'square'
+    oscillator.frequency.setValueAtTime(520 + (stepIndex % 4) * 80, startTime)
     gain.gain.setValueAtTime(0.0001, startTime)
-    gain.gain.exponentialRampToValueAtTime(0.16, startTime + 0.01)
-    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.075)
+    gain.gain.exponentialRampToValueAtTime(0.34, startTime + 0.006)
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.09)
+
+    snapOscillator.type = 'triangle'
+    snapOscillator.frequency.setValueAtTime(980 + (stepIndex % 2) * 140, startTime)
+    snapGain.gain.setValueAtTime(0.0001, startTime)
+    snapGain.gain.exponentialRampToValueAtTime(0.22, startTime + 0.004)
+    snapGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.04)
 
     oscillator.connect(gain)
     gain.connect(audioContext.destination)
+    snapOscillator.connect(snapGain)
+    snapGain.connect(audioContext.destination)
     oscillator.start(startTime)
-    oscillator.stop(startTime + 0.08)
+    oscillator.stop(startTime + 0.1)
+    snapOscillator.start(startTime)
+    snapOscillator.stop(startTime + 0.045)
 
     window.setTimeout(() => {
       if (audioContext.state !== 'closed') {
         audioContext.close()
       }
-    }, 120)
+    }, 160)
   } catch {
     // Movement audio is optional; token movement should never be blocked by sound.
   }
