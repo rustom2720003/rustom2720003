@@ -38,6 +38,122 @@ const mobileNavToneClasses = [
 ]
 
 const backgroundMusicSource = `${import.meta.env.BASE_URL}music/Sitaare.mp3`
+let siteAudioContext = null
+
+function getSiteAudioContext() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const AudioContext = window.AudioContext || window.webkitAudioContext
+
+  if (!AudioContext) {
+    return null
+  }
+
+  if (!siteAudioContext || siteAudioContext.state === 'closed') {
+    siteAudioContext = new AudioContext()
+  }
+
+  if (siteAudioContext.state === 'suspended') {
+    siteAudioContext.resume().catch(() => {})
+  }
+
+  return siteAudioContext
+}
+
+function playSiteTapSound() {
+  const audioContext = getSiteAudioContext()
+
+  if (!audioContext) {
+    return
+  }
+
+  try {
+    const startTime = audioContext.currentTime + 0.004
+    const oscillator = audioContext.createOscillator()
+    const snapOscillator = audioContext.createOscillator()
+    const gain = audioContext.createGain()
+    const snapGain = audioContext.createGain()
+
+    oscillator.type = 'triangle'
+    oscillator.frequency.setValueAtTime(560, startTime)
+    oscillator.frequency.exponentialRampToValueAtTime(820, startTime + 0.055)
+    gain.gain.setValueAtTime(0.0001, startTime)
+    gain.gain.exponentialRampToValueAtTime(0.09, startTime + 0.006)
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.08)
+
+    snapOscillator.type = 'sine'
+    snapOscillator.frequency.setValueAtTime(1240, startTime)
+    snapGain.gain.setValueAtTime(0.0001, startTime)
+    snapGain.gain.exponentialRampToValueAtTime(0.055, startTime + 0.004)
+    snapGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.035)
+
+    oscillator.connect(gain)
+    snapOscillator.connect(snapGain)
+    gain.connect(audioContext.destination)
+    snapGain.connect(audioContext.destination)
+    oscillator.start(startTime)
+    snapOscillator.start(startTime)
+    oscillator.stop(startTime + 0.09)
+    snapOscillator.stop(startTime + 0.045)
+  } catch {
+    // Site interaction sounds are optional; clicks should never be blocked.
+  }
+}
+
+function isSiteSoundTarget(target) {
+  if (!(target instanceof Element)) {
+    return false
+  }
+
+  const interactiveElement = target.closest(
+    'a, button, [role="button"], input, select, textarea, summary',
+  )
+
+  if (!interactiveElement) {
+    return false
+  }
+
+  return !(
+    interactiveElement.disabled ||
+    interactiveElement.getAttribute('aria-disabled') === 'true'
+  )
+}
+
+function SiteInteractionSounds() {
+  useEffect(() => {
+    const handlePointerDown = (event) => {
+      if (event.button !== undefined && event.button !== 0) {
+        return
+      }
+
+      if (isSiteSoundTarget(event.target)) {
+        playSiteTapSound()
+      }
+    }
+
+    const handleKeyDown = (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return
+      }
+
+      if (isSiteSoundTarget(event.target)) {
+        playSiteTapSound()
+      }
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown, true)
+    document.addEventListener('keydown', handleKeyDown, true)
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown, true)
+      document.removeEventListener('keydown', handleKeyDown, true)
+    }
+  }, [])
+
+  return null
+}
 
 function BackgroundMusicControl() {
   const [isPlaying, setIsPlaying] = useState(false)
@@ -131,6 +247,7 @@ function PortfolioLayout({ theme = 'light', onToggleTheme = () => {} }) {
 
   return (
     <div className="relative min-h-screen overflow-x-hidden font-body text-ink">
+      <SiteInteractionSounds />
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
         <div
           className="absolute inset-0"
