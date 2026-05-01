@@ -1420,7 +1420,7 @@ function LudoBoardEffect({ effect }) {
         </span>
       ) : (
         <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-slate-900 shadow-[0_12px_24px_rgba(15,23,42,0.22)] animate-[pulse_0.8s_ease-in-out_2]">
-          <Star fill="currentColor" size={18} />
+          <ArrowRight size={18} strokeWidth={3} />
         </span>
       )}
       <span
