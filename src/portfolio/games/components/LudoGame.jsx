@@ -331,6 +331,12 @@ const LUDO_CENTER_TRIANGLES = [
     clipPath: 'polygon(0 0, 0 100%, 50% 50%)',
   },
 ]
+const LUDO_CENTER_TOKEN_GROUP_PLACEMENTS = {
+  red: { left: '31%', top: '50%' },
+  blue: { left: '50%', top: '31%' },
+  yellow: { left: '69%', top: '50%' },
+  green: { left: '50%', top: '69%' },
+}
 const LUDO_VISUAL_MOVE_STEP_MS = 170
 const LUDO_ACTION_EFFECT_MS = 1050
 const LUDO_STACKED_TOKEN_POSITIONS = [
@@ -1419,8 +1425,15 @@ function LudoBoardEffect({ effect }) {
           <ArrowRight size={22} />
         </span>
       ) : (
-        <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-slate-900 shadow-[0_12px_24px_rgba(15,23,42,0.22)] animate-[pulse_0.8s_ease-in-out_2]">
-          <ArrowRight size={18} strokeWidth={3} />
+        <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-[0_12px_24px_rgba(15,23,42,0.22)] animate-[pulse_0.8s_ease-in-out_2]">
+          <span
+            className="absolute h-6 w-6 rounded-full opacity-40 animate-ping"
+            style={{ backgroundColor: tone?.color ?? '#0f172a' }}
+          />
+          <span
+            className="relative h-4 w-4 rounded-full border-2 border-white shadow-[0_0_10px_rgba(15,23,42,0.22)]"
+            style={{ backgroundColor: tone?.color ?? '#0f172a' }}
+          />
         </span>
       )}
       <span
@@ -1465,9 +1478,6 @@ function LudoGame() {
   const renderedPlayers = visualPlayers ?? gameState.players
   const activeColorIds = getActiveLudoColorIds(playerCount)
   const placementTarget = getLudoPlacementTarget(gameState.players.length)
-  const finishedPlayers = renderedPlayers.filter(
-    (player) => getFinishedTokenCount(player) === player.tokens.length,
-  )
   const baseTokenByCell = {}
   const trackTokensByCell = {}
   const homeTokensByCell = {}
@@ -1519,6 +1529,14 @@ function LudoGame() {
       ]
     })
   })
+  const centerTokensByPlayerId = centerTokens.reduce((tokensByPlayer, token) => {
+    tokensByPlayer[token.player.id] = [
+      ...(tokensByPlayer[token.player.id] ?? []),
+      token,
+    ]
+
+    return tokensByPlayer
+  }, {})
 
   const clearRollTimers = () => {
     window.clearInterval(rollIntervalRef.current)
@@ -2151,6 +2169,42 @@ function LudoGame() {
                     />
                   ))}
                 </div>
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute z-20"
+                  style={{
+                    height: '20%',
+                    left: '40%',
+                    top: '40%',
+                    width: '20%',
+                  }}
+                >
+                  {Object.entries(centerTokensByPlayerId).map(([playerId, tokens]) => {
+                    const placement = LUDO_CENTER_TOKEN_GROUP_PLACEMENTS[playerId]
+
+                    if (!placement || !tokens.length) {
+                      return null
+                    }
+
+                    return (
+                      <span
+                        className="absolute flex max-w-[58%] -translate-x-1/2 -translate-y-1/2 flex-wrap items-center justify-center gap-0.5"
+                        key={`center-token-group-${playerId}`}
+                        style={placement}
+                      >
+                        {tokens.map((token) => (
+                          <LudoToken
+                            compact
+                            isMovable={false}
+                            key={`finished-${token.player.id}-${token.tokenIndex}`}
+                            player={token.player}
+                            tokenIndex={token.tokenIndex}
+                          />
+                        ))}
+                      </span>
+                    )
+                  })}
+                </div>
                 {actionEffects.map((effect) => (
                   <LudoBoardEffect effect={effect} key={effect.id} />
                 ))}
@@ -2189,7 +2243,7 @@ function LudoGame() {
                           : []
                         : trackTokensByCell[key] ??
                           homeTokensByCell[key] ??
-                          (rowIndex === 7 && columnIndex === 7 ? centerTokens : [])
+                          []
                       const isCenter = rowIndex === 7 && columnIndex === 7
                       const isCenterBlock = isLudoCenterBlock(rowIndex, columnIndex)
                       const isBaseInner =
@@ -2283,17 +2337,7 @@ function LudoGame() {
                           ) : null}
 
                           {isCenter ? (
-                            <div className="relative h-full w-full">
-                              {tokens.length ? (
-                                renderLudoTokenStack(tokens, `center-${key}`, {
-                                  allowClick: false,
-                                })
-                              ) : finishedPlayers.length ? (
-                                <span className="absolute inset-0 inline-flex items-center justify-center text-white/90">
-                                  <Trophy size={18} />
-                                </span>
-                              ) : null}
-                            </div>
+                            null
                           ) : baseSlotInfo && slotOwner ? (
                             <div className="flex h-full w-full items-center justify-center">
                               <span
