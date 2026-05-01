@@ -260,16 +260,16 @@ const LUDO_CLASSIC_TONES = {
   },
 }
 const LUDO_DICE_DOCK_PLACEMENTS = {
-  red: 'left-2 top-2 sm:left-4 sm:top-4',
-  blue: 'right-2 top-2 sm:right-4 sm:top-4',
-  yellow: 'bottom-2 right-2 sm:bottom-4 sm:right-4',
-  green: 'bottom-2 left-2 sm:bottom-4 sm:left-4',
+  red: 'left-0 top-0 -translate-x-1 -translate-y-1 sm:left-4 sm:top-4 sm:-translate-x-3 sm:-translate-y-3',
+  blue: 'right-0 top-0 translate-x-1 -translate-y-1 sm:right-4 sm:top-4 sm:translate-x-3 sm:-translate-y-3',
+  yellow: 'bottom-0 right-0 translate-x-1 translate-y-1 sm:bottom-4 sm:right-4 sm:translate-x-3 sm:translate-y-3',
+  green: 'bottom-0 left-0 -translate-x-1 translate-y-1 sm:bottom-4 sm:left-4 sm:-translate-x-3 sm:translate-y-3',
 }
 const LUDO_DICE_MESSAGE_PLACEMENTS = {
-  red: 'left-0 top-full mt-2 text-left',
-  blue: 'right-0 top-full mt-2 text-right',
-  yellow: 'bottom-full right-0 mb-2 text-right',
-  green: 'bottom-full left-0 mb-2 text-left',
+  red: 'left-0 top-full mt-1 text-left sm:mt-2',
+  blue: 'right-0 top-full mt-1 text-right sm:mt-2',
+  yellow: 'bottom-full right-0 mb-1 text-right sm:mb-2',
+  green: 'bottom-full left-0 mb-1 text-left sm:mb-2',
 }
 const LUDO_HOME_ARROW_BY_KEY = {
   '7-0': { Icon: ArrowRight, playerId: 'red' },
@@ -1385,7 +1385,7 @@ function LudoDie({
   const playerColor = getLudoColor(player.id)
   const sizeClassName = compact
     ? 'h-[clamp(1.05rem,3.85vw,1.55rem)] w-[clamp(1.05rem,3.85vw,1.55rem)] rounded-[clamp(0.22rem,0.56vw,0.36rem)] sm:h-[clamp(1.28rem,4.8vw,1.9rem)] sm:w-[clamp(1.28rem,4.8vw,1.9rem)] sm:rounded-[clamp(0.28rem,0.72vw,0.44rem)]'
-    : 'h-4 w-4 rounded-[0.22rem] sm:h-14 sm:w-14 sm:rounded-[0.58rem]'
+    : 'h-7 w-7 rounded-[0.34rem] sm:h-14 sm:w-14 sm:rounded-[0.58rem]'
 
   return (
     <button
@@ -1402,7 +1402,7 @@ function LudoDie({
         isActiveTurn &&
           !isRolling &&
           'z-10 scale-[1.06] shadow-[0_0_0_3px_rgba(255,255,255,0.18),0_14px_28px_rgba(15,23,42,0.18)] before:absolute before:inset-[-0.26rem] before:rounded-[inherit] before:border before:border-white/35 before:content-[""] before:animate-ping',
-        isRolling && 'z-20 scale-[1.02] rotate-6 animate-[bounce_0.34s_cubic-bezier(0.2,0.9,0.25,1)_infinite] shadow-[0_8px_14px_rgba(15,23,42,0.24)] sm:shadow-[0_16px_28px_rgba(15,23,42,0.26)]',
+        isRolling && 'z-20 scale-[1.02] rotate-6 animate-[bounce_0.34s_cubic-bezier(0.2,0.9,0.25,1)_infinite] shadow-[0_12px_20px_rgba(15,23,42,0.25)] sm:shadow-[0_16px_28px_rgba(15,23,42,0.26)]',
       )}
       disabled={!canRoll}
       onClick={onRoll}
@@ -1410,15 +1410,15 @@ function LudoDie({
       {isRolling ? (
         <>
           <span
-            className="pointer-events-none absolute inset-[-0.1rem] rounded-[inherit] opacity-30 blur-sm animate-pulse sm:inset-[-0.28rem] sm:blur-md sm:opacity-34"
+            className="pointer-events-none absolute inset-[-0.18rem] rounded-[inherit] opacity-34 blur-sm animate-pulse sm:inset-[-0.28rem] sm:blur-md"
             style={{ backgroundColor: playerColor }}
           />
           <span
-            className="pointer-events-none absolute inset-[-0.05rem] rounded-[inherit] border border-white/65 opacity-55 animate-[ping_0.52s_cubic-bezier(0,0,0.2,1)_infinite] sm:inset-[-0.18rem] sm:opacity-60"
-            style={{ boxShadow: `0 0 6px ${playerColor}` }}
+            className="pointer-events-none absolute inset-[-0.1rem] rounded-[inherit] border border-white/65 opacity-60 animate-[ping_0.52s_cubic-bezier(0,0,0.2,1)_infinite] sm:inset-[-0.18rem]"
+            style={{ boxShadow: `0 0 9px ${playerColor}` }}
           />
           <span
-            className="pointer-events-none absolute -right-px -top-px h-0.5 w-0.5 rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,0.95)] animate-ping sm:-right-0.5 sm:-top-0.5 sm:h-1.5 sm:w-1.5"
+            className="pointer-events-none absolute -right-0.5 -top-0.5 h-1 w-1 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.95)] animate-ping sm:h-1.5 sm:w-1.5"
           />
         </>
       ) : null}
@@ -1427,7 +1427,7 @@ function LudoDie({
           'relative grid h-full w-full grid-cols-3 grid-rows-3 overflow-hidden rounded-[inherit] border border-white/70 bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(241,245,249,0.96)_55%,rgba(226,232,240,0.95))] shadow-[0_8px_18px_rgba(15,23,42,0.12),inset_0_1px_4px_rgba(255,255,255,0.78),inset_0_-5px_10px_rgba(148,163,184,0.2)] transition duration-200',
           compact
             ? 'gap-[clamp(0.025rem,0.1vw,0.07rem)] p-[clamp(0.13rem,0.4vw,0.22rem)] sm:gap-[clamp(0.035rem,0.14vw,0.09rem)] sm:p-[clamp(0.18rem,0.52vw,0.3rem)]'
-            : 'gap-0 p-0.5 sm:gap-1 sm:p-2',
+            : 'gap-px p-1 sm:gap-1 sm:p-2',
           canRoll && 'group-hover:shadow-[0_12px_22px_rgba(15,23,42,0.16),inset_0_1px_4px_rgba(255,255,255,0.78),inset_0_-5px_10px_rgba(148,163,184,0.2)]',
           isRolling &&
             'border-white bg-[radial-gradient(circle_at_25%_20%,rgba(255,255,255,1),rgba(255,255,255,0.9)_34%,rgba(226,232,240,0.98)_70%),linear-gradient(145deg,rgba(255,255,255,1),rgba(203,213,225,0.95))] shadow-[0_18px_34px_rgba(15,23,42,0.28),inset_0_4px_8px_rgba(255,255,255,0.95),inset_0_-9px_14px_rgba(15,23,42,0.22)] animate-[spin_0.38s_cubic-bezier(0.25,0.9,0.22,1)_infinite]',
@@ -1442,7 +1442,7 @@ function LudoDie({
               'relative z-20 self-center justify-self-center rounded-full transition duration-150',
               compact
                 ? 'h-[clamp(0.12rem,0.42vw,0.22rem)] w-[clamp(0.12rem,0.42vw,0.22rem)] sm:h-[clamp(0.16rem,0.58vw,0.3rem)] sm:w-[clamp(0.16rem,0.58vw,0.3rem)]'
-                : 'h-0.5 w-0.5 sm:h-2.5 sm:w-2.5',
+                : 'h-1.5 w-1.5 sm:h-2.5 sm:w-2.5',
               pips.includes(index)
                 ? `${player.pipTone} ${isRolling ? 'scale-125 shadow-[0_0_10px_currentColor,0_2px_4px_rgba(15,23,42,0.3)]' : 'shadow-[0_1px_3px_rgba(15,23,42,0.25)]'}`
                 : 'opacity-0',
@@ -1475,7 +1475,7 @@ function LudoDiceDock({
   return (
     <div
       className={cx(
-        'absolute z-20 flex items-center gap-0.5 rounded-[0.42rem] border border-yellow-300/80 bg-[#1f4aa9]/92 p-0.5 shadow-[0_12px_20px_rgba(15,23,42,0.24)] backdrop-blur-md sm:gap-2 sm:rounded-[0.78rem] sm:p-1.5',
+        'absolute z-20 flex items-center gap-1 rounded-[0.56rem] border border-yellow-300/80 bg-[#1f4aa9]/92 p-0.5 shadow-[0_12px_20px_rgba(15,23,42,0.24)] backdrop-blur-md sm:gap-2 sm:rounded-[0.78rem] sm:p-1.5',
         LUDO_DICE_DOCK_PLACEMENTS[player.id],
         isActiveTurn && 'ring-2 ring-yellow-300',
       )}
@@ -1483,7 +1483,7 @@ function LudoDiceDock({
       {playerMessage ? (
         <span
           className={cx(
-            'pointer-events-none absolute z-20 min-w-[7.5rem] max-w-[10rem] rounded-[0.72rem] border border-white/35 bg-white/88 px-2.5 py-1.5 text-[0.68rem] font-semibold leading-snug text-slate-800 shadow-[0_10px_18px_rgba(15,23,42,0.18)] backdrop-blur-md',
+            'pointer-events-none absolute z-20 min-w-[4.8rem] max-w-[6.8rem] rounded-[0.46rem] border border-white/35 bg-white/88 px-1.5 py-1 text-[0.52rem] font-semibold leading-tight text-slate-800 shadow-[0_6px_12px_rgba(15,23,42,0.16)] backdrop-blur-md sm:min-w-[7.5rem] sm:max-w-[10rem] sm:rounded-[0.72rem] sm:px-2.5 sm:py-1.5 sm:text-[0.68rem] sm:leading-snug',
             LUDO_DICE_MESSAGE_PLACEMENTS[player.id],
             isActiveTurn && 'border-yellow-300 bg-yellow-50 text-slate-950',
           )}
@@ -1494,7 +1494,7 @@ function LudoDiceDock({
 
       <span
         className={cx(
-          'inline-flex h-5 w-5 items-center justify-center rounded-[0.24rem] border bg-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.85)] transition duration-200 sm:h-10 sm:w-10 sm:rounded-[0.45rem] sm:border-2',
+          'inline-flex h-7 w-7 items-center justify-center rounded-[0.34rem] border bg-white shadow-[inset_0_2px_4px_rgba(255,255,255,0.85)] transition duration-200 sm:h-10 sm:w-10 sm:rounded-[0.45rem] sm:border-2',
           LUDO_CLASSIC_TONES[player.id]?.border,
           isActiveTurn && 'z-10 -translate-y-1 scale-110 shadow-[0_10px_18px_rgba(15,23,42,0.28),inset_0_2px_4px_rgba(255,255,255,0.85)]',
         )}
@@ -1537,44 +1537,44 @@ function LudoBoardEffect({ effect }) {
       style={{ left, top }}
     >
       <span
-        className="absolute h-8 w-8 rounded-full opacity-55 blur-[1px] animate-ping sm:h-12 sm:w-12"
+        className="absolute h-5 w-5 rounded-full opacity-45 blur-[1px] animate-ping sm:h-8 sm:w-8"
         style={{ backgroundColor: tone?.color ?? '#ffffff' }}
       />
       <span
         className={cx(
-          'absolute h-7 w-7 rounded-full border border-white/80 shadow-[0_0_16px_rgba(255,255,255,0.55)] animate-[ping_0.72s_cubic-bezier(0,0,0.2,1)_1] sm:h-10 sm:w-10 sm:border-2',
+          'absolute h-4 w-4 rounded-full border border-white/80 shadow-[0_0_10px_rgba(255,255,255,0.48)] animate-[ping_0.72s_cubic-bezier(0,0,0.2,1)_1] sm:h-6 sm:w-6',
           effect.type === 'capture' && 'border-red-200',
           effect.type === 'finish' && 'border-yellow-100',
         )}
         style={{ backgroundColor: `${tone?.color ?? '#ffffff'}66` }}
       />
       {effect.type === 'capture' ? (
-        <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-red-600/92 text-lg font-black text-white shadow-[0_14px_28px_rgba(127,29,29,0.36)] animate-[bounce_0.9s_ease-in-out_1]">
+        <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-red-600/92 text-xs font-black text-white shadow-[0_8px_16px_rgba(127,29,29,0.3)] animate-[bounce_0.9s_ease-in-out_1] sm:h-9 sm:w-9 sm:text-sm">
           X
         </span>
       ) : effect.type === 'finish' ? (
-        <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-yellow-300 text-slate-900 shadow-[0_14px_28px_rgba(202,138,4,0.32)] animate-[bounce_1s_ease-in-out_1]">
-          <Trophy size={24} />
+        <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-yellow-300 text-slate-900 shadow-[0_8px_16px_rgba(202,138,4,0.28)] animate-[bounce_1s_ease-in-out_1] sm:h-9 sm:w-9">
+          <Trophy className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
         </span>
       ) : effect.type === 'entry' ? (
-        <span className="relative flex h-6 w-6 items-center justify-center rounded-full bg-white text-slate-900 shadow-[0_7px_14px_rgba(15,23,42,0.22)] animate-[bounce_0.8s_ease-in-out_1] sm:h-9 sm:w-9">
+        <span className="relative flex h-4 w-4 items-center justify-center rounded-full bg-white text-slate-900 shadow-[0_5px_10px_rgba(15,23,42,0.18)] animate-[bounce_0.8s_ease-in-out_1] sm:h-6 sm:w-6">
           <span
-            className="absolute h-4 w-4 rounded-full opacity-25 animate-ping sm:h-6 sm:w-6"
+            className="absolute h-2.5 w-2.5 rounded-full opacity-25 animate-ping sm:h-4 sm:w-4"
             style={{ backgroundColor: tone?.color ?? '#0f172a' }}
           />
           <span
-            className="relative h-3 w-3 rounded-full border border-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.45),0_1px_4px_rgba(15,23,42,0.24)] sm:h-5 sm:w-5 sm:border-2"
+            className="relative h-2 w-2 rounded-full border border-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.45),0_1px_3px_rgba(15,23,42,0.2)] sm:h-3 sm:w-3"
             style={{ backgroundColor: tone?.color ?? '#0f172a' }}
           />
         </span>
       ) : (
-        <span className="relative flex h-5 w-5 items-center justify-center rounded-full bg-white/95 shadow-[0_6px_12px_rgba(15,23,42,0.2)] animate-[pulse_0.8s_ease-in-out_2] sm:h-8 sm:w-8">
+        <span className="relative flex h-4 w-4 items-center justify-center rounded-full bg-white/95 shadow-[0_5px_10px_rgba(15,23,42,0.18)] animate-[pulse_0.8s_ease-in-out_2] sm:h-6 sm:w-6">
           <span
-            className="absolute h-3 w-3 rounded-full opacity-40 animate-ping sm:h-5 sm:w-5"
+            className="absolute h-2.5 w-2.5 rounded-full opacity-40 animate-ping sm:h-4 sm:w-4"
             style={{ backgroundColor: tone?.color ?? '#0f172a' }}
           />
           <span
-            className="relative h-2.5 w-2.5 rounded-full border border-white shadow-[0_0_7px_rgba(15,23,42,0.2)] sm:h-3.5 sm:w-3.5 sm:border-2"
+            className="relative h-2 w-2 rounded-full border border-white shadow-[0_0_5px_rgba(15,23,42,0.18)] sm:h-3 sm:w-3"
             style={{ backgroundColor: tone?.color ?? '#0f172a' }}
           />
         </span>
@@ -2232,7 +2232,7 @@ function LudoGame() {
             </div>
           </div>
 
-          <div className="w-full overflow-hidden">
+          <div className="w-full overflow-visible">
             <div className="relative mx-auto w-full max-w-[50rem] rounded-[0.95rem] border border-slate-900/20 bg-[radial-gradient(circle_at_18%_12%,rgba(46,115,255,0.3),transparent_28%),radial-gradient(circle_at_82%_82%,rgba(14,165,233,0.22),transparent_30%),linear-gradient(145deg,#0c1d48,#163b8f)] p-2 shadow-[0_24px_48px_rgba(15,23,42,0.28)] sm:rounded-[1.4rem] sm:p-16">
               {celebration ? (
                 <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center overflow-hidden">
