@@ -265,6 +265,12 @@ const LUDO_DICE_DOCK_PLACEMENTS = {
   yellow: 'bottom-2 right-2 sm:bottom-4 sm:right-4',
   green: 'bottom-2 left-2 sm:bottom-4 sm:left-4',
 }
+const LUDO_DICE_MESSAGE_PLACEMENTS = {
+  red: 'left-0 top-full mt-2 text-left',
+  blue: 'right-0 top-full mt-2 text-right',
+  yellow: 'bottom-full right-0 mb-2 text-right',
+  green: 'bottom-full left-0 mb-2 text-left',
+}
 const LUDO_HOME_ARROW_BY_KEY = {
   '7-0': { Icon: ArrowRight, playerId: 'red' },
   '0-7': { Icon: ArrowDown, playerId: 'blue' },
@@ -562,6 +568,22 @@ function getInitialLudoMessage(players) {
     : `Click ${openingPlayer.label}'s dice to start the round.`
 }
 
+function createInitialLudoPlayerMessages(playerCount, controllerMap) {
+  const players = createLudoPlayers(playerCount, controllerMap)
+  const openingPlayer = players[0]
+
+  return players.reduce((messages, player) => {
+    messages[player.id] =
+      player.id === openingPlayer?.id
+        ? player.controller === 'ai'
+          ? 'AI starts.'
+          : 'Roll to start.'
+        : 'Waiting.'
+
+    return messages
+  }, {})
+}
+
 function createInitialLudoState(playerCount, controllerMap) {
   const players = createLudoPlayers(playerCount, controllerMap)
 
@@ -599,6 +621,10 @@ function getLudoTrackIndex(player, progress) {
 
 function getFinishedTokenCount(player) {
   return player.tokens.filter((token) => token.progress === LUDO_FINAL_PROGRESS).length
+}
+
+function getLudoPlayerName(playerId) {
+  return LUDO_PLAYER_DEFS[playerId]?.label ?? 'Player'
 }
 
 function getLudoTrackOccupants(players, trackIndex) {
@@ -1109,6 +1135,7 @@ function LudoDiceDock({
   gameState,
   handleRollClick,
   player,
+  playerMessage,
   rollingPlayerId,
 }) {
   const canRoll =
@@ -1127,6 +1154,18 @@ function LudoDiceDock({
         isActiveTurn && 'ring-2 ring-yellow-300',
       )}
     >
+      {playerMessage ? (
+        <span
+          className={cx(
+            'pointer-events-none absolute z-20 min-w-[7.5rem] max-w-[10rem] rounded-[0.72rem] border border-white/35 bg-white/88 px-2.5 py-1.5 text-[0.68rem] font-semibold leading-snug text-slate-800 shadow-[0_10px_18px_rgba(15,23,42,0.18)] backdrop-blur-md',
+            LUDO_DICE_MESSAGE_PLACEMENTS[player.id],
+            isActiveTurn && 'border-yellow-300 bg-yellow-50 text-slate-950',
+          )}
+        >
+          {playerMessage}
+        </span>
+      ) : null}
+
       <span
         className={cx(
           'inline-flex h-9 w-9 items-center justify-center rounded-[0.45rem] border-2 bg-white shadow-[inset_0_2px_4px_rgba(255,255,255,0.85)] transition duration-200 sm:h-10 sm:w-10',
@@ -1165,6 +1204,9 @@ function LudoGame() {
   const [diceValues, setDiceValues] = useState(createInitialDiceValues)
   const [rollingPlayerId, setRollingPlayerId] = useState(null)
   const [moveFeedback, setMoveFeedback] = useState('')
+  const [playerMessages, setPlayerMessages] = useState(() =>
+    createInitialLudoPlayerMessages(2, LUDO_DEFAULT_CONTROLLERS),
+  )
   const [gameState, setGameState] = useState(() =>
     createInitialLudoState(2, LUDO_DEFAULT_CONTROLLERS),
   )
@@ -1260,6 +1302,30 @@ function LudoGame() {
     }))
   }
 
+  const updatePlayerMessages = (updates) => {
+    setPlayerMessages((currentMessages) => ({
+      ...currentMessages,
+      ...updates,
+    }))
+  }
+
+  const getNextTurnMessage = (state) => {
+    if (state.roundComplete) {
+      return null
+    }
+
+    const nextPlayer = state.players[state.currentPlayerIndex]
+
+    if (!nextPlayer) {
+      return null
+    }
+
+    return {
+      [nextPlayer.id]:
+        nextPlayer.controller === 'ai' ? 'AI turn.' : 'Your turn. Roll now.',
+    }
+  }
+
   const resetRound = (nextPlayerCount = playerCount, nextControllerMap = controllerMap) => {
     clearRollTimers()
     clearVisualMoveTimers()
@@ -1270,6 +1336,7 @@ function LudoGame() {
     setMoveFeedback('')
     setCelebration(null)
     setDiceValues(createInitialDiceValues())
+    setPlayerMessages(createInitialLudoPlayerMessages(nextPlayerCount, nextControllerMap))
     setGameState(createInitialLudoState(nextPlayerCount, nextControllerMap))
   }
 
@@ -1288,6 +1355,24 @@ function LudoGame() {
     }))
     setRollingPlayerId(null)
     setMoveFeedback('')
+
+    if (!nextState.currentRoll) {
+      updatePlayerMessages({
+        [player.id]:
+          roll === 6 && stateSnapshot.turnSixCount + 1 === 3
+            ? 'Three sixes. Turn lost.'
+            : `Rolled ${roll}. No move.`,
+        ...(getNextTurnMessage(nextState) ?? {}),
+      })
+    } else if (nextState.legalMoves.length === 1) {
+      updatePlayerMessages({
+        [player.id]: `Rolled ${roll}. Auto moving token ${nextState.legalMoves[0].tokenIndex + 1}.`,
+      })
+    } else {
+      updatePlayerMessages({
+        [player.id]: `Rolled ${roll}. Choose a token.`,
+      })
+    }
 
     if (
       player.controller === 'human' &&
@@ -1310,6 +1395,9 @@ function LudoGame() {
     playLudoDiceRollSound()
     setRollingPlayerId(playerId)
     setMoveFeedback('')
+    updatePlayerMessages({
+      [playerId]: 'Rolling dice...',
+    })
 
     rollIntervalRef.current = window.setInterval(() => {
       setDiceValues((currentValues) => ({
@@ -1334,6 +1422,15 @@ function LudoGame() {
     setAnimatingMoveKey(moveKey)
     setVisualPlayers(stateSnapshot.players)
     playLudoTokenMoveSound(visualSequence.length)
+    updatePlayerMessages({
+      [move.playerId]: move.captures.length
+        ? `Token ${move.tokenIndex + 1} captures ${move.captures.length}.`
+        : `Moving token ${move.tokenIndex + 1}.`,
+      ...move.captures.reduce((messages, capture) => {
+        messages[capture.playerId] = `Token ${capture.tokenIndex + 1} eliminated by ${getLudoPlayerName(move.playerId)}.`
+        return messages
+      }, {}),
+    })
 
     visualSequence.forEach((progress, index) => {
       const timerId = window.setTimeout(() => {
@@ -1357,6 +1454,21 @@ function LudoGame() {
       if (nextState.latestPlacement?.rank === 1) {
         recordWinner(nextState.latestPlacement.playerId)
       }
+
+      updatePlayerMessages({
+        [move.playerId]: nextState.latestPlacement?.playerId === move.playerId
+          ? `${getLudoPlayerName(move.playerId)} finished ${nextState.latestPlacement.label}.`
+          : move.finishes
+            ? `Token ${move.tokenIndex + 1} reached home. Roll again.`
+            : move.captures.length
+              ? `Captured token. Roll again.`
+              : move.enters
+                ? `Token ${move.tokenIndex + 1} entered.`
+                : nextState.currentPlayerIndex === move.playerIndex && !nextState.roundComplete
+                  ? `Token ${move.tokenIndex + 1} moved. Roll again.`
+                  : `Token ${move.tokenIndex + 1} moved.`,
+        ...(getNextTurnMessage(nextState) ?? {}),
+      })
     }, Math.max(visualSequence.length, 1) * LUDO_VISUAL_MOVE_STEP_MS + 80)
 
     visualMoveTimersRef.current.push(settleTimerId)
@@ -1699,6 +1811,7 @@ function LudoGame() {
                   handleRollClick={handleRollClick}
                   key={`dice-dock-${player.id}`}
                   player={player}
+                  playerMessage={playerMessages[player.id]}
                   rollingPlayerId={rollingPlayerId}
                 />
               ))}
