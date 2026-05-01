@@ -1,5 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import { Bot, RotateCcw, Star, Trophy, Users } from 'lucide-react'
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+  Bot,
+  RotateCcw,
+  Star,
+  Trophy,
+  Users,
+} from 'lucide-react'
 import {
   buttonClassNames,
   cardLabelClassName,
@@ -209,18 +219,113 @@ const LUDO_BASE_SLOTS = {
     { row: 12, column: 4 },
   ],
 }
-const LUDO_DICE_ANCHORS = {
-  red: { row: 3, column: 3 },
-  blue: { row: 3, column: 11 },
-  yellow: { row: 11, column: 11 },
-  green: { row: 11, column: 3 },
-}
 const LUDO_BASE_AREAS = {
   red: { rowStart: 0, rowEnd: 5, columnStart: 0, columnEnd: 5 },
   blue: { rowStart: 0, rowEnd: 5, columnStart: 9, columnEnd: 14 },
   yellow: { rowStart: 9, rowEnd: 14, columnStart: 9, columnEnd: 14 },
   green: { rowStart: 9, rowEnd: 14, columnStart: 0, columnEnd: 5 },
 }
+const LUDO_CLASSIC_TONES = {
+  red: {
+    color: '#ef1b24',
+    base: 'bg-[#ef1b24]',
+    lane: 'bg-[#ef1b24]',
+    start: 'bg-[#ef1b24]',
+    token: 'bg-[#ef1b24]',
+    border: 'border-[#9f1118]',
+  },
+  green: {
+    color: '#05a84f',
+    base: 'bg-[#05a84f]',
+    lane: 'bg-[#05a84f]',
+    start: 'bg-[#05a84f]',
+    token: 'bg-[#05a84f]',
+    border: 'border-[#047338]',
+  },
+  yellow: {
+    color: '#f7d719',
+    base: 'bg-[#f7d719]',
+    lane: 'bg-[#f7d719]',
+    start: 'bg-[#f7d719]',
+    token: 'bg-[#f7d719]',
+    border: 'border-[#b69b00]',
+  },
+  blue: {
+    color: '#27aeea',
+    base: 'bg-[#27aeea]',
+    lane: 'bg-[#27aeea]',
+    start: 'bg-[#27aeea]',
+    token: 'bg-[#27aeea]',
+    border: 'border-[#157aa8]',
+  },
+}
+const LUDO_DICE_DOCK_PLACEMENTS = {
+  red: 'left-2 top-2 sm:left-4 sm:top-4',
+  blue: 'right-2 top-2 sm:right-4 sm:top-4',
+  yellow: 'bottom-2 right-2 sm:bottom-4 sm:right-4',
+  green: 'bottom-2 left-2 sm:bottom-4 sm:left-4',
+}
+const LUDO_HOME_ARROW_BY_KEY = {
+  '7-0': { Icon: ArrowRight, playerId: 'red' },
+  '0-7': { Icon: ArrowDown, playerId: 'blue' },
+  '7-14': { Icon: ArrowLeft, playerId: 'yellow' },
+  '14-7': { Icon: ArrowUp, playerId: 'green' },
+}
+const LUDO_EXTRA_HOME_PATH_BY_KEY = {
+  '7-0': 'red',
+  '6-1': 'red',
+  '7-6': 'red',
+  '7-8': 'yellow',
+  '8-13': 'yellow',
+  '7-14': 'yellow',
+  '0-7': 'blue',
+  '1-8': 'blue',
+  '6-7': 'blue',
+  '8-7': 'green',
+  '13-6': 'green',
+  '14-7': 'green',
+}
+const LUDO_CLASSIC_HOME_PATH_BY_KEY = {
+  ...[0, 1, 2, 3, 4, 5, 6].reduce((map, column) => {
+    map[`7-${column}`] = 'red'
+    return map
+  }, {}),
+  ...[8, 9, 10, 11, 12, 13, 14].reduce((map, column) => {
+    map[`7-${column}`] = 'yellow'
+    return map
+  }, {}),
+  ...[0, 1, 2, 3, 4, 5, 6].reduce((map, row) => {
+    map[`${row}-7`] = 'blue'
+    return map
+  }, {}),
+  ...[8, 9, 10, 11, 12, 13, 14].reduce((map, row) => {
+    map[`${row}-7`] = 'green'
+    return map
+  }, {}),
+}
+const LUDO_CENTER_TRIANGLES = [
+  {
+    id: 'top',
+    playerId: 'blue',
+    clipPath: 'polygon(0 0, 100% 0, 50% 50%)',
+  },
+  {
+    id: 'right',
+    playerId: 'yellow',
+    clipPath: 'polygon(100% 0, 100% 100%, 50% 50%)',
+  },
+  {
+    id: 'bottom',
+    playerId: 'green',
+    clipPath: 'polygon(0 100%, 100% 100%, 50% 50%)',
+  },
+  {
+    id: 'left',
+    playerId: 'red',
+    clipPath: 'polygon(0 0, 0 100%, 50% 50%)',
+  },
+]
+const LUDO_VISUAL_MOVE_STEP_MS = 170
 const LUDO_DEFAULT_CONTROLLERS = {
   red: 'human',
   blue: 'human',
@@ -261,14 +366,6 @@ const ludoHomeLaneByKey = Object.entries(LUDO_HOME_LANES).reduce(
   {},
 )
 
-const ludoDiceAnchorByKey = Object.entries(LUDO_DICE_ANCHORS).reduce(
-  (map, [playerId, coordinate]) => {
-    map[`${coordinate.row}-${coordinate.column}`] = playerId
-    return map
-  },
-  {},
-)
-
 const ludoBaseAreaByKey = Object.entries(LUDO_BASE_AREAS).reduce(
   (map, [playerId, area]) => {
     for (let row = area.rowStart; row <= area.rowEnd; row += 1) {
@@ -292,6 +389,111 @@ function createInitialDiceValues() {
     blue: 1,
     yellow: 1,
     green: 1,
+  }
+}
+
+function playLudoDiceRollSound() {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  const AudioContext = window.AudioContext || window.webkitAudioContext
+
+  if (!AudioContext) {
+    return
+  }
+
+  try {
+    const audioContext = new AudioContext()
+    const masterGain = audioContext.createGain()
+    const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.32, audioContext.sampleRate)
+    const noiseData = noiseBuffer.getChannelData(0)
+
+    for (let index = 0; index < noiseData.length; index += 1) {
+      noiseData[index] = (Math.random() * 2 - 1) * (1 - index / noiseData.length)
+    }
+
+    const noise = audioContext.createBufferSource()
+    const filter = audioContext.createBiquadFilter()
+    const noiseGain = audioContext.createGain()
+    noise.buffer = noiseBuffer
+    filter.type = 'bandpass'
+    filter.frequency.setValueAtTime(900, audioContext.currentTime)
+    filter.Q.setValueAtTime(1.8, audioContext.currentTime)
+    noiseGain.gain.setValueAtTime(0.0001, audioContext.currentTime)
+    noiseGain.gain.exponentialRampToValueAtTime(0.32, audioContext.currentTime + 0.02)
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.34)
+    noise.connect(filter)
+    filter.connect(noiseGain)
+    noiseGain.connect(masterGain)
+    masterGain.gain.setValueAtTime(0.0001, audioContext.currentTime)
+    masterGain.gain.exponentialRampToValueAtTime(0.24, audioContext.currentTime + 0.02)
+    masterGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5)
+    masterGain.connect(audioContext.destination)
+    noise.start(audioContext.currentTime)
+    noise.stop(audioContext.currentTime + 0.34)
+
+    for (let index = 0; index < 9; index += 1) {
+      const oscillator = audioContext.createOscillator()
+      const clickGain = audioContext.createGain()
+      const startTime = audioContext.currentTime + index * 0.045
+
+      oscillator.type = index % 2 ? 'square' : 'triangle'
+      oscillator.frequency.setValueAtTime(180 + Math.random() * 520, startTime)
+      clickGain.gain.setValueAtTime(0.0001, startTime)
+      clickGain.gain.exponentialRampToValueAtTime(0.26, startTime + 0.006)
+      clickGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.04)
+      oscillator.connect(clickGain)
+      clickGain.connect(masterGain)
+      oscillator.start(startTime)
+      oscillator.stop(startTime + 0.05)
+    }
+
+    window.setTimeout(() => {
+      if (audioContext.state !== 'closed') {
+        audioContext.close()
+      }
+    }, 650)
+  } catch {
+    // Audio playback can be blocked by browser policy; the dice roll still works.
+  }
+}
+
+function playLudoTokenStepSound(stepIndex = 0) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  const AudioContext = window.AudioContext || window.webkitAudioContext
+
+  if (!AudioContext) {
+    return
+  }
+
+  try {
+    const audioContext = new AudioContext()
+    const oscillator = audioContext.createOscillator()
+    const gain = audioContext.createGain()
+    const startTime = audioContext.currentTime
+
+    oscillator.type = 'triangle'
+    oscillator.frequency.setValueAtTime(360 + (stepIndex % 3) * 45, startTime)
+    gain.gain.setValueAtTime(0.0001, startTime)
+    gain.gain.exponentialRampToValueAtTime(0.16, startTime + 0.01)
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.075)
+
+    oscillator.connect(gain)
+    gain.connect(audioContext.destination)
+    oscillator.start(startTime)
+    oscillator.stop(startTime + 0.08)
+
+    window.setTimeout(() => {
+      if (audioContext.state !== 'closed') {
+        audioContext.close()
+      }
+    }, 120)
+  } catch {
+    // Movement audio is optional; token movement should never be blocked by sound.
   }
 }
 
@@ -610,6 +812,40 @@ function applyLudoMove(currentState, move) {
   }
 }
 
+function createLudoVisualProgressSequence(move) {
+  if (move.from === -1) {
+    return [0]
+  }
+
+  const sequence = []
+
+  for (let progress = move.from + 1; progress <= move.to; progress += 1) {
+    sequence.push(progress)
+  }
+
+  return sequence
+}
+
+function createLudoPlayersWithVisualProgress(players, move, progress) {
+  return players.map((player, playerIndex) => {
+    if (playerIndex !== move.playerIndex) {
+      return player
+    }
+
+    return {
+      ...player,
+      tokens: player.tokens.map((token) =>
+        token.tokenIndex === move.tokenIndex
+          ? {
+              ...token,
+              progress,
+            }
+          : token,
+      ),
+    }
+  })
+}
+
 function chooseBestLudoAiMove(currentState) {
   const activePlayer = currentState.players[currentState.currentPlayerIndex]
 
@@ -646,6 +882,73 @@ function chooseBestLudoAiMove(currentState) {
     .sort((firstOption, secondOption) => secondOption.score - firstOption.score)[0]?.move
 }
 
+function isLudoBaseInnerCell(row, column, playerId) {
+  const innerBounds = {
+    red: { rowStart: 1, rowEnd: 4, columnStart: 1, columnEnd: 4 },
+    blue: { rowStart: 1, rowEnd: 4, columnStart: 10, columnEnd: 13 },
+    yellow: { rowStart: 10, rowEnd: 13, columnStart: 10, columnEnd: 13 },
+    green: { rowStart: 10, rowEnd: 13, columnStart: 1, columnEnd: 4 },
+  }[playerId]
+
+  return (
+    innerBounds &&
+    row >= innerBounds.rowStart &&
+    row <= innerBounds.rowEnd &&
+    column >= innerBounds.columnStart &&
+    column <= innerBounds.columnEnd
+  )
+}
+
+function isLudoCenterBlock(row, column) {
+  return row >= 6 && row <= 8 && column >= 6 && column <= 8
+}
+
+function getLudoColor(playerId) {
+  return LUDO_CLASSIC_TONES[playerId]?.color ?? '#ffffff'
+}
+
+function getLudoCellBackgroundColor({
+  baseAreaOwnerId,
+  classicHomePathPlayerId,
+  extraHomePathPlayerId,
+  homeLanePlayerId,
+  isBaseInner,
+  isCenterBlock,
+  isHomeArrowCell,
+  isPathCell,
+  trackIndex,
+}) {
+  if (isCenterBlock) {
+    return 'transparent'
+  }
+
+  if (isHomeArrowCell) {
+    return '#ffffff'
+  }
+
+  if (classicHomePathPlayerId) {
+    return getLudoColor(classicHomePathPlayerId)
+  }
+
+  if (homeLanePlayerId) {
+    return getLudoColor(homeLanePlayerId)
+  }
+
+  if (extraHomePathPlayerId) {
+    return getLudoColor(extraHomePathPlayerId)
+  }
+
+  if (isBaseInner || isPathCell || trackIndex !== undefined) {
+    return '#ffffff'
+  }
+
+  if (baseAreaOwnerId) {
+    return getLudoColor(baseAreaOwnerId)
+  }
+
+  return '#ffffff'
+}
+
 function LudoMetric({ label, value, hint }) {
   return (
     <div className="rounded-[1.25rem] border border-line bg-[color:var(--portfolio-glass-soft)] px-4 py-3 shadow-[var(--portfolio-soft-shadow)]">
@@ -663,38 +966,29 @@ function LudoToken({ player, tokenIndex, isMovable, onClick }) {
     typeof onClick === 'function'
       ? {
           onClick,
-          type: 'button',
         }
       : {}
 
   return (
     <button
       className={cx(
-        'relative inline-flex h-[clamp(1.1rem,4.7vw,1.95rem)] w-[clamp(0.92rem,4vw,1.58rem)] items-end justify-center bg-transparent transition duration-200',
+        'relative inline-flex h-[clamp(1.05rem,4.6vw,2.05rem)] w-[clamp(0.9rem,4vw,1.65rem)] items-end justify-center bg-transparent transition duration-200',
         isMovable &&
           '-translate-y-0.5 scale-[1.08] animate-[bounce_1.2s_ease-in-out_infinite] drop-shadow-[0_0_16px_rgba(255,255,255,0.22)]',
       )}
       title={`${player.label} token ${tokenIndex + 1}`}
+      type="button"
       {...interactiveProps}
     >
-      <span className="pointer-events-none relative block h-full w-full">
-        <span className="absolute left-1/2 top-[7%] h-[16%] w-[44%] -translate-x-1/2 rounded-full bg-white/35 blur-[1px]" />
+      <span className="pointer-events-none relative block h-full w-full drop-shadow-[0_4px_5px_rgba(15,23,42,0.38)]">
         <span
-          className={cx(
-            'absolute left-1/2 top-[14%] h-[25%] w-[50%] -translate-x-1/2 rounded-full border border-white/40 shadow-[inset_0_1px_2px_rgba(255,255,255,0.3)]',
-            player.tokenTone,
-          )}
+          className="absolute left-1/2 top-[1%] h-[72%] w-[74%] -translate-x-1/2 rounded-[55%_55%_55%_55%/62%_62%_42%_42%] border border-slate-500/35 bg-white shadow-[inset_0_2px_4px_rgba(255,255,255,0.9),0_2px_4px_rgba(15,23,42,0.28)]"
+          style={{ clipPath: 'polygon(50% 100%, 10% 54%, 14% 18%, 50% 0, 86% 18%, 90% 54%)' }}
         />
         <span
           className={cx(
-            'absolute left-1/2 top-[34%] h-[28%] w-[58%] -translate-x-1/2 rounded-[999px] border border-white/32 shadow-[inset_0_1px_2px_rgba(255,255,255,0.22)]',
-            player.tokenTone,
-          )}
-        />
-        <span
-          className={cx(
-            'absolute bottom-[8%] left-1/2 h-[28%] w-[84%] -translate-x-1/2 rounded-full border border-white/24 shadow-[0_5px_10px_rgba(15,23,42,0.16),inset_0_1px_2px_rgba(255,255,255,0.2)]',
-            player.tokenTone,
+            'absolute left-1/2 top-[13%] h-[34%] w-[44%] -translate-x-1/2 rounded-full border border-slate-700/20 shadow-[inset_0_1px_2px_rgba(255,255,255,0.35)]',
+            LUDO_CLASSIC_TONES[player.id]?.token,
           )}
         />
       </span>
@@ -715,7 +1009,7 @@ function LudoDie({
   const pips = LUDO_DICE_PIPS[value] ?? LUDO_DICE_PIPS[1]
   const sizeClassName = compact
     ? 'h-[clamp(1.65rem,6.2vw,2.35rem)] w-[clamp(1.65rem,6.2vw,2.35rem)] rounded-[clamp(0.34rem,0.85vw,0.52rem)]'
-    : 'h-20 w-20 rounded-[0.72rem]'
+    : 'h-14 w-14 rounded-[0.58rem] sm:h-16 sm:w-16'
 
   return (
     <button
@@ -742,7 +1036,7 @@ function LudoDie({
           'relative grid h-full w-full grid-cols-3 grid-rows-3 rounded-[inherit] border border-white/70 bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(241,245,249,0.96)_55%,rgba(226,232,240,0.95))] shadow-[0_8px_18px_rgba(15,23,42,0.12),inset_0_1px_4px_rgba(255,255,255,0.78),inset_0_-5px_10px_rgba(148,163,184,0.2)] transition duration-200',
           compact
             ? 'gap-[clamp(0.05rem,0.18vw,0.12rem)] p-[clamp(0.24rem,0.68vw,0.38rem)]'
-            : 'gap-1.5 p-2.5',
+            : 'gap-1 p-2',
           canRoll && 'group-hover:shadow-[0_12px_22px_rgba(15,23,42,0.16),inset_0_1px_4px_rgba(255,255,255,0.78),inset_0_-5px_10px_rgba(148,163,184,0.2)]',
         )}
       >
@@ -752,7 +1046,7 @@ function LudoDie({
               'self-center justify-self-center rounded-full transition duration-150',
               compact
                 ? 'h-[clamp(0.22rem,0.78vw,0.38rem)] w-[clamp(0.22rem,0.78vw,0.38rem)]'
-                : 'h-3 w-3',
+                : 'h-2.5 w-2.5',
               pips.includes(index)
                 ? `${player.pipTone} shadow-[0_1px_3px_rgba(15,23,42,0.25)]`
                 : 'opacity-0',
@@ -762,6 +1056,56 @@ function LudoDie({
         ))}
       </span>
     </button>
+  )
+}
+
+function LudoDiceDock({
+  activePlayer,
+  diceValues,
+  gameState,
+  handleRollClick,
+  player,
+  rollingPlayerId,
+}) {
+  const canRoll =
+    !gameState.roundComplete &&
+    !gameState.currentRoll &&
+    !rollingPlayerId &&
+    activePlayer?.id === player.id &&
+    player.controller === 'human'
+  const isActiveTurn = !gameState.roundComplete && activePlayer?.id === player.id
+
+  return (
+    <div
+      className={cx(
+        'absolute z-20 flex items-center gap-1.5 rounded-[0.78rem] border border-yellow-300/80 bg-[#1f4aa9]/92 p-1 shadow-[0_12px_20px_rgba(15,23,42,0.24)] backdrop-blur-md sm:gap-2 sm:p-1.5',
+        LUDO_DICE_DOCK_PLACEMENTS[player.id],
+        isActiveTurn && 'ring-2 ring-yellow-300',
+      )}
+    >
+      <span
+        className={cx(
+          'inline-flex h-9 w-9 items-center justify-center rounded-[0.45rem] border-2 bg-white shadow-[inset_0_2px_4px_rgba(255,255,255,0.85)] transition duration-200 sm:h-10 sm:w-10',
+          LUDO_CLASSIC_TONES[player.id]?.border,
+          isActiveTurn && 'z-10 -translate-y-1 scale-110 shadow-[0_10px_18px_rgba(15,23,42,0.28),inset_0_2px_4px_rgba(255,255,255,0.85)]',
+        )}
+      >
+        <LudoToken
+          isMovable={isActiveTurn}
+          player={player}
+          tokenIndex={0}
+        />
+      </span>
+
+      <LudoDie
+        canRoll={canRoll}
+        isActiveTurn={isActiveTurn}
+        isRolling={rollingPlayerId === player.id}
+        onRoll={() => handleRollClick(player.id)}
+        player={player}
+        value={diceValues[player.id]}
+      />
+    </div>
   )
 }
 
@@ -780,15 +1124,19 @@ function LudoGame() {
   const [gameState, setGameState] = useState(() =>
     createInitialLudoState(2, LUDO_DEFAULT_CONTROLLERS),
   )
+  const [visualPlayers, setVisualPlayers] = useState(null)
+  const [animatingMoveKey, setAnimatingMoveKey] = useState('')
   const [celebration, setCelebration] = useState(null)
   const rollIntervalRef = useRef(null)
   const settleTimeoutRef = useRef(null)
   const celebrationTimeoutRef = useRef(null)
+  const visualMoveTimersRef = useRef([])
 
   const activePlayer = gameState.players[gameState.currentPlayerIndex]
+  const renderedPlayers = visualPlayers ?? gameState.players
   const activeColorIds = getActiveLudoColorIds(playerCount)
   const placementTarget = getLudoPlacementTarget(gameState.players.length)
-  const finishedPlayers = gameState.players.filter(
+  const finishedPlayers = renderedPlayers.filter(
     (player) => getFinishedTokenCount(player) === player.tokens.length,
   )
   const baseTokenByCell = {}
@@ -796,7 +1144,7 @@ function LudoGame() {
   const homeTokensByCell = {}
   const centerTokens = []
 
-  gameState.players.forEach((player) => {
+  renderedPlayers.forEach((player) => {
     player.tokens.forEach((token) => {
       if (token.progress === -1) {
         const baseSlot = LUDO_BASE_SLOTS[player.id][token.tokenIndex]
@@ -848,6 +1196,11 @@ function LudoGame() {
     window.clearTimeout(settleTimeoutRef.current)
   }
 
+  const clearVisualMoveTimers = () => {
+    visualMoveTimersRef.current.forEach((timerId) => window.clearTimeout(timerId))
+    visualMoveTimersRef.current = []
+  }
+
   const clearCelebrationTimer = () => {
     window.clearTimeout(celebrationTimeoutRef.current)
   }
@@ -865,8 +1218,11 @@ function LudoGame() {
 
   const resetRound = (nextPlayerCount = playerCount, nextControllerMap = controllerMap) => {
     clearRollTimers()
+    clearVisualMoveTimers()
     clearCelebrationTimer()
     setRollingPlayerId(null)
+    setVisualPlayers(null)
+    setAnimatingMoveKey('')
     setMoveFeedback('')
     setCelebration(null)
     setDiceValues(createInitialDiceValues())
@@ -897,6 +1253,7 @@ function LudoGame() {
     }
 
     clearRollTimers()
+    playLudoDiceRollSound()
     setRollingPlayerId(playerId)
     setMoveFeedback('')
 
@@ -915,18 +1272,46 @@ function LudoGame() {
 
   const commitMove = (move, stateSnapshot) => {
     const nextState = applyLudoMove(stateSnapshot, move)
+    const visualSequence = createLudoVisualProgressSequence(move)
+    const moveKey = `${move.playerId}-${move.tokenIndex}`
 
+    clearVisualMoveTimers()
     setMoveFeedback('')
-    setGameState(nextState)
+    setAnimatingMoveKey(moveKey)
+    setVisualPlayers(stateSnapshot.players)
 
-    if (nextState.latestPlacement?.rank === 1) {
-      recordWinner(nextState.latestPlacement.playerId)
-    }
+    visualSequence.forEach((progress, index) => {
+      const timerId = window.setTimeout(() => {
+        playLudoTokenStepSound(index)
+        setVisualPlayers(
+          createLudoPlayersWithVisualProgress(
+            stateSnapshot.players,
+            move,
+            progress,
+          ),
+        )
+      }, index * LUDO_VISUAL_MOVE_STEP_MS)
+
+      visualMoveTimersRef.current.push(timerId)
+    })
+
+    const settleTimerId = window.setTimeout(() => {
+      setVisualPlayers(null)
+      setAnimatingMoveKey('')
+      setGameState(nextState)
+
+      if (nextState.latestPlacement?.rank === 1) {
+        recordWinner(nextState.latestPlacement.playerId)
+      }
+    }, Math.max(visualSequence.length, 1) * LUDO_VISUAL_MOVE_STEP_MS + 80)
+
+    visualMoveTimersRef.current.push(settleTimerId)
   }
 
   useEffect(() => {
     return () => {
       clearRollTimers()
+      clearVisualMoveTimers()
       clearCelebrationTimer()
     }
   }, [])
@@ -936,7 +1321,8 @@ function LudoGame() {
       !activePlayer ||
       gameState.roundComplete ||
       gameState.currentRoll ||
-      rollingPlayerId
+      rollingPlayerId ||
+      animatingMoveKey
     ) {
       return undefined
     }
@@ -952,14 +1338,15 @@ function LudoGame() {
     return () => {
       window.clearTimeout(timerId)
     }
-  }, [activePlayer, gameState, rollingPlayerId])
+  }, [activePlayer, animatingMoveKey, gameState, rollingPlayerId])
 
   useEffect(() => {
     if (
       !activePlayer ||
       gameState.roundComplete ||
       !gameState.currentRoll ||
-      rollingPlayerId
+      rollingPlayerId ||
+      animatingMoveKey
     ) {
       return undefined
     }
@@ -979,7 +1366,7 @@ function LudoGame() {
     return () => {
       window.clearTimeout(timerId)
     }
-  }, [activePlayer, gameState, rollingPlayerId])
+  }, [activePlayer, animatingMoveKey, gameState, rollingPlayerId])
 
   useEffect(() => {
     if (!gameState.latestPlacement) {
@@ -1019,7 +1406,8 @@ function LudoGame() {
       activePlayer.controller !== 'human' ||
       gameState.roundComplete ||
       gameState.currentRoll ||
-      rollingPlayerId
+      rollingPlayerId ||
+      animatingMoveKey
     ) {
       return
     }
@@ -1028,7 +1416,7 @@ function LudoGame() {
   }
 
   const handleTokenClick = (playerId, tokenIndex) => {
-    if (!activePlayer || activePlayer.controller !== 'human') {
+    if (!activePlayer || activePlayer.controller !== 'human' || animatingMoveKey) {
       return
     }
 
@@ -1076,7 +1464,7 @@ function LudoGame() {
           : `${activePlayer?.label} AI will roll automatically.`
       : gameState.currentRoll
         ? 'Tap one of the highlighted tokens on the board.'
-        : `Tap ${activePlayer?.label}'s die between the home tokens.`
+        : `Tap ${activePlayer?.label}'s dice panel to roll.`
   const placementByPlayerId = gameState.placements.reduce((placementMap, playerId, index) => {
     placementMap[playerId] = getLudoPlacementLabel(index + 1)
     return placementMap
@@ -1133,7 +1521,7 @@ function LudoGame() {
           </div>
 
           <div className="w-full overflow-hidden">
-            <div className="relative mx-auto w-full max-w-[44rem] overflow-hidden rounded-[1.3rem] border border-line bg-[radial-gradient(circle_at_top_left,rgba(244,63,94,0.18),transparent_24%),radial-gradient(circle_at_top_right,rgba(56,189,248,0.18),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(250,204,21,0.18),transparent_24%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.18),transparent_24%),linear-gradient(145deg,rgba(51,65,85,0.22),rgba(15,23,42,0.34))] p-1.5 shadow-[var(--portfolio-soft-shadow)] sm:rounded-[1.7rem] sm:p-3">
+            <div className="relative mx-auto w-full max-w-[50rem] rounded-[1.4rem] border border-slate-900/20 bg-[radial-gradient(circle_at_18%_12%,rgba(46,115,255,0.3),transparent_28%),radial-gradient(circle_at_82%_82%,rgba(14,165,233,0.22),transparent_30%),linear-gradient(145deg,#0c1d48,#163b8f)] p-12 shadow-[0_24px_48px_rgba(15,23,42,0.28)] sm:p-16">
               {celebration ? (
                 <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center overflow-hidden">
                   <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(15,23,42,0.08),transparent_62%)]" />
@@ -1177,26 +1565,57 @@ function LudoGame() {
                   </div>
                 </div>
               ) : null}
-              <div className="grid gap-[0.2rem] sm:gap-1">
+              {gameState.players.map((player) => (
+                <LudoDiceDock
+                  activePlayer={activePlayer}
+                  diceValues={diceValues}
+                  gameState={gameState}
+                  handleRollClick={handleRollClick}
+                  key={`dice-dock-${player.id}`}
+                  player={player}
+                  rollingPlayerId={rollingPlayerId}
+                />
+              ))}
+
+              <div className="relative grid overflow-hidden rounded-[1.05rem] border-[3px] border-slate-800 bg-white shadow-[0_12px_24px_rgba(15,23,42,0.25)]">
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute z-10 overflow-hidden border border-slate-400/70 bg-white"
+                  style={{
+                    height: '20%',
+                    left: '40%',
+                    top: '40%',
+                    width: '20%',
+                  }}
+                >
+                  {LUDO_CENTER_TRIANGLES.map((triangle) => (
+                    <span
+                      className="absolute inset-0"
+                      key={`center-triangle-${triangle.id}`}
+                      style={{
+                        backgroundColor: getLudoColor(triangle.playerId),
+                        clipPath: triangle.clipPath,
+                      }}
+                    />
+                  ))}
+                </div>
                 {Array.from({ length: 15 }, (_, rowIndex) => (
                   <div
-                    className="grid grid-cols-[repeat(15,minmax(0,1fr))] gap-[0.2rem] sm:gap-1"
+                    className="grid grid-cols-[repeat(15,minmax(0,1fr))]"
                     key={`ludo-row-${rowIndex}`}
                   >
                     {Array.from({ length: 15 }, (_, columnIndex) => {
                       const key = `${rowIndex}-${columnIndex}`
                       const trackIndex = ludoTrackIndexByKey[key]
                       const baseSlotInfo = ludoBaseSlotByKey[key]
-                      const diceAnchorPlayerId = ludoDiceAnchorByKey[key]
                       const homeLaneInfo = ludoHomeLaneByKey[key]
+                      const homeArrow = LUDO_HOME_ARROW_BY_KEY[key]
+                      const HomeArrowIcon = homeArrow?.Icon
+                      const extraHomePathPlayerId = LUDO_EXTRA_HOME_PATH_BY_KEY[key]
+                      const classicHomePathPlayerId = LUDO_CLASSIC_HOME_PATH_BY_KEY[key]
                       const baseAreaOwnerId = ludoBaseAreaByKey[key]
                       const baseAreaOwner = baseAreaOwnerId
                         ? LUDO_PLAYER_DEFS[baseAreaOwnerId]
-                        : null
-                      const diceAnchorPlayer = diceAnchorPlayerId
-                        ? gameState.players.find(
-                            (player) => player.id === diceAnchorPlayerId,
-                          ) ?? LUDO_PLAYER_DEFS[diceAnchorPlayerId]
                         : null
                       const slotOwner = baseSlotInfo
                         ? gameState.players.find(
@@ -1206,9 +1625,9 @@ function LudoGame() {
                       const homeLaneOwner = homeLaneInfo
                         ? LUDO_PLAYER_DEFS[homeLaneInfo.playerId]
                         : null
-                      const startOwner = Object.values(LUDO_PLAYER_DEFS).find(
-                        (player) => player.startIndex === trackIndex,
-                      )
+                      const classicHomePathOwner = classicHomePathPlayerId
+                        ? LUDO_PLAYER_DEFS[classicHomePathPlayerId]
+                        : null
                       const tokens = baseSlotInfo
                         ? baseTokenByCell[key]
                           ? [baseTokenByCell[key]]
@@ -1217,56 +1636,72 @@ function LudoGame() {
                           homeTokensByCell[key] ??
                           (rowIndex === 7 && columnIndex === 7 ? centerTokens : [])
                       const isCenter = rowIndex === 7 && columnIndex === 7
-                      const isDiceAnchor = Boolean(diceAnchorPlayerId)
+                      const isCenterBlock = isLudoCenterBlock(rowIndex, columnIndex)
+                      const isBaseInner =
+                        baseAreaOwnerId &&
+                        isLudoBaseInnerCell(rowIndex, columnIndex, baseAreaOwnerId)
                       const isPathCell =
-                        trackIndex !== undefined || Boolean(homeLaneInfo) || isCenter
+                        trackIndex !== undefined ||
+                        Boolean(homeLaneInfo) ||
+                        Boolean(extraHomePathPlayerId) ||
+                        Boolean(classicHomePathOwner) ||
+                        isCenter ||
+                        isCenterBlock
                       const isSafeTrack =
                         trackIndex !== undefined && LUDO_SAFE_TRACK_INDICES.has(trackIndex)
+                      const cellBackgroundColor = getLudoCellBackgroundColor({
+                        baseAreaOwnerId,
+                        classicHomePathPlayerId,
+                        extraHomePathPlayerId,
+                        homeLanePlayerId: homeLaneInfo?.playerId,
+                        isBaseInner,
+                        isCenterBlock,
+                        isHomeArrowCell: Boolean(HomeArrowIcon),
+                        isPathCell,
+                        trackIndex,
+                      })
 
-                      let cellClassName = 'relative aspect-square min-w-0 overflow-visible'
+                      let cellClassName =
+                        'relative aspect-square min-w-0 overflow-visible border border-slate-400/55'
+
+                      if (baseAreaOwner) {
+                        cellClassName = cx(
+                          cellClassName,
+                          'border-transparent shadow-[inset_0_0_0_999px_rgba(255,255,255,0.01)]',
+                        )
+                      }
+
+                      if (isBaseInner) {
+                        cellClassName = cx(
+                          cellClassName,
+                          'border-white shadow-[inset_0_0_0_1px_rgba(15,23,42,0.03)]',
+                        )
+                      }
 
                       if (isPathCell) {
                         cellClassName = cx(
                           cellClassName,
-                          'rounded-[0.82rem] border border-white/10 bg-[linear-gradient(145deg,rgba(51,65,85,0.5),rgba(15,23,42,0.62))] shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_0_18px_rgba(15,23,42,0.12)] backdrop-blur-[2px]',
+                          'border-slate-400/70',
                         )
                       }
 
-                      if (trackIndex !== undefined) {
+                      if (homeLaneOwner || classicHomePathOwner) {
                         cellClassName = cx(
                           cellClassName,
-                          startOwner
-                            ? startOwner.laneTone
-                            : 'bg-[linear-gradient(145deg,rgba(71,85,105,0.58),rgba(30,41,59,0.72))]',
-                          'shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_0_14px_rgba(15,23,42,0.16)]',
+                          'shadow-[inset_0_0_0_999px_rgba(255,255,255,0.02)]',
                         )
-                      }
-
-                      if (homeLaneOwner) {
-                        cellClassName = cx(
-                          cellClassName,
-                          homeLaneOwner.laneTone,
-                          'shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_0_18px_rgba(15,23,42,0.2)]',
-                        )
-                      }
-
-                      if (isCenter) {
-                        cellClassName = cx(
-                          cellClassName,
-                          'bg-gradient-to-br from-fuchsia-500/26 via-violet-500/18 to-cyan-500/22 shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_0_24px_rgba(168,85,247,0.18)]',
-                        )
-                      }
-
-                      if (!isPathCell && !baseSlotInfo && !isDiceAnchor) {
-                        cellClassName = 'relative aspect-square min-w-0 bg-transparent'
                       }
 
                       return (
-                        <div className={cellClassName} key={key}>
+                        <div
+                          className={cellClassName}
+                          key={key}
+                          style={{ backgroundColor: cellBackgroundColor }}
+                        >
                           {isSafeTrack ? (
                             <span
                               className={cx(
-                                'pointer-events-none absolute text-amber-100 drop-shadow-[0_0_10px_rgba(251,191,36,0.38)]',
+                                'pointer-events-none absolute text-slate-400 drop-shadow-[0_1px_1px_rgba(255,255,255,0.75)]',
                                 tokens.length
                                   ? 'right-1 top-1'
                                   : 'inset-0 flex items-center justify-center',
@@ -1275,6 +1710,19 @@ function LudoGame() {
                               <Star
                                 fill="currentColor"
                                 size={tokens.length ? 8 : 12}
+                              />
+                            </span>
+                          ) : null}
+
+                          {HomeArrowIcon ? (
+                            <span
+                              className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
+                              style={{ color: getLudoColor(homeArrow.playerId) }}
+                            >
+                              <HomeArrowIcon
+                                size={18}
+                                strokeWidth={2.8}
+                                className="drop-shadow-[0_1px_1px_rgba(255,255,255,0.85)]"
                               />
                             </span>
                           ) : null}
@@ -1296,45 +1744,29 @@ function LudoGame() {
                                 </span>
                               ) : null}
                             </div>
-                          ) : isDiceAnchor && diceAnchorPlayer ? (
-                            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-visible">
-                              <LudoDie
-                                canRoll={
-                                  !gameState.roundComplete &&
-                                  !gameState.currentRoll &&
-                                  !rollingPlayerId &&
-                                  activePlayer?.id === diceAnchorPlayer.id &&
-                                  diceAnchorPlayer.controller === 'human'
-                                }
-                                compact
-                                isActiveTurn={
-                                  !gameState.roundComplete &&
-                                  activePlayer?.id === diceAnchorPlayer.id
-                                }
-                                isRolling={rollingPlayerId === diceAnchorPlayer.id}
-                                onRoll={() => handleRollClick(diceAnchorPlayer.id)}
-                                player={diceAnchorPlayer}
-                                value={diceValues[diceAnchorPlayer.id]}
-                              />
-                            </div>
                           ) : baseSlotInfo && slotOwner ? (
                             <div className="flex h-full w-full items-center justify-center">
                               <span
                                 className={cx(
-                                  'inline-flex h-[82%] w-[82%] rounded-full border border-white/12 shadow-[0_0_20px_rgba(255,255,255,0.06)]',
-                                  baseAreaOwner?.cellTone ?? 'bg-white/6',
+                                  'inline-flex h-[72%] w-[72%] rounded-full border-2 shadow-[inset_0_2px_4px_rgba(255,255,255,0.6)]',
+                                  LUDO_CLASSIC_TONES[baseAreaOwner?.id]?.token ?? 'bg-white',
+                                  LUDO_CLASSIC_TONES[baseAreaOwner?.id]?.border ?? 'border-slate-300',
                                 )}
                               />
                               {tokens.length ? (
                                 <span className="absolute inset-0 flex items-center justify-center">
                                   {tokens.map((token) => (
                                     <LudoToken
-                                      isMovable={gameState.legalMoves.some(
-                                        (move) =>
-                                          move.playerId === token.player.id &&
-                                          move.tokenIndex === token.tokenIndex &&
-                                          activePlayer?.controller === 'human',
-                                      )}
+                                      isMovable={
+                                        animatingMoveKey ===
+                                          `${token.player.id}-${token.tokenIndex}` ||
+                                        gameState.legalMoves.some(
+                                          (move) =>
+                                            move.playerId === token.player.id &&
+                                            move.tokenIndex === token.tokenIndex &&
+                                            activePlayer?.controller === 'human',
+                                        )
+                                      }
                                       key={`${token.player.id}-${token.tokenIndex}-${key}`}
                                       onClick={() =>
                                         handleTokenClick(token.player.id, token.tokenIndex)
@@ -1350,12 +1782,16 @@ function LudoGame() {
                             <div className="flex h-full w-full flex-wrap items-center justify-center gap-1 p-1">
                               {tokens.map((token) => (
                                 <LudoToken
-                                  isMovable={gameState.legalMoves.some(
-                                    (move) =>
-                                      move.playerId === token.player.id &&
-                                      move.tokenIndex === token.tokenIndex &&
-                                      activePlayer?.controller === 'human',
-                                  )}
+                                  isMovable={
+                                    animatingMoveKey ===
+                                      `${token.player.id}-${token.tokenIndex}` ||
+                                    gameState.legalMoves.some(
+                                      (move) =>
+                                        move.playerId === token.player.id &&
+                                        move.tokenIndex === token.tokenIndex &&
+                                        activePlayer?.controller === 'human',
+                                    )
+                                  }
                                   key={`${token.player.id}-${token.tokenIndex}-${key}`}
                                   onClick={() =>
                                     handleTokenClick(token.player.id, token.tokenIndex)
