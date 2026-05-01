@@ -399,19 +399,66 @@ function createInitialDiceValues() {
   }
 }
 
-function playLudoDiceRollSound() {
+let ludoAudioContext = null
+
+function getLudoAudioContext() {
   if (typeof window === 'undefined') {
-    return
+    return null
   }
 
   const AudioContext = window.AudioContext || window.webkitAudioContext
 
   if (!AudioContext) {
+    return null
+  }
+
+  if (!ludoAudioContext || ludoAudioContext.state === 'closed') {
+    ludoAudioContext = new AudioContext()
+  }
+
+  if (ludoAudioContext.state === 'suspended') {
+    ludoAudioContext.resume().catch(() => {})
+  }
+
+  return ludoAudioContext
+}
+
+function scheduleLudoTokenStepSound(audioContext, stepIndex, startTime) {
+  const oscillator = audioContext.createOscillator()
+  const snapOscillator = audioContext.createOscillator()
+  const gain = audioContext.createGain()
+  const snapGain = audioContext.createGain()
+
+  oscillator.type = 'square'
+  oscillator.frequency.setValueAtTime(520 + (stepIndex % 4) * 80, startTime)
+  gain.gain.setValueAtTime(0.0001, startTime)
+  gain.gain.exponentialRampToValueAtTime(0.34, startTime + 0.006)
+  gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.09)
+
+  snapOscillator.type = 'triangle'
+  snapOscillator.frequency.setValueAtTime(980 + (stepIndex % 2) * 140, startTime)
+  snapGain.gain.setValueAtTime(0.0001, startTime)
+  snapGain.gain.exponentialRampToValueAtTime(0.22, startTime + 0.004)
+  snapGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.04)
+
+  oscillator.connect(gain)
+  gain.connect(audioContext.destination)
+  snapOscillator.connect(snapGain)
+  snapGain.connect(audioContext.destination)
+  oscillator.start(startTime)
+  oscillator.stop(startTime + 0.1)
+  snapOscillator.start(startTime)
+  snapOscillator.stop(startTime + 0.045)
+}
+
+function playLudoDiceRollSound() {
+  const audioContext = getLudoAudioContext()
+
+  if (!audioContext) {
     return
   }
 
   try {
-    const audioContext = new AudioContext()
     const masterGain = audioContext.createGain()
     const compressor = audioContext.createDynamicsCompressor()
     const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.52, audioContext.sampleRate)
@@ -463,62 +510,29 @@ function playLudoDiceRollSound() {
       oscillator.start(startTime)
       oscillator.stop(startTime + 0.06)
     }
-
-    window.setTimeout(() => {
-      if (audioContext.state !== 'closed') {
-        audioContext.close()
-      }
-    }, 850)
   } catch {
     // Audio playback can be blocked by browser policy; the dice roll still works.
   }
 }
 
-function playLudoTokenStepSound(stepIndex = 0) {
-  if (typeof window === 'undefined') {
-    return
-  }
+function playLudoTokenMoveSound(stepCount) {
+  const audioContext = getLudoAudioContext()
 
-  const AudioContext = window.AudioContext || window.webkitAudioContext
-
-  if (!AudioContext) {
+  if (!audioContext || stepCount <= 0) {
     return
   }
 
   try {
-    const audioContext = new AudioContext()
-    const oscillator = audioContext.createOscillator()
-    const snapOscillator = audioContext.createOscillator()
-    const gain = audioContext.createGain()
-    const snapGain = audioContext.createGain()
-    const startTime = audioContext.currentTime
+    const stepSeconds = LUDO_VISUAL_MOVE_STEP_MS / 1000
+    const firstStepTime = audioContext.currentTime + 0.012
 
-    oscillator.type = 'square'
-    oscillator.frequency.setValueAtTime(520 + (stepIndex % 4) * 80, startTime)
-    gain.gain.setValueAtTime(0.0001, startTime)
-    gain.gain.exponentialRampToValueAtTime(0.34, startTime + 0.006)
-    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.09)
-
-    snapOscillator.type = 'triangle'
-    snapOscillator.frequency.setValueAtTime(980 + (stepIndex % 2) * 140, startTime)
-    snapGain.gain.setValueAtTime(0.0001, startTime)
-    snapGain.gain.exponentialRampToValueAtTime(0.22, startTime + 0.004)
-    snapGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.04)
-
-    oscillator.connect(gain)
-    gain.connect(audioContext.destination)
-    snapOscillator.connect(snapGain)
-    snapGain.connect(audioContext.destination)
-    oscillator.start(startTime)
-    oscillator.stop(startTime + 0.1)
-    snapOscillator.start(startTime)
-    snapOscillator.stop(startTime + 0.045)
-
-    window.setTimeout(() => {
-      if (audioContext.state !== 'closed') {
-        audioContext.close()
-      }
-    }, 160)
+    for (let index = 0; index < stepCount; index += 1) {
+      scheduleLudoTokenStepSound(
+        audioContext,
+        index,
+        firstStepTime + index * stepSeconds,
+      )
+    }
   } catch {
     // Movement audio is optional; token movement should never be blocked by sound.
   }
@@ -1309,10 +1323,10 @@ function LudoGame() {
     setMoveFeedback('')
     setAnimatingMoveKey(moveKey)
     setVisualPlayers(stateSnapshot.players)
+    playLudoTokenMoveSound(visualSequence.length)
 
     visualSequence.forEach((progress, index) => {
       const timerId = window.setTimeout(() => {
-        playLudoTokenStepSound(index)
         setVisualPlayers(
           createLudoPlayersWithVisualProgress(
             stateSnapshot.players,
