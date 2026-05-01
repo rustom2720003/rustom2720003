@@ -1206,6 +1206,37 @@ function getLudoCellBackgroundColor({
   return '#ffffff'
 }
 
+function getLudoCellStyle({
+  backgroundColor,
+  isBaseInner,
+  isCenterBlock,
+  isColoredCell,
+  isPathCell,
+}) {
+  if (isCenterBlock) {
+    return {
+      backgroundColor: 'transparent',
+      boxShadow: 'none',
+    }
+  }
+
+  const bevelShadow = isColoredCell
+    ? 'inset 1px 1px 0 rgba(255,255,255,0.36), inset -2px -2px 0 rgba(15,23,42,0.2), inset 0 8px 12px rgba(255,255,255,0.12), 0 1px 2px rgba(15,23,42,0.16)'
+    : isPathCell
+      ? 'inset 1px 1px 0 rgba(255,255,255,0.92), inset -1px -1px 0 rgba(15,23,42,0.16), 0 1px 2px rgba(15,23,42,0.1)'
+      : 'inset 1px 1px 0 rgba(255,255,255,0.6), inset -2px -2px 0 rgba(15,23,42,0.14), 0 1px 2px rgba(15,23,42,0.12)'
+
+  return {
+    backgroundColor,
+    backgroundImage: isColoredCell
+      ? `linear-gradient(145deg, rgba(255,255,255,0.42), rgba(255,255,255,0.04) 38%, rgba(15,23,42,0.2)), linear-gradient(315deg, rgba(15,23,42,0.16), transparent 46%)`
+      : isBaseInner
+        ? 'radial-gradient(circle at 38% 32%, rgba(255,255,255,0.98), rgba(255,255,255,0.78) 42%, rgba(226,232,240,0.9))'
+        : 'linear-gradient(145deg, rgba(255,255,255,0.96), rgba(241,245,249,0.88) 52%, rgba(203,213,225,0.66))',
+    boxShadow: bevelShadow,
+  }
+}
+
 function LudoMetric({ label, value, hint }) {
   return (
     <div className="rounded-[1.25rem] border border-line bg-[color:var(--portfolio-glass-soft)] px-4 py-3 shadow-[var(--portfolio-soft-shadow)]">
@@ -1219,6 +1250,7 @@ function LudoMetric({ label, value, hint }) {
 }
 
 function LudoToken({ player, tokenIndex, isMovable, onClick, compact = false }) {
+  const tokenColor = getLudoColor(player.id)
   const interactiveProps =
     typeof onClick === 'function'
       ? {
@@ -1240,16 +1272,21 @@ function LudoToken({ player, tokenIndex, isMovable, onClick, compact = false }) 
       type="button"
       {...interactiveProps}
     >
-      <span className="pointer-events-none relative block h-full w-full drop-shadow-[0_4px_5px_rgba(15,23,42,0.38)]">
+      <span className="pointer-events-none relative block h-full w-full drop-shadow-[0_7px_7px_rgba(15,23,42,0.42)]">
         <span
-          className="absolute left-1/2 top-[1%] h-[72%] w-[74%] -translate-x-1/2 rounded-[55%_55%_55%_55%/62%_62%_42%_42%] border border-slate-500/35 bg-white shadow-[inset_0_2px_4px_rgba(255,255,255,0.9),0_2px_4px_rgba(15,23,42,0.28)]"
-          style={{ clipPath: 'polygon(50% 100%, 10% 54%, 14% 18%, 50% 0, 86% 18%, 90% 54%)' }}
+          className="absolute left-1/2 top-[1%] h-[72%] w-[74%] -translate-x-1/2 rounded-[55%_55%_55%_55%/62%_62%_42%_42%] border border-slate-500/35 shadow-[inset_0_3px_5px_rgba(255,255,255,0.95),inset_0_-6px_8px_rgba(15,23,42,0.16),0_4px_7px_rgba(15,23,42,0.32)]"
+          style={{
+            backgroundImage:
+              'linear-gradient(145deg, #ffffff, #f8fafc 46%, #dbe4ef)',
+            clipPath: 'polygon(50% 100%, 10% 54%, 14% 18%, 50% 0, 86% 18%, 90% 54%)',
+          }}
         />
         <span
-          className={cx(
-            'absolute left-1/2 top-[13%] h-[34%] w-[44%] -translate-x-1/2 rounded-full border border-slate-700/20 shadow-[inset_0_1px_2px_rgba(255,255,255,0.35)]',
-            LUDO_CLASSIC_TONES[player.id]?.token,
-          )}
+          className="absolute left-1/2 top-[13%] h-[34%] w-[44%] -translate-x-1/2 rounded-full border border-slate-700/20 shadow-[inset_0_3px_4px_rgba(255,255,255,0.42),inset_0_-4px_5px_rgba(15,23,42,0.26),0_3px_5px_rgba(15,23,42,0.28)]"
+          style={{
+            backgroundImage: `radial-gradient(circle at 34% 28%, rgba(255,255,255,0.95), rgba(255,255,255,0.28) 18%, ${tokenColor} 42%, rgba(15,23,42,0.22) 115%)`,
+            backgroundColor: tokenColor,
+          }}
         />
       </span>
       <span className="sr-only">{`${player.label} token ${tokenIndex + 1}`}</span>
@@ -2147,7 +2184,7 @@ function LudoGame() {
                 />
               ))}
 
-              <div className="relative grid overflow-hidden rounded-[1.05rem] border-[3px] border-slate-800 bg-white shadow-[0_12px_24px_rgba(15,23,42,0.25)]">
+              <div className="relative grid overflow-hidden rounded-[1.05rem] border-[3px] border-slate-900 bg-white shadow-[0_24px_42px_rgba(15,23,42,0.34),inset_0_4px_8px_rgba(255,255,255,0.62),inset_0_-8px_14px_rgba(15,23,42,0.14)] [transform:translateZ(0)]">
                 <div
                   aria-hidden
                   className="pointer-events-none absolute z-10 overflow-hidden border border-slate-400/70 bg-white"
@@ -2269,9 +2306,19 @@ function LudoGame() {
                         isPathCell,
                         trackIndex,
                       })
+                      const isColoredCell =
+                        cellBackgroundColor !== '#ffffff' &&
+                        cellBackgroundColor !== 'transparent'
+                      const cellStyle = getLudoCellStyle({
+                        backgroundColor: cellBackgroundColor,
+                        isBaseInner,
+                        isCenterBlock,
+                        isColoredCell,
+                        isPathCell,
+                      })
 
                       let cellClassName =
-                        'relative aspect-square min-w-0 overflow-visible border border-slate-400/55'
+                        'relative aspect-square min-w-0 overflow-visible border border-slate-400/55 transition-[filter,transform] duration-150'
 
                       if (baseAreaOwner) {
                         cellClassName = cx(
@@ -2305,7 +2352,7 @@ function LudoGame() {
                         <div
                           className={cellClassName}
                           key={key}
-                          style={{ backgroundColor: cellBackgroundColor }}
+                          style={cellStyle}
                         >
                           {isSafeTrack ? (
                             <span
@@ -2342,7 +2389,7 @@ function LudoGame() {
                             <div className="flex h-full w-full items-center justify-center">
                               <span
                                 className={cx(
-                                  'inline-flex h-[72%] w-[72%] rounded-full border-2 shadow-[inset_0_2px_4px_rgba(255,255,255,0.6)]',
+                                  'inline-flex h-[72%] w-[72%] rounded-full border-2 shadow-[inset_0_5px_7px_rgba(255,255,255,0.62),inset_0_-7px_10px_rgba(15,23,42,0.22),0_6px_10px_rgba(15,23,42,0.22)]',
                                   LUDO_CLASSIC_TONES[baseAreaOwner?.id]?.token ?? 'bg-white',
                                   LUDO_CLASSIC_TONES[baseAreaOwner?.id]?.border ?? 'border-slate-300',
                                 )}
