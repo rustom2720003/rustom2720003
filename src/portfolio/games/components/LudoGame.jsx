@@ -332,6 +332,7 @@ const LUDO_CENTER_TRIANGLES = [
   },
 ]
 const LUDO_VISUAL_MOVE_STEP_MS = 170
+const LUDO_ACTION_EFFECT_MS = 1050
 const LUDO_STACKED_TOKEN_POSITIONS = [
   { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' },
   { left: '36%', top: '36%', transform: 'translate(-50%, -50%)' },
@@ -625,6 +626,93 @@ function playLudoTokenEliminationSound(captureCount = 1) {
     }
   } catch {
     // Elimination audio is optional; captures should still resolve normally.
+  }
+}
+
+function playLudoTokenFinishSound() {
+  const audioContext = getLudoAudioContext()
+
+  if (!audioContext) {
+    return
+  }
+
+  try {
+    const startTime = audioContext.currentTime + 0.01
+    const masterGain = audioContext.createGain()
+    const shimmerGain = audioContext.createGain()
+    const frequencies = [523.25, 659.25, 783.99, 1046.5]
+
+    masterGain.gain.setValueAtTime(0.0001, startTime)
+    masterGain.gain.exponentialRampToValueAtTime(0.58, startTime + 0.018)
+    masterGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.72)
+    masterGain.connect(audioContext.destination)
+
+    shimmerGain.gain.setValueAtTime(0.0001, startTime)
+    shimmerGain.gain.exponentialRampToValueAtTime(0.28, startTime + 0.03)
+    shimmerGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.86)
+    shimmerGain.connect(audioContext.destination)
+
+    frequencies.forEach((frequency, index) => {
+      const oscillator = audioContext.createOscillator()
+      const gain = audioContext.createGain()
+      const noteTime = startTime + index * 0.08
+
+      oscillator.type = index % 2 ? 'triangle' : 'sine'
+      oscillator.frequency.setValueAtTime(frequency, noteTime)
+      oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.25, noteTime + 0.28)
+      gain.gain.setValueAtTime(0.0001, noteTime)
+      gain.gain.exponentialRampToValueAtTime(0.24, noteTime + 0.018)
+      gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.38)
+      oscillator.connect(gain)
+      gain.connect(masterGain)
+      oscillator.start(noteTime)
+      oscillator.stop(noteTime + 0.42)
+    })
+
+    for (let index = 0; index < 8; index += 1) {
+      const sparkle = audioContext.createOscillator()
+      const sparkleGain = audioContext.createGain()
+      const sparkleTime = startTime + index * 0.055
+
+      sparkle.type = 'triangle'
+      sparkle.frequency.setValueAtTime(1200 + index * 135, sparkleTime)
+      sparkleGain.gain.setValueAtTime(0.0001, sparkleTime)
+      sparkleGain.gain.exponentialRampToValueAtTime(0.16, sparkleTime + 0.006)
+      sparkleGain.gain.exponentialRampToValueAtTime(0.001, sparkleTime + 0.08)
+      sparkle.connect(sparkleGain)
+      sparkleGain.connect(shimmerGain)
+      sparkle.start(sparkleTime)
+      sparkle.stop(sparkleTime + 0.09)
+    }
+  } catch {
+    // Finish audio is optional; reaching home should still resolve normally.
+  }
+}
+
+function playLudoTokenEntrySound() {
+  const audioContext = getLudoAudioContext()
+
+  if (!audioContext) {
+    return
+  }
+
+  try {
+    const startTime = audioContext.currentTime + 0.01
+    const oscillator = audioContext.createOscillator()
+    const gain = audioContext.createGain()
+
+    oscillator.type = 'triangle'
+    oscillator.frequency.setValueAtTime(260, startTime)
+    oscillator.frequency.exponentialRampToValueAtTime(620, startTime + 0.16)
+    gain.gain.setValueAtTime(0.0001, startTime)
+    gain.gain.exponentialRampToValueAtTime(0.34, startTime + 0.012)
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.22)
+    oscillator.connect(gain)
+    gain.connect(audioContext.destination)
+    oscillator.start(startTime)
+    oscillator.stop(startTime + 0.24)
+  } catch {
+    // Entry audio is optional; token entry should still resolve normally.
   }
 }
 
@@ -997,6 +1085,18 @@ function createLudoPlayersWithVisualProgress(players, move, progress) {
   })
 }
 
+function getLudoMoveCoordinate(player, progress) {
+  if (progress === LUDO_FINAL_PROGRESS) {
+    return { row: 7, column: 7 }
+  }
+
+  if (progress <= LUDO_LAST_TRACK_PROGRESS) {
+    return LUDO_TRACK_COORDS[getLudoTrackIndex(player, progress)]
+  }
+
+  return LUDO_HOME_LANES[player.id]?.[progress - 51] ?? { row: 7, column: 7 }
+}
+
 function chooseBestLudoAiMove(currentState) {
   const activePlayer = currentState.players[currentState.currentPlayerIndex]
 
@@ -1276,6 +1376,62 @@ function LudoDiceDock({
   )
 }
 
+function LudoBoardEffect({ effect }) {
+  const tone = LUDO_CLASSIC_TONES[effect.playerId]
+  const left = `${((effect.column ?? 7) + 0.5) * (100 / 15)}%`
+  const top = `${((effect.row ?? 7) + 0.5) * (100 / 15)}%`
+  const label =
+    effect.type === 'capture'
+      ? 'Eliminated!'
+      : effect.type === 'finish'
+        ? 'Home!'
+        : effect.type === 'entry'
+          ? 'Started!'
+          : 'Move!'
+
+  return (
+    <div
+      className="pointer-events-none absolute z-30 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+      style={{ left, top }}
+    >
+      <span
+        className="absolute h-16 w-16 rounded-full opacity-75 blur-[1px] animate-ping"
+        style={{ backgroundColor: tone?.color ?? '#ffffff' }}
+      />
+      <span
+        className={cx(
+          'absolute h-12 w-12 rounded-full border-2 border-white/80 shadow-[0_0_26px_rgba(255,255,255,0.65)] animate-[ping_0.72s_cubic-bezier(0,0,0.2,1)_1]',
+          effect.type === 'capture' && 'border-red-200',
+          effect.type === 'finish' && 'border-yellow-100',
+        )}
+        style={{ backgroundColor: `${tone?.color ?? '#ffffff'}66` }}
+      />
+      {effect.type === 'capture' ? (
+        <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-red-600/92 text-lg font-black text-white shadow-[0_14px_28px_rgba(127,29,29,0.36)] animate-[bounce_0.9s_ease-in-out_1]">
+          X
+        </span>
+      ) : effect.type === 'finish' ? (
+        <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-yellow-300 text-slate-900 shadow-[0_14px_28px_rgba(202,138,4,0.32)] animate-[bounce_1s_ease-in-out_1]">
+          <Trophy size={24} />
+        </span>
+      ) : effect.type === 'entry' ? (
+        <span className="relative flex h-12 w-12 items-center justify-center rounded-full bg-white text-slate-900 shadow-[0_12px_24px_rgba(15,23,42,0.24)] animate-[bounce_0.8s_ease-in-out_1]">
+          <ArrowRight size={22} />
+        </span>
+      ) : (
+        <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-slate-900 shadow-[0_12px_24px_rgba(15,23,42,0.22)] animate-[pulse_0.8s_ease-in-out_2]">
+          <Star fill="currentColor" size={18} />
+        </span>
+      )}
+      <span
+        className="absolute top-full mt-1 min-w-[4.5rem] rounded-full border border-white/70 bg-white/92 px-2 py-1 text-center text-[0.64rem] font-black uppercase tracking-[0.1em] text-slate-900 shadow-[0_8px_16px_rgba(15,23,42,0.18)]"
+      >
+        {effect.label ?? label}
+      </span>
+    </div>
+  )
+}
+
 function LudoGame() {
   const [playerCount, setPlayerCount] = useState(2)
   const [controllerMap, setControllerMap] = useState(LUDO_DEFAULT_CONTROLLERS)
@@ -1296,11 +1452,14 @@ function LudoGame() {
   )
   const [visualPlayers, setVisualPlayers] = useState(null)
   const [animatingMoveKey, setAnimatingMoveKey] = useState('')
+  const [actionEffects, setActionEffects] = useState([])
   const [celebration, setCelebration] = useState(null)
   const rollIntervalRef = useRef(null)
   const settleTimeoutRef = useRef(null)
   const celebrationTimeoutRef = useRef(null)
   const visualMoveTimersRef = useRef([])
+  const actionEffectTimersRef = useRef([])
+  const actionEffectIdRef = useRef(0)
 
   const activePlayer = gameState.players[gameState.currentPlayerIndex]
   const renderedPlayers = visualPlayers ?? gameState.players
@@ -1371,8 +1530,34 @@ function LudoGame() {
     visualMoveTimersRef.current = []
   }
 
+  const clearActionEffectTimers = () => {
+    actionEffectTimersRef.current.forEach((timerId) => window.clearTimeout(timerId))
+    actionEffectTimersRef.current = []
+  }
+
   const clearCelebrationTimer = () => {
     window.clearTimeout(celebrationTimeoutRef.current)
+  }
+
+  const addActionEffect = (effect) => {
+    const effectId = `${effect.type}-${Date.now()}-${actionEffectIdRef.current}`
+    actionEffectIdRef.current += 1
+
+    setActionEffects((currentEffects) => [
+      ...currentEffects,
+      {
+        ...effect,
+        id: effectId,
+      },
+    ])
+
+    const timerId = window.setTimeout(() => {
+      setActionEffects((currentEffects) =>
+        currentEffects.filter((currentEffect) => currentEffect.id !== effectId),
+      )
+    }, LUDO_ACTION_EFFECT_MS)
+
+    actionEffectTimersRef.current.push(timerId)
   }
 
   const recordWinner = (winnerId) => {
@@ -1413,10 +1598,12 @@ function LudoGame() {
   const resetRound = (nextPlayerCount = playerCount, nextControllerMap = controllerMap) => {
     clearRollTimers()
     clearVisualMoveTimers()
+    clearActionEffectTimers()
     clearCelebrationTimer()
     setRollingPlayerId(null)
     setVisualPlayers(null)
     setAnimatingMoveKey('')
+    setActionEffects([])
     setMoveFeedback('')
     setCelebration(null)
     setDiceValues(createInitialDiceValues())
@@ -1500,12 +1687,25 @@ function LudoGame() {
     const nextState = applyLudoMove(stateSnapshot, move)
     const visualSequence = createLudoVisualProgressSequence(move)
     const moveKey = `${move.playerId}-${move.tokenIndex}`
+    const movingPlayer = stateSnapshot.players[move.playerIndex]
+    const targetCoordinate = getLudoMoveCoordinate(movingPlayer, move.to)
 
     clearVisualMoveTimers()
     setMoveFeedback('')
     setAnimatingMoveKey(moveKey)
     setVisualPlayers(stateSnapshot.players)
     playLudoTokenMoveSound(visualSequence.length)
+
+    if (move.enters) {
+      playLudoTokenEntrySound()
+      addActionEffect({
+        ...targetCoordinate,
+        label: 'Start',
+        playerId: move.playerId,
+        type: 'entry',
+      })
+    }
+
     updatePlayerMessages({
       [move.playerId]: move.captures.length
         ? `Token ${move.tokenIndex + 1} captures ${move.captures.length}.`
@@ -1533,6 +1733,30 @@ function LudoGame() {
     const settleTimerId = window.setTimeout(() => {
       if (move.captures.length) {
         playLudoTokenEliminationSound(move.captures.length)
+        addActionEffect({
+          ...targetCoordinate,
+          label: 'Boom',
+          playerId: move.playerId,
+          type: 'capture',
+        })
+      } else if (!move.enters && !move.finishes) {
+        addActionEffect({
+          ...targetCoordinate,
+          label: 'Tap',
+          playerId: move.playerId,
+          type: 'move',
+        })
+      }
+
+      if (move.finishes) {
+        playLudoTokenFinishSound()
+        addActionEffect({
+          column: 7,
+          label: 'Home',
+          playerId: move.playerId,
+          row: 7,
+          type: 'finish',
+        })
       }
 
       setVisualPlayers(null)
@@ -1566,6 +1790,7 @@ function LudoGame() {
     return () => {
       clearRollTimers()
       clearVisualMoveTimers()
+      clearActionEffectTimers()
       clearCelebrationTimer()
     }
   }, [])
@@ -1926,6 +2151,9 @@ function LudoGame() {
                     />
                   ))}
                 </div>
+                {actionEffects.map((effect) => (
+                  <LudoBoardEffect effect={effect} key={effect.id} />
+                ))}
                 {Array.from({ length: 15 }, (_, rowIndex) => (
                   <div
                     className="grid grid-cols-[repeat(15,minmax(0,1fr))]"
