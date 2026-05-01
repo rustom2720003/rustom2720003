@@ -544,6 +544,90 @@ function playLudoTokenMoveSound(stepCount) {
   }
 }
 
+function playLudoTokenEliminationSound(captureCount = 1) {
+  const audioContext = getLudoAudioContext()
+
+  if (!audioContext || captureCount <= 0) {
+    return
+  }
+
+  try {
+    const startTime = audioContext.currentTime + 0.01
+    const compressor = audioContext.createDynamicsCompressor()
+    const masterGain = audioContext.createGain()
+
+    compressor.threshold.setValueAtTime(-20, startTime)
+    compressor.knee.setValueAtTime(14, startTime)
+    compressor.ratio.setValueAtTime(10, startTime)
+    compressor.attack.setValueAtTime(0.001, startTime)
+    compressor.release.setValueAtTime(0.18, startTime)
+    masterGain.gain.setValueAtTime(0.0001, startTime)
+    masterGain.gain.exponentialRampToValueAtTime(0.92, startTime + 0.008)
+    masterGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.42)
+    masterGain.connect(compressor)
+    compressor.connect(audioContext.destination)
+
+    for (let captureIndex = 0; captureIndex < captureCount; captureIndex += 1) {
+      const hitTime = startTime + captureIndex * 0.12
+      const noiseBuffer = audioContext.createBuffer(
+        1,
+        audioContext.sampleRate * 0.22,
+        audioContext.sampleRate,
+      )
+      const noiseData = noiseBuffer.getChannelData(0)
+
+      for (let index = 0; index < noiseData.length; index += 1) {
+        const fade = 1 - index / noiseData.length
+        noiseData[index] = (Math.random() * 2 - 1) * fade * fade
+      }
+
+      const thump = audioContext.createOscillator()
+      const thumpGain = audioContext.createGain()
+      const crack = audioContext.createOscillator()
+      const crackGain = audioContext.createGain()
+      const noise = audioContext.createBufferSource()
+      const noiseFilter = audioContext.createBiquadFilter()
+      const noiseGain = audioContext.createGain()
+
+      thump.type = 'square'
+      thump.frequency.setValueAtTime(96, hitTime)
+      thump.frequency.exponentialRampToValueAtTime(44, hitTime + 0.16)
+      thumpGain.gain.setValueAtTime(0.0001, hitTime)
+      thumpGain.gain.exponentialRampToValueAtTime(0.74, hitTime + 0.006)
+      thumpGain.gain.exponentialRampToValueAtTime(0.001, hitTime + 0.2)
+      thump.connect(thumpGain)
+      thumpGain.connect(masterGain)
+      thump.start(hitTime)
+      thump.stop(hitTime + 0.22)
+
+      crack.type = 'sawtooth'
+      crack.frequency.setValueAtTime(1350, hitTime)
+      crack.frequency.exponentialRampToValueAtTime(260, hitTime + 0.12)
+      crackGain.gain.setValueAtTime(0.0001, hitTime)
+      crackGain.gain.exponentialRampToValueAtTime(0.58, hitTime + 0.004)
+      crackGain.gain.exponentialRampToValueAtTime(0.001, hitTime + 0.14)
+      crack.connect(crackGain)
+      crackGain.connect(masterGain)
+      crack.start(hitTime)
+      crack.stop(hitTime + 0.15)
+
+      noise.buffer = noiseBuffer
+      noiseFilter.type = 'highpass'
+      noiseFilter.frequency.setValueAtTime(950, hitTime)
+      noiseGain.gain.setValueAtTime(0.0001, hitTime)
+      noiseGain.gain.exponentialRampToValueAtTime(0.62, hitTime + 0.004)
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, hitTime + 0.22)
+      noise.connect(noiseFilter)
+      noiseFilter.connect(noiseGain)
+      noiseGain.connect(masterGain)
+      noise.start(hitTime)
+      noise.stop(hitTime + 0.22)
+    }
+  } catch {
+    // Elimination audio is optional; captures should still resolve normally.
+  }
+}
+
 function createLudoPlayers(playerCount, controllerMap) {
   return getActiveLudoColorIds(playerCount).map((playerId) => ({
     ...LUDO_PLAYER_DEFS[playerId],
@@ -1447,6 +1531,10 @@ function LudoGame() {
     })
 
     const settleTimerId = window.setTimeout(() => {
+      if (move.captures.length) {
+        playLudoTokenEliminationSound(move.captures.length)
+      }
+
       setVisualPlayers(null)
       setAnimatingMoveKey('')
       setGameState(nextState)
