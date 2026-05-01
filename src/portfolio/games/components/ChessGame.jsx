@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Bot, Crown, RotateCcw } from 'lucide-react'
 import {
   buttonClassNames,
@@ -55,6 +55,66 @@ const CHESS_PIECE_TOKEN_CLASSNAMES = {
     'border-white/75 bg-gradient-to-br from-white via-slate-100 to-slate-200 text-slate-900 shadow-[0_12px_26px_rgba(148,163,184,0.24)]',
   black:
     'border-slate-400/65 bg-gradient-to-br from-slate-200 via-slate-300 to-slate-400 text-slate-950 shadow-[0_12px_26px_rgba(15,23,42,0.2)]',
+}
+
+let chessAudioContext = null
+
+function getChessAudioContext() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const AudioContext = window.AudioContext || window.webkitAudioContext
+
+  if (!AudioContext) {
+    return null
+  }
+
+  if (!chessAudioContext || chessAudioContext.state === 'closed') {
+    chessAudioContext = new AudioContext()
+  }
+
+  if (chessAudioContext.state === 'suspended') {
+    chessAudioContext.resume().catch(() => {})
+  }
+
+  return chessAudioContext
+}
+
+function playChessSound(type = 'select') {
+  const audioContext = getChessAudioContext()
+
+  if (!audioContext) {
+    return
+  }
+
+  try {
+    const startTime = audioContext.currentTime + 0.006
+    const soundMap = {
+      select: { frequency: 520, endFrequency: 680, peak: 0.12, duration: 0.07, wave: 'triangle' },
+      move: { frequency: 360, endFrequency: 620, peak: 0.16, duration: 0.1, wave: 'sine' },
+      capture: { frequency: 170, endFrequency: 78, peak: 0.28, duration: 0.2, wave: 'square' },
+      check: { frequency: 720, endFrequency: 1120, peak: 0.22, duration: 0.18, wave: 'triangle' },
+      win: { frequency: 620, endFrequency: 1240, peak: 0.26, duration: 0.28, wave: 'triangle' },
+      invalid: { frequency: 180, endFrequency: 100, peak: 0.16, duration: 0.12, wave: 'sawtooth' },
+    }
+    const sound = soundMap[type] ?? soundMap.select
+    const oscillator = audioContext.createOscillator()
+    const gain = audioContext.createGain()
+
+    oscillator.type = sound.wave
+    oscillator.frequency.setValueAtTime(sound.frequency, startTime)
+    oscillator.frequency.exponentialRampToValueAtTime(sound.endFrequency, startTime + sound.duration)
+    gain.gain.setValueAtTime(0.0001, startTime)
+    gain.gain.exponentialRampToValueAtTime(sound.peak, startTime + 0.008)
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + sound.duration)
+    oscillator.connect(gain)
+    gain.connect(audioContext.destination)
+    oscillator.start(startTime)
+    oscillator.stop(startTime + sound.duration + 0.02)
+  } catch {
+    // Audio is optional; chess should keep working if playback is blocked.
+  }
 }
 const CHESS_KNIGHT_OFFSETS = [
   { row: -2, col: -1 },
@@ -1054,12 +1114,47 @@ function ChessCapturedRow({ label, pieces, accentClassName }) {
 function ChessGame() {
   const [mode, setMode] = useState('ai')
   const [moveFeedback, setMoveFeedback] = useState('')
+  const [animatedSquares, setAnimatedSquares] = useState([])
   const [scoreboard, setScoreboard] = useState({
     white: 0,
     black: 0,
     draws: 0,
   })
   const [gameState, setGameState] = useState(createInitialChessState)
+  const animationTimerRef = useRef(null)
+
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(animationTimerRef.current)
+    }
+  }, [])
+
+  const pulseChessSquares = (squares) => {
+    window.clearTimeout(animationTimerRef.current)
+    setAnimatedSquares(squares.map((square) => `${square.row}-${square.column}`))
+    animationTimerRef.current = window.setTimeout(() => {
+      setAnimatedSquares([])
+    }, 520)
+  }
+
+  const playChessMoveFeedback = (nextState) => {
+    if (nextState.winner) {
+      playChessSound('win')
+      return
+    }
+
+    if (nextState.lastMove?.captured) {
+      playChessSound('capture')
+      return
+    }
+
+    if (nextState.inCheck) {
+      playChessSound('check')
+      return
+    }
+
+    playChessSound('move')
+  }
 
   const recordChessResult = (winner) => {
     if (!winner) {
@@ -1098,6 +1193,7 @@ function ChessGame() {
         }
 
         setGameState(fallbackState)
+        playChessSound(fallbackState.winner ? 'win' : 'invalid')
         recordChessResult(fallbackState.winner)
 
         return
@@ -1111,6 +1207,8 @@ function ChessGame() {
       )
 
       setGameState(nextState)
+      pulseChessSquares([aiChoice.from, aiChoice.move])
+      playChessMoveFeedback(nextState)
       recordChessResult(nextState.winner)
     }, 430)
 
@@ -1121,7 +1219,9 @@ function ChessGame() {
 
   const resetBoard = () => {
     setMoveFeedback('')
+    setAnimatedSquares([])
     setGameState(createInitialChessState())
+    playChessSound('select')
   }
 
   const handleModeChange = (nextMode) => {
@@ -1135,17 +1235,21 @@ function ChessGame() {
 
     setMode(nextMode)
     setMoveFeedback('')
+    setAnimatedSquares([])
     setGameState(createInitialChessState())
+    playChessSound('select')
   }
 
   const handleSquareClick = (row, column) => {
     if (gameState.status !== 'playing') {
       setMoveFeedback('This round is over. Start a new chess round to continue.')
+      playChessSound('invalid')
       return
     }
 
     if (gameState.aiThinking || (mode === 'ai' && gameState.currentTurn === 'black')) {
       setMoveFeedback('Please wait for the AI to finish its move.')
+      playChessSound('invalid')
       return
     }
 
@@ -1164,6 +1268,8 @@ function ChessGame() {
       )
 
       setGameState(nextState)
+      pulseChessSquares([gameState.selectedSquare, selectedMove])
+      playChessMoveFeedback(nextState)
       recordChessResult(nextState.winner)
 
       return
@@ -1179,6 +1285,7 @@ function ChessGame() {
           selectedSquare: null,
           legalMoves: [],
         })
+        playChessSound('select')
         return
       }
 
@@ -1189,10 +1296,13 @@ function ChessGame() {
           selectedSquare: nextSquare,
           legalMoves: getLegalChessMovesForSquare(gameState.board, row, column),
         })
+        pulseChessSquares([nextSquare])
+        playChessSound('select')
         return
       }
 
       setMoveFeedback(describeInvalidChessClick(gameState, row, column))
+      playChessSound('invalid')
       return
     }
 
@@ -1203,6 +1313,7 @@ function ChessGame() {
         selectedSquare: null,
         legalMoves: [],
       })
+      playChessSound('invalid')
       return
     }
 
@@ -1212,6 +1323,8 @@ function ChessGame() {
       selectedSquare: nextSquare,
       legalMoves: getLegalChessMovesForSquare(gameState.board, row, column),
     })
+    pulseChessSquares([nextSquare])
+    playChessSound('select')
   }
 
   const statusText = describeChessStatus(gameState, mode)
@@ -1298,6 +1411,8 @@ function ChessGame() {
                         column: columnIndex,
                       })
                     const squareLabel = `${CHESS_FILES[columnIndex]}${CHESS_RANKS[rowIndex]}`
+                    const animationKey = `${rowIndex}-${columnIndex}`
+                    const isAnimatedSquare = animatedSquares.includes(animationKey)
                     const pieceLabel = piece
                       ? `${piece.color} ${CHESS_PIECE_LABELS[piece.type]}`
                       : 'empty square'
@@ -1317,6 +1432,14 @@ function ChessGame() {
                             'border-[color:var(--portfolio-glass-border-strong)] shadow-[0_0_0_2px_rgba(46,115,255,0.18)]',
                           isLastMoveSquare &&
                             'bg-gradient-to-br from-amber-300/24 via-orange-300/18 to-rose-300/20',
+                          isAnimatedSquare &&
+                            'animate-[bounce_0.42s_ease-in-out_1] shadow-[0_0_0_2px_rgba(250,204,21,0.22),var(--portfolio-soft-shadow)]',
+                          gameState.lastMove?.captured &&
+                            isSameChessSquare(gameState.lastMove?.to, {
+                              row: rowIndex,
+                              column: columnIndex,
+                            }) &&
+                            'shadow-[0_0_0_2px_rgba(244,63,94,0.24),var(--portfolio-soft-shadow)]',
                           !piece &&
                             'hover:-translate-y-0.5 hover:border-line-strong',
                         )}

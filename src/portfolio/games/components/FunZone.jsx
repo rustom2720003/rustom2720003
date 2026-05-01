@@ -100,6 +100,69 @@ const directionButtonClassName =
   'inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-line bg-[color:var(--portfolio-glass-soft)] text-ink shadow-[var(--portfolio-soft-shadow)] transition duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-[color:var(--portfolio-glass-hover)]'
 const compactFunZoneMediaQuery = '(max-width: 1279px)'
 
+let funZoneAudioContext = null
+
+function getFunZoneAudioContext() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const AudioContext = window.AudioContext || window.webkitAudioContext
+
+  if (!AudioContext) {
+    return null
+  }
+
+  if (!funZoneAudioContext || funZoneAudioContext.state === 'closed') {
+    funZoneAudioContext = new AudioContext()
+  }
+
+  if (funZoneAudioContext.state === 'suspended') {
+    funZoneAudioContext.resume().catch(() => {})
+  }
+
+  return funZoneAudioContext
+}
+
+function playFunZoneSound(type = 'tap') {
+  const audioContext = getFunZoneAudioContext()
+
+  if (!audioContext) {
+    return
+  }
+
+  try {
+    const startTime = audioContext.currentTime + 0.006
+    const gain = audioContext.createGain()
+    const oscillator = audioContext.createOscillator()
+    const soundMap = {
+      tap: { frequency: 520, endFrequency: 720, peak: 0.14, duration: 0.08, wave: 'triangle' },
+      flip: { frequency: 680, endFrequency: 1040, peak: 0.2, duration: 0.12, wave: 'square' },
+      match: { frequency: 760, endFrequency: 1260, peak: 0.24, duration: 0.18, wave: 'triangle' },
+      miss: { frequency: 300, endFrequency: 120, peak: 0.2, duration: 0.16, wave: 'sawtooth' },
+      win: { frequency: 660, endFrequency: 1320, peak: 0.26, duration: 0.26, wave: 'triangle' },
+      type: { frequency: 880, endFrequency: 980, peak: 0.08, duration: 0.045, wave: 'sine' },
+      error: { frequency: 170, endFrequency: 90, peak: 0.16, duration: 0.12, wave: 'square' },
+      eat: { frequency: 620, endFrequency: 1180, peak: 0.22, duration: 0.14, wave: 'triangle' },
+      crash: { frequency: 140, endFrequency: 52, peak: 0.3, duration: 0.26, wave: 'sawtooth' },
+    }
+    const sound = soundMap[type] ?? soundMap.tap
+
+    oscillator.type = sound.wave
+    oscillator.frequency.setValueAtTime(sound.frequency, startTime)
+    oscillator.frequency.exponentialRampToValueAtTime(sound.endFrequency, startTime + sound.duration)
+    gain.gain.setValueAtTime(0.0001, startTime)
+    gain.gain.exponentialRampToValueAtTime(sound.peak, startTime + 0.008)
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + sound.duration)
+    oscillator.connect(gain)
+    gain.connect(audioContext.destination)
+    oscillator.start(startTime)
+    oscillator.stop(startTime + sound.duration + 0.02)
+  } catch {
+    // Audio is optional; gameplay should continue if the browser blocks it.
+  }
+}
+
 function shuffleItems(items) {
   const nextItems = [...items]
 
@@ -159,6 +222,14 @@ function getTicTacToeOutcome(board) {
   }
 
   return null
+}
+
+function getTicTacToeWinningLine(board) {
+  return TICTACTOE_LINES.find(([first, second, third]) => (
+    board[first] &&
+    board[first] === board[second] &&
+    board[first] === board[third]
+  )) ?? []
 }
 
 function minimaxTicTacToe(board, isAiTurn) {
@@ -612,11 +683,14 @@ export function MemoryCardGame() {
   const [cards, setCards] = useState(createMemoryDeck)
   const [openCards, setOpenCards] = useState([])
   const [moves, setMoves] = useState(0)
+  const [animatedCardIds, setAnimatedCardIds] = useState([])
   const hideTimerRef = useRef(null)
+  const animationTimerRef = useRef(null)
 
   useEffect(() => {
     return () => {
       window.clearTimeout(hideTimerRef.current)
+      window.clearTimeout(animationTimerRef.current)
     }
   }, [])
 
@@ -625,9 +699,20 @@ export function MemoryCardGame() {
 
   const resetGame = () => {
     window.clearTimeout(hideTimerRef.current)
+    window.clearTimeout(animationTimerRef.current)
     setCards(createMemoryDeck())
     setOpenCards([])
     setMoves(0)
+    setAnimatedCardIds([])
+    playFunZoneSound('tap')
+  }
+
+  const pulseCards = (cardIds) => {
+    window.clearTimeout(animationTimerRef.current)
+    setAnimatedCardIds(cardIds)
+    animationTimerRef.current = window.setTimeout(() => {
+      setAnimatedCardIds([])
+    }, 520)
   }
 
   const handleCardClick = (cardId) => {
@@ -645,6 +730,8 @@ export function MemoryCardGame() {
       card.id === cardId ? { ...card, revealed: true } : card,
     )
     const nextOpenCards = [...openCards, cardId]
+    playFunZoneSound('flip')
+    pulseCards([cardId])
 
     if (nextOpenCards.length === 1) {
       setCards(nextCards)
@@ -658,6 +745,11 @@ export function MemoryCardGame() {
     const secondCard = nextCards.find((card) => card.id === secondCardId)
 
     if (firstCard.pairId === secondCard.pairId) {
+      const nextMatchedPairCount = matchedPairs + 1
+      playFunZoneSound(
+        nextMatchedPairCount === MEMORY_PAIRS.length ? 'win' : 'match',
+      )
+      pulseCards(nextOpenCards)
       setCards(
         nextCards.map((card) =>
           nextOpenCards.includes(card.id)
@@ -669,6 +761,8 @@ export function MemoryCardGame() {
       return
     }
 
+    playFunZoneSound('miss')
+    pulseCards(nextOpenCards)
     setCards(nextCards)
     setOpenCards(nextOpenCards)
     hideTimerRef.current = window.setTimeout(() => {
@@ -716,6 +810,9 @@ export function MemoryCardGame() {
                 isVisible
                   ? card.tone
                   : 'border-line bg-[color:var(--portfolio-glass-soft)] text-ink hover:-translate-y-1 hover:border-line-strong hover:bg-[color:var(--portfolio-glass-hover)]',
+                card.matched && 'scale-[1.02] shadow-[0_0_0_2px_rgba(16,185,129,0.22),var(--portfolio-soft-shadow)]',
+                animatedCardIds.includes(card.id) &&
+                  'animate-[bounce_0.48s_ease-in-out_1]',
               )}
               aria-label={
                 isVisible
@@ -765,6 +862,14 @@ export function TypingChallengeGame() {
   const [timeLeft, setTimeLeft] = useState(TYPING_TIME_LIMIT)
   const [started, setStarted] = useState(false)
   const [finished, setFinished] = useState(false)
+  const [typingPulse, setTypingPulse] = useState('')
+  const typingPulseTimerRef = useRef(null)
+
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(typingPulseTimerRef.current)
+    }
+  }, [])
 
   useEffect(() => {
     if (!started || finished) {
@@ -775,6 +880,8 @@ export function TypingChallengeGame() {
       setTimeLeft((previousTime) => {
         if (previousTime <= 1) {
           setFinished(true)
+          setTypingPulse('miss')
+          playFunZoneSound('miss')
           return 0
         }
 
@@ -788,11 +895,22 @@ export function TypingChallengeGame() {
   }, [started, finished])
 
   const resetGame = () => {
+    window.clearTimeout(typingPulseTimerRef.current)
     setPrompt(randomPrompt())
     setTypedText('')
     setTimeLeft(TYPING_TIME_LIMIT)
     setStarted(false)
     setFinished(false)
+    setTypingPulse('')
+    playFunZoneSound('tap')
+  }
+
+  const pulseTyping = (type) => {
+    window.clearTimeout(typingPulseTimerRef.current)
+    setTypingPulse(type)
+    typingPulseTimerRef.current = window.setTimeout(() => {
+      setTypingPulse('')
+    }, 260)
   }
 
   const handleChange = (event) => {
@@ -807,8 +925,17 @@ export function TypingChallengeGame() {
     const nextText = event.target.value
     setTypedText(nextText)
 
+    if (nextText.length >= typedText.length) {
+      const latestIndex = nextText.length - 1
+      const isCorrect = nextText[latestIndex] === prompt[latestIndex]
+      playFunZoneSound(isCorrect ? 'type' : 'error')
+      pulseTyping(isCorrect ? 'hit' : 'miss')
+    }
+
     if (nextText === prompt && nextText.length > 0) {
       setFinished(true)
+      setTypingPulse('win')
+      playFunZoneSound('win')
     }
   }
 
@@ -845,7 +972,14 @@ export function TypingChallengeGame() {
         <GameMetric label="Accuracy" value={`${accuracy}%`} hint={statusText} />
       </div>
 
-      <div className="rounded-[1.35rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-5 shadow-[var(--portfolio-soft-shadow)]">
+      <div
+        className={cx(
+          'rounded-[1.35rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-5 shadow-[var(--portfolio-soft-shadow)] transition duration-200',
+          typingPulse === 'hit' && 'shadow-[0_0_0_2px_rgba(16,185,129,0.2),var(--portfolio-soft-shadow)]',
+          typingPulse === 'miss' && 'shadow-[0_0_0_2px_rgba(244,63,94,0.22),var(--portfolio-soft-shadow)]',
+          typingPulse === 'win' && 'animate-[bounce_0.55s_ease-in-out_1]',
+        )}
+      >
         <div className="flex items-center justify-between gap-4">
           <p className={cardLabelClassName}>Prompt</p>
           <span className={chipClassName}>{progress}% typed</span>
@@ -877,7 +1011,11 @@ export function TypingChallengeGame() {
       <label className="grid gap-3">
         <span className={cardLabelClassName}>Your typing area</span>
         <textarea
-          className="min-h-[10rem] rounded-[1.35rem] border border-line bg-[color:var(--portfolio-glass-soft)] px-4 py-4 text-base leading-8 text-ink shadow-[var(--portfolio-soft-shadow)] outline-none transition duration-200 placeholder:text-muted focus:border-line-strong focus:bg-[color:var(--portfolio-glass-hover)]"
+          className={cx(
+            'min-h-[10rem] rounded-[1.35rem] border border-line bg-[color:var(--portfolio-glass-soft)] px-4 py-4 text-base leading-8 text-ink shadow-[var(--portfolio-soft-shadow)] outline-none transition duration-200 placeholder:text-muted focus:border-line-strong focus:bg-[color:var(--portfolio-glass-hover)]',
+            typingPulse === 'miss' && 'border-rose-300/55',
+            typingPulse === 'win' && 'border-emerald-300/55',
+          )}
           disabled={finished}
           onChange={handleChange}
           placeholder="Start typing the prompt exactly as shown."
@@ -905,6 +1043,7 @@ export function TicTacToeGame() {
   const [mode, setMode] = useState('ai')
   const [currentPlayer, setCurrentPlayer] = useState('X')
   const [roundResult, setRoundResult] = useState(null)
+  const [animatedCellIndex, setAnimatedCellIndex] = useState(null)
   const [scoreboard, setScoreboard] = useState({
     x: 0,
     o: 0,
@@ -912,16 +1051,27 @@ export function TicTacToeGame() {
   })
   const [aiThinking, setAiThinking] = useState(false)
   const aiMoveTimerRef = useRef(null)
+  const cellAnimationTimerRef = useRef(null)
 
   useEffect(() => {
     return () => {
       window.clearTimeout(aiMoveTimerRef.current)
+      window.clearTimeout(cellAnimationTimerRef.current)
     }
   }, [])
+
+  const pulseCell = (index) => {
+    window.clearTimeout(cellAnimationTimerRef.current)
+    setAnimatedCellIndex(index)
+    cellAnimationTimerRef.current = window.setTimeout(() => {
+      setAnimatedCellIndex(null)
+    }, 420)
+  }
 
   const finishRound = (outcome) => {
     setAiThinking(false)
     setRoundResult(outcome)
+    playFunZoneSound(outcome === 'draw' ? 'miss' : 'win')
 
     if (outcome === 'X') {
       setScoreboard((previousScoreboard) => ({
@@ -947,10 +1097,13 @@ export function TicTacToeGame() {
 
   const resetBoard = () => {
     window.clearTimeout(aiMoveTimerRef.current)
+    window.clearTimeout(cellAnimationTimerRef.current)
     setBoard(Array(9).fill(null))
     setAiThinking(false)
     setCurrentPlayer('X')
     setRoundResult(null)
+    setAnimatedCellIndex(null)
+    playFunZoneSound('tap')
   }
 
   const handleMove = (index) => {
@@ -962,6 +1115,8 @@ export function TicTacToeGame() {
     const nextBoard = [...board]
     nextBoard[index] = marker
     setBoard(nextBoard)
+    pulseCell(index)
+    playFunZoneSound('tap')
 
     const nextOutcome = getTicTacToeOutcome(nextBoard)
 
@@ -988,6 +1143,8 @@ export function TicTacToeGame() {
       const aiBoard = [...nextBoard]
       aiBoard[aiMove] = 'O'
       setBoard(aiBoard)
+      pulseCell(aiMove)
+      playFunZoneSound('flip')
       const aiOutcome = getTicTacToeOutcome(aiBoard)
 
       if (aiOutcome) {
@@ -1007,10 +1164,13 @@ export function TicTacToeGame() {
 
     setMode(nextMode)
     window.clearTimeout(aiMoveTimerRef.current)
+    window.clearTimeout(cellAnimationTimerRef.current)
     setBoard(Array(9).fill(null))
     setAiThinking(false)
     setCurrentPlayer('X')
     setRoundResult(null)
+    setAnimatedCellIndex(null)
+    playFunZoneSound('tap')
   }
 
   const statusText =
@@ -1029,6 +1189,7 @@ export function TicTacToeGame() {
               ? 'AI is thinking...'
               : 'Your move. You are X.'
             : `Player ${currentPlayer}'s turn.`
+  const winningLine = getTicTacToeWinningLine(board)
 
   return (
     <div className="grid gap-5">
@@ -1048,24 +1209,32 @@ export function TicTacToeGame() {
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(220px,0.6fr)] lg:items-center">
         <div className="grid grid-cols-3 gap-3 rounded-[1.4rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-3 shadow-[var(--portfolio-soft-shadow)] sm:p-4">
-          {board.map((cell, index) => (
-            <button
-              type="button"
-              key={`tic-${index}`}
-              className={cx(
-                'aspect-square rounded-[1.25rem] border text-[2.2rem] font-display shadow-[var(--portfolio-soft-shadow)] transition duration-200',
-                cell === 'X'
-                  ? 'border-cyan-300/35 bg-gradient-to-br from-cyan-400/24 via-sky-400/18 to-blue-500/22 text-white'
-                  : cell === 'O'
-                    ? 'border-fuchsia-300/35 bg-gradient-to-br from-fuchsia-500/24 via-pink-500/18 to-violet-500/22 text-white'
-                    : 'border-line bg-[color:var(--portfolio-glass-inline)] text-ink hover:-translate-y-0.5 hover:border-line-strong hover:bg-[color:var(--portfolio-glass-hover)]',
-              )}
-              aria-label={`Tic tac toe cell ${index + 1}`}
-              onClick={() => handleMove(index)}
-            >
-              {cell}
-            </button>
-          ))}
+          {board.map((cell, index) => {
+            const isWinningCell = winningLine.includes(index)
+
+            return (
+              <button
+                type="button"
+                key={`tic-${index}`}
+                className={cx(
+                  'aspect-square rounded-[1.25rem] border text-[2.2rem] font-display shadow-[var(--portfolio-soft-shadow)] transition duration-200',
+                  cell === 'X'
+                    ? 'border-cyan-300/35 bg-gradient-to-br from-cyan-400/24 via-sky-400/18 to-blue-500/22 text-white'
+                    : cell === 'O'
+                      ? 'border-fuchsia-300/35 bg-gradient-to-br from-fuchsia-500/24 via-pink-500/18 to-violet-500/22 text-white'
+                      : 'border-line bg-[color:var(--portfolio-glass-inline)] text-ink hover:-translate-y-0.5 hover:border-line-strong hover:bg-[color:var(--portfolio-glass-hover)]',
+                  animatedCellIndex === index &&
+                    'animate-[bounce_0.42s_ease-in-out_1]',
+                  isWinningCell &&
+                    'scale-[1.04] shadow-[0_0_0_2px_rgba(250,204,21,0.32),var(--portfolio-soft-shadow)]',
+                )}
+                aria-label={`Tic tac toe cell ${index + 1}`}
+                onClick={() => handleMove(index)}
+              >
+                {cell}
+              </button>
+            )
+          })}
         </div>
 
         <div className="grid gap-4">
@@ -1114,8 +1283,16 @@ export function TicTacToeGame() {
 
 export function SnakeGame() {
   const [game, setGame] = useState(createSnakeState)
+  const [snakePulse, setSnakePulse] = useState('')
   const directionRef = useRef('ArrowRight')
   const nextDirectionRef = useRef('ArrowRight')
+  const snakePulseTimerRef = useRef(null)
+
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(snakePulseTimerRef.current)
+    }
+  }, [])
 
   useEffect(() => {
     directionRef.current = game.direction
@@ -1129,6 +1306,15 @@ export function SnakeGame() {
     }
 
     nextDirectionRef.current = direction
+    playFunZoneSound('tap')
+  }
+
+  const pulseSnake = (type) => {
+    window.clearTimeout(snakePulseTimerRef.current)
+    setSnakePulse(type)
+    snakePulseTimerRef.current = window.setTimeout(() => {
+      setSnakePulse('')
+    }, 420)
   }
 
   useEffect(() => {
@@ -1165,7 +1351,17 @@ export function SnakeGame() {
         directionRef.current = nextDirection
         nextDirectionRef.current = nextDirection
 
-        return advanceSnakeState(previousGame, nextDirection)
+        const nextGame = advanceSnakeState(previousGame, nextDirection)
+
+        if (nextGame.score > previousGame.score) {
+          playFunZoneSound(nextGame.status === 'won' ? 'win' : 'eat')
+          pulseSnake('eat')
+        } else if (nextGame.status !== previousGame.status) {
+          playFunZoneSound(nextGame.status === 'over' ? 'crash' : 'win')
+          pulseSnake(nextGame.status === 'over' ? 'crash' : 'win')
+        }
+
+        return nextGame
       })
     }, 165)
 
@@ -1179,6 +1375,8 @@ export function SnakeGame() {
     directionRef.current = nextGame.direction
     nextDirectionRef.current = nextGame.direction
     setGame(nextGame)
+    setSnakePulse('')
+    playFunZoneSound('tap')
   }
 
   const snakeSegments = new Set(game.snake.map(positionKey))
@@ -1201,7 +1399,12 @@ export function SnakeGame() {
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
         <div
-          className="grid gap-1 rounded-[1.4rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-3 shadow-[var(--portfolio-soft-shadow)] sm:p-4"
+          className={cx(
+            'grid gap-1 rounded-[1.4rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-3 shadow-[var(--portfolio-soft-shadow)] transition duration-200 sm:p-4',
+            snakePulse === 'eat' && 'shadow-[0_0_0_2px_rgba(16,185,129,0.2),var(--portfolio-soft-shadow)]',
+            snakePulse === 'crash' && 'shadow-[0_0_0_2px_rgba(244,63,94,0.22),var(--portfolio-soft-shadow)]',
+            snakePulse === 'win' && 'animate-[bounce_0.55s_ease-in-out_1]',
+          )}
           style={{
             gridTemplateColumns: `repeat(${SNAKE_BOARD_SIZE}, minmax(0, 1fr))`,
           }}
@@ -1219,7 +1422,10 @@ export function SnakeGame() {
                 className={cx(
                   'aspect-square rounded-[0.7rem] border transition duration-100',
                   isHead
-                    ? 'border-cyan-300/35 bg-gradient-to-br from-cyan-400 via-sky-500 to-blue-600'
+                    ? cx(
+                        'border-cyan-300/35 bg-gradient-to-br from-cyan-400 via-sky-500 to-blue-600',
+                        snakePulse && 'animate-[pulse_0.32s_ease-in-out_1]',
+                      )
                     : isFood
                       ? 'animate-pulse border-rose-300/40 bg-gradient-to-br from-rose-400 via-pink-500 to-fuchsia-600'
                       : isBody
