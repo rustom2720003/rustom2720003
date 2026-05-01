@@ -1288,6 +1288,16 @@ function LudoGame() {
     }))
     setRollingPlayerId(null)
     setMoveFeedback('')
+
+    if (
+      player.controller === 'human' &&
+      nextState.currentRoll &&
+      nextState.legalMoves.length === 1
+    ) {
+      commitMove(nextState.legalMoves[0], nextState)
+      return
+    }
+
     setGameState(nextState)
   }
 
