@@ -326,6 +326,13 @@ const LUDO_CENTER_TRIANGLES = [
   },
 ]
 const LUDO_VISUAL_MOVE_STEP_MS = 170
+const LUDO_STACKED_TOKEN_POSITIONS = [
+  { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' },
+  { left: '36%', top: '36%', transform: 'translate(-50%, -50%)' },
+  { left: '64%', top: '64%', transform: 'translate(-50%, -50%)' },
+  { left: '64%', top: '36%', transform: 'translate(-50%, -50%)' },
+  { left: '36%', top: '64%', transform: 'translate(-50%, -50%)' },
+]
 const LUDO_DEFAULT_CONTROLLERS = {
   red: 'human',
   blue: 'human',
@@ -981,7 +988,7 @@ function LudoMetric({ label, value, hint }) {
   )
 }
 
-function LudoToken({ player, tokenIndex, isMovable, onClick }) {
+function LudoToken({ player, tokenIndex, isMovable, onClick, compact = false }) {
   const interactiveProps =
     typeof onClick === 'function'
       ? {
@@ -992,7 +999,10 @@ function LudoToken({ player, tokenIndex, isMovable, onClick }) {
   return (
     <button
       className={cx(
-        'relative inline-flex h-[clamp(1.05rem,4.6vw,2.05rem)] w-[clamp(0.9rem,4vw,1.65rem)] items-end justify-center bg-transparent transition duration-200',
+        'relative inline-flex items-end justify-center bg-transparent transition duration-200',
+        compact
+          ? 'h-[clamp(0.82rem,3.4vw,1.48rem)] w-[clamp(0.72rem,3vw,1.18rem)]'
+          : 'h-[clamp(1.05rem,4.6vw,2.05rem)] w-[clamp(0.9rem,4vw,1.65rem)]',
         isMovable &&
           '-translate-y-0.5 scale-[1.08] animate-[bounce_1.2s_ease-in-out_infinite] drop-shadow-[0_0_16px_rgba(255,255,255,0.22)]',
       )}
@@ -1471,6 +1481,78 @@ function LudoGame() {
     resetRound(playerCount, nextControllerMap)
   }
 
+  const isTokenMovable = (token) =>
+    animatingMoveKey === `${token.player.id}-${token.tokenIndex}` ||
+    gameState.legalMoves.some(
+      (move) =>
+        move.playerId === token.player.id &&
+        move.tokenIndex === token.tokenIndex &&
+        activePlayer?.controller === 'human',
+    )
+
+  const renderLudoTokenStack = (tokens, cellKey, options = {}) => {
+    const { allowClick = true, compact = tokens.length > 1 } = options
+
+    if (!tokens.length) {
+      return null
+    }
+
+    if (tokens.length === 1) {
+      const token = tokens[0]
+
+      return (
+        <div className="absolute inset-0 z-20 flex items-center justify-center">
+          <LudoToken
+            compact={compact}
+            isMovable={isTokenMovable(token)}
+            key={`${token.player.id}-${token.tokenIndex}-${cellKey}`}
+            onClick={
+              allowClick
+                ? () => handleTokenClick(token.player.id, token.tokenIndex)
+                : undefined
+            }
+            player={token.player}
+            tokenIndex={token.tokenIndex}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <div className="absolute inset-0 z-20">
+        {tokens.map((token, index) => {
+          const tokenIsMovable = isTokenMovable(token)
+          const position =
+            LUDO_STACKED_TOKEN_POSITIONS[index] ??
+            LUDO_STACKED_TOKEN_POSITIONS[LUDO_STACKED_TOKEN_POSITIONS.length - 1]
+
+          return (
+            <span
+              className="absolute flex items-center justify-center"
+              key={`${token.player.id}-${token.tokenIndex}-${cellKey}`}
+              style={{
+                ...position,
+                zIndex: tokenIsMovable ? 30 + index : 10 + index,
+              }}
+            >
+              <LudoToken
+                compact
+                isMovable={tokenIsMovable}
+                onClick={
+                  allowClick
+                    ? () => handleTokenClick(token.player.id, token.tokenIndex)
+                    : undefined
+                }
+                player={token.player}
+                tokenIndex={token.tokenIndex}
+              />
+            </span>
+          )
+        })}
+      </div>
+    )
+  }
+
   const currentTurnSummary = activePlayer
     ? `${activePlayer.label} ${activePlayer.controller === 'ai' ? 'AI' : 'player'}`
     : '--'
@@ -1748,18 +1830,13 @@ function LudoGame() {
                           ) : null}
 
                           {isCenter ? (
-                            <div className="flex h-full w-full flex-wrap items-center justify-center gap-1 p-1">
+                            <div className="relative h-full w-full">
                               {tokens.length ? (
-                                tokens.map((token) => (
-                                  <LudoToken
-                                    isMovable={false}
-                                    key={`center-${token.player.id}-${token.tokenIndex}`}
-                                    player={token.player}
-                                    tokenIndex={token.tokenIndex}
-                                  />
-                                ))
+                                renderLudoTokenStack(tokens, `center-${key}`, {
+                                  allowClick: false,
+                                })
                               ) : finishedPlayers.length ? (
-                                <span className="inline-flex h-full w-full items-center justify-center text-white/90">
+                                <span className="absolute inset-0 inline-flex items-center justify-center text-white/90">
                                   <Trophy size={18} />
                                 </span>
                               ) : null}
@@ -1774,53 +1851,11 @@ function LudoGame() {
                                 )}
                               />
                               {tokens.length ? (
-                                <span className="absolute inset-0 flex items-center justify-center">
-                                  {tokens.map((token) => (
-                                    <LudoToken
-                                      isMovable={
-                                        animatingMoveKey ===
-                                          `${token.player.id}-${token.tokenIndex}` ||
-                                        gameState.legalMoves.some(
-                                          (move) =>
-                                            move.playerId === token.player.id &&
-                                            move.tokenIndex === token.tokenIndex &&
-                                            activePlayer?.controller === 'human',
-                                        )
-                                      }
-                                      key={`${token.player.id}-${token.tokenIndex}-${key}`}
-                                      onClick={() =>
-                                        handleTokenClick(token.player.id, token.tokenIndex)
-                                      }
-                                      player={token.player}
-                                      tokenIndex={token.tokenIndex}
-                                    />
-                                  ))}
-                                </span>
+                                renderLudoTokenStack(tokens, key)
                               ) : null}
                             </div>
                           ) : tokens.length ? (
-                            <div className="flex h-full w-full flex-wrap items-center justify-center gap-1 p-1">
-                              {tokens.map((token) => (
-                                <LudoToken
-                                  isMovable={
-                                    animatingMoveKey ===
-                                      `${token.player.id}-${token.tokenIndex}` ||
-                                    gameState.legalMoves.some(
-                                      (move) =>
-                                        move.playerId === token.player.id &&
-                                        move.tokenIndex === token.tokenIndex &&
-                                        activePlayer?.controller === 'human',
-                                    )
-                                  }
-                                  key={`${token.player.id}-${token.tokenIndex}-${key}`}
-                                  onClick={() =>
-                                    handleTokenClick(token.player.id, token.tokenIndex)
-                                  }
-                                  player={token.player}
-                                  tokenIndex={token.tokenIndex}
-                                />
-                              ))}
-                            </div>
+                            renderLudoTokenStack(tokens, key)
                           ) : null}
                         </div>
                       )
