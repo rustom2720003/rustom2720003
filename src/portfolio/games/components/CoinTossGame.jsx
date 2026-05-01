@@ -213,6 +213,152 @@ function CoinFace({ side }) {
   )
 }
 
+let coinTossAudioContext = null
+
+function getCoinTossAudioContext() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const AudioContext = window.AudioContext || window.webkitAudioContext
+
+  if (!AudioContext) {
+    return null
+  }
+
+  if (!coinTossAudioContext || coinTossAudioContext.state === 'closed') {
+    coinTossAudioContext = new AudioContext()
+  }
+
+  if (coinTossAudioContext.state === 'suspended') {
+    coinTossAudioContext.resume().catch(() => {})
+  }
+
+  return coinTossAudioContext
+}
+
+function playCoinTossFlipSound() {
+  const audioContext = getCoinTossAudioContext()
+
+  if (!audioContext) {
+    return
+  }
+
+  try {
+    const startTime = audioContext.currentTime + 0.01
+    const masterGain = audioContext.createGain()
+    const compressor = audioContext.createDynamicsCompressor()
+
+    compressor.threshold.setValueAtTime(-20, startTime)
+    compressor.knee.setValueAtTime(16, startTime)
+    compressor.ratio.setValueAtTime(8, startTime)
+    compressor.attack.setValueAtTime(0.002, startTime)
+    compressor.release.setValueAtTime(0.18, startTime)
+    masterGain.gain.setValueAtTime(0.0001, startTime)
+    masterGain.gain.exponentialRampToValueAtTime(0.62, startTime + 0.02)
+    masterGain.gain.exponentialRampToValueAtTime(0.001, startTime + 1.2)
+    masterGain.connect(compressor)
+    compressor.connect(audioContext.destination)
+
+    for (let index = 0; index < 18; index += 1) {
+      const ping = audioContext.createOscillator()
+      const pingGain = audioContext.createGain()
+      const pingTime = startTime + index * 0.062
+
+      ping.type = index % 2 ? 'triangle' : 'square'
+      ping.frequency.setValueAtTime(620 + Math.random() * 1100, pingTime)
+      ping.frequency.exponentialRampToValueAtTime(320 + Math.random() * 420, pingTime + 0.045)
+      pingGain.gain.setValueAtTime(0.0001, pingTime)
+      pingGain.gain.exponentialRampToValueAtTime(0.24, pingTime + 0.006)
+      pingGain.gain.exponentialRampToValueAtTime(0.001, pingTime + 0.075)
+      ping.connect(pingGain)
+      pingGain.connect(masterGain)
+      ping.start(pingTime)
+      ping.stop(pingTime + 0.085)
+    }
+  } catch {
+    // Audio playback can be blocked by browser policy; the toss still works.
+  }
+}
+
+function playCoinTossResultSound(isWin) {
+  const audioContext = getCoinTossAudioContext()
+
+  if (!audioContext) {
+    return
+  }
+
+  try {
+    const startTime = audioContext.currentTime + 0.01
+
+    if (isWin) {
+      const frequencies = [523.25, 659.25, 783.99, 1046.5]
+      const masterGain = audioContext.createGain()
+
+      masterGain.gain.setValueAtTime(0.0001, startTime)
+      masterGain.gain.exponentialRampToValueAtTime(0.48, startTime + 0.018)
+      masterGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.62)
+      masterGain.connect(audioContext.destination)
+
+      frequencies.forEach((frequency, index) => {
+        const oscillator = audioContext.createOscillator()
+        const gain = audioContext.createGain()
+        const noteTime = startTime + index * 0.07
+
+        oscillator.type = 'triangle'
+        oscillator.frequency.setValueAtTime(frequency, noteTime)
+        gain.gain.setValueAtTime(0.0001, noteTime)
+        gain.gain.exponentialRampToValueAtTime(0.2, noteTime + 0.012)
+        gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.24)
+        oscillator.connect(gain)
+        gain.connect(masterGain)
+        oscillator.start(noteTime)
+        oscillator.stop(noteTime + 0.28)
+      })
+
+      return
+    }
+
+    const thud = audioContext.createOscillator()
+    const thudGain = audioContext.createGain()
+    const noise = audioContext.createBufferSource()
+    const noiseFilter = audioContext.createBiquadFilter()
+    const noiseGain = audioContext.createGain()
+    const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.2, audioContext.sampleRate)
+    const noiseData = noiseBuffer.getChannelData(0)
+
+    for (let index = 0; index < noiseData.length; index += 1) {
+      const fade = 1 - index / noiseData.length
+      noiseData[index] = (Math.random() * 2 - 1) * fade * fade
+    }
+
+    thud.type = 'square'
+    thud.frequency.setValueAtTime(150, startTime)
+    thud.frequency.exponentialRampToValueAtTime(52, startTime + 0.18)
+    thudGain.gain.setValueAtTime(0.0001, startTime)
+    thudGain.gain.exponentialRampToValueAtTime(0.46, startTime + 0.012)
+    thudGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.24)
+    thud.connect(thudGain)
+    thudGain.connect(audioContext.destination)
+    thud.start(startTime)
+    thud.stop(startTime + 0.25)
+
+    noise.buffer = noiseBuffer
+    noiseFilter.type = 'bandpass'
+    noiseFilter.frequency.setValueAtTime(740, startTime)
+    noiseGain.gain.setValueAtTime(0.0001, startTime)
+    noiseGain.gain.exponentialRampToValueAtTime(0.22, startTime + 0.006)
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.16)
+    noise.connect(noiseFilter)
+    noiseFilter.connect(noiseGain)
+    noiseGain.connect(audioContext.destination)
+    noise.start(startTime)
+    noise.stop(startTime + 0.2)
+  } catch {
+    // Audio playback can be blocked by browser policy; the toss still works.
+  }
+}
+
 function CoinTossGame() {
   const tossDurationMs = 4000
   const spinSteps = Math.round(tossDurationMs / 220)
@@ -273,6 +419,7 @@ function CoinTossGame() {
     setIsTossing(true)
     setResult(null)
     setLastCall(currentCall)
+    playCoinTossFlipSound()
     setCoinRotation((currentRotation) => {
       const normalizedRotation = ((currentRotation % 360) + 360) % 360
       const finalOffset =
@@ -285,6 +432,7 @@ function CoinTossGame() {
       clearTimers()
       const isWin = currentCall === nextResult
 
+      playCoinTossResultSound(isWin)
       setCoinFace(nextResult)
       setResult(nextResult)
       setIsTossing(false)
