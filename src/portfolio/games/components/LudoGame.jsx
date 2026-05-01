@@ -474,12 +474,12 @@ function playLudoDiceRollSound() {
   try {
     const masterGain = audioContext.createGain()
     const compressor = audioContext.createDynamicsCompressor()
-    const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.52, audioContext.sampleRate)
+    const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.62, audioContext.sampleRate)
     const noiseData = noiseBuffer.getChannelData(0)
 
     for (let index = 0; index < noiseData.length; index += 1) {
       const fade = 1 - index / noiseData.length
-      noiseData[index] = (Math.random() * 2 - 1) * fade * fade
+      noiseData[index] = (Math.random() * 2 - 1) * fade * fade * 1.18
     }
 
     const noise = audioContext.createBufferSource()
@@ -488,41 +488,57 @@ function playLudoDiceRollSound() {
     noise.buffer = noiseBuffer
     filter.type = 'bandpass'
     filter.frequency.setValueAtTime(1250, audioContext.currentTime)
+    filter.frequency.exponentialRampToValueAtTime(2600, audioContext.currentTime + 0.18)
+    filter.frequency.exponentialRampToValueAtTime(820, audioContext.currentTime + 0.6)
     filter.Q.setValueAtTime(2.5, audioContext.currentTime)
     noiseGain.gain.setValueAtTime(0.0001, audioContext.currentTime)
-    noiseGain.gain.exponentialRampToValueAtTime(0.82, audioContext.currentTime + 0.018)
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.52)
+    noiseGain.gain.exponentialRampToValueAtTime(1.05, audioContext.currentTime + 0.014)
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.62)
     noise.connect(filter)
     filter.connect(noiseGain)
     noiseGain.connect(masterGain)
     masterGain.gain.setValueAtTime(0.0001, audioContext.currentTime)
-    masterGain.gain.exponentialRampToValueAtTime(0.72, audioContext.currentTime + 0.018)
+    masterGain.gain.exponentialRampToValueAtTime(0.94, audioContext.currentTime + 0.014)
     masterGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.72)
-    compressor.threshold.setValueAtTime(-18, audioContext.currentTime)
-    compressor.knee.setValueAtTime(18, audioContext.currentTime)
-    compressor.ratio.setValueAtTime(8, audioContext.currentTime)
+    compressor.threshold.setValueAtTime(-20, audioContext.currentTime)
+    compressor.knee.setValueAtTime(12, audioContext.currentTime)
+    compressor.ratio.setValueAtTime(10, audioContext.currentTime)
     compressor.attack.setValueAtTime(0.002, audioContext.currentTime)
     compressor.release.setValueAtTime(0.16, audioContext.currentTime)
     masterGain.connect(compressor)
     compressor.connect(audioContext.destination)
     noise.start(audioContext.currentTime)
-    noise.stop(audioContext.currentTime + 0.52)
+    noise.stop(audioContext.currentTime + 0.62)
 
-    for (let index = 0; index < 14; index += 1) {
+    for (let index = 0; index < 18; index += 1) {
       const oscillator = audioContext.createOscillator()
       const clickGain = audioContext.createGain()
-      const startTime = audioContext.currentTime + index * 0.036
+      const startTime = audioContext.currentTime + index * 0.031
 
       oscillator.type = index % 2 ? 'square' : 'sawtooth'
-      oscillator.frequency.setValueAtTime(260 + Math.random() * 820, startTime)
+      oscillator.frequency.setValueAtTime(340 + Math.random() * 980, startTime)
       clickGain.gain.setValueAtTime(0.0001, startTime)
-      clickGain.gain.exponentialRampToValueAtTime(0.48, startTime + 0.005)
-      clickGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.052)
+      clickGain.gain.exponentialRampToValueAtTime(0.62, startTime + 0.004)
+      clickGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.046)
       oscillator.connect(clickGain)
       clickGain.connect(masterGain)
       oscillator.start(startTime)
-      oscillator.stop(startTime + 0.06)
+      oscillator.stop(startTime + 0.052)
     }
+
+    const impact = audioContext.createOscillator()
+    const impactGain = audioContext.createGain()
+    const impactTime = audioContext.currentTime + 0.58
+    impact.type = 'triangle'
+    impact.frequency.setValueAtTime(160, impactTime)
+    impact.frequency.exponentialRampToValueAtTime(76, impactTime + 0.12)
+    impactGain.gain.setValueAtTime(0.0001, impactTime)
+    impactGain.gain.exponentialRampToValueAtTime(0.72, impactTime + 0.008)
+    impactGain.gain.exponentialRampToValueAtTime(0.001, impactTime + 0.16)
+    impact.connect(impactGain)
+    impactGain.connect(masterGain)
+    impact.start(impactTime)
+    impact.stop(impactTime + 0.18)
   } catch {
     // Audio playback can be blocked by browser policy; the dice roll still works.
   }
@@ -925,6 +941,54 @@ function getLegalLudoMoves(players, playerIndex, roll) {
   }, [])
 }
 
+function getBiasedLudoRoll(currentState) {
+  const rollOptions = [1, 2, 3, 4, 5, 6]
+  const activePlayerIndex = currentState.currentPlayerIndex
+  const activePlayer = currentState.players[activePlayerIndex]
+  const weightedRolls = [...rollOptions]
+  const canRollSix = currentState.turnSixCount + 1 < 3
+  const allTokensNeedSix =
+    activePlayer?.tokens.every((token) => token.progress === -1) ?? false
+
+  if (allTokensNeedSix && canRollSix) {
+    for (let index = 0; index < 10; index += 1) {
+      weightedRolls.push(6)
+    }
+  }
+
+  const captureOptions = rollOptions
+    .map((roll) => {
+      if (roll === 6 && !canRollSix) {
+        return { roll, captureCount: 0 }
+      }
+
+      const captureCount = getLegalLudoMoves(
+        currentState.players,
+        activePlayerIndex,
+        roll,
+      ).filter((move) => move.captures.length > 0).length
+
+      return { roll, captureCount }
+    })
+    .filter((option) => option.captureCount > 0)
+
+  const captureOpportunityCount = captureOptions.reduce(
+    (total, option) => total + option.captureCount,
+    0,
+  )
+  const captureWeight = captureOpportunityCount >= 2 ? 6 : 3
+
+  captureOptions.forEach(({ roll, captureCount }) => {
+    const rollWeight = captureCount * captureWeight
+
+    for (let index = 0; index < rollWeight; index += 1) {
+      weightedRolls.push(roll)
+    }
+  })
+
+  return weightedRolls[Math.floor(Math.random() * weightedRolls.length)]
+}
+
 function resolveLudoRoll(currentState, roll) {
   const activePlayer = currentState.players[currentState.currentPlayerIndex]
   const nextSixCount = roll === 6 ? currentState.turnSixCount + 1 : 0
@@ -1272,20 +1336,34 @@ function LudoToken({ player, tokenIndex, isMovable, onClick, compact = false }) 
       type="button"
       {...interactiveProps}
     >
-      <span className="pointer-events-none relative block h-full w-full drop-shadow-[0_7px_7px_rgba(15,23,42,0.42)]">
+      <span
+        className="pointer-events-none relative block h-full w-full drop-shadow-[0_7px_7px_rgba(15,23,42,0.42)]"
+        style={{
+          color: tokenColor,
+          filter: 'saturate(1.35) brightness(1.08)',
+        }}
+      >
         <span
-          className="absolute left-1/2 top-[1%] h-[72%] w-[74%] -translate-x-1/2 rounded-[55%_55%_55%_55%/62%_62%_42%_42%] border border-slate-500/35 shadow-[inset_0_3px_5px_rgba(255,255,255,0.95),inset_0_-6px_8px_rgba(15,23,42,0.16),0_4px_7px_rgba(15,23,42,0.32)]"
+          className="absolute left-1/2 top-[8%] h-[64%] w-[68%] -translate-x-1/2 rounded-full opacity-55 blur-[3px]"
+          style={{ backgroundColor: tokenColor }}
+        />
+        <span
+          className="absolute left-1/2 top-[1%] h-[72%] w-[74%] -translate-x-1/2 rounded-[55%_55%_55%_55%/62%_62%_42%_42%] border shadow-[inset_0_4px_6px_rgba(255,255,255,0.9),inset_0_-7px_9px_rgba(15,23,42,0.15),0_5px_9px_rgba(15,23,42,0.34)]"
           style={{
-            backgroundImage:
-              'linear-gradient(145deg, #ffffff, #f8fafc 46%, #dbe4ef)',
+            backgroundColor: tokenColor,
+            backgroundImage: `linear-gradient(145deg, rgba(255,255,255,0.98), rgba(255,255,255,0.72) 24%, ${tokenColor} 56%, ${tokenColor} 94%)`,
+            borderColor: tokenColor,
+            boxShadow: `inset 0 4px 6px rgba(255,255,255,0.9), inset 0 -7px 9px rgba(15,23,42,0.15), 0 5px 9px rgba(15,23,42,0.34), 0 0 10px ${tokenColor}`,
             clipPath: 'polygon(50% 100%, 10% 54%, 14% 18%, 50% 0, 86% 18%, 90% 54%)',
           }}
         />
         <span
-          className="absolute left-1/2 top-[13%] h-[34%] w-[44%] -translate-x-1/2 rounded-full border border-slate-700/20 shadow-[inset_0_3px_4px_rgba(255,255,255,0.42),inset_0_-4px_5px_rgba(15,23,42,0.26),0_3px_5px_rgba(15,23,42,0.28)]"
+          className="absolute left-1/2 top-[13%] h-[34%] w-[44%] -translate-x-1/2 rounded-full border shadow-[inset_0_3px_4px_rgba(255,255,255,0.48),inset_0_-4px_5px_rgba(15,23,42,0.18),0_3px_5px_rgba(15,23,42,0.28)]"
           style={{
-            backgroundImage: `radial-gradient(circle at 34% 28%, rgba(255,255,255,0.95), rgba(255,255,255,0.28) 18%, ${tokenColor} 42%, rgba(15,23,42,0.22) 115%)`,
+            backgroundImage: `radial-gradient(circle at 34% 26%, rgba(255,255,255,0.98), rgba(255,255,255,0.34) 16%, ${tokenColor} 30%, ${tokenColor} 86%, rgba(15,23,42,0.12) 120%)`,
             backgroundColor: tokenColor,
+            borderColor: tokenColor,
+            boxShadow: `inset 0 3px 4px rgba(255,255,255,0.48), inset 0 -4px 5px rgba(15,23,42,0.18), 0 3px 5px rgba(15,23,42,0.28), 0 0 9px ${tokenColor}`,
           }}
         />
       </span>
@@ -1304,9 +1382,10 @@ function LudoDie({
   isActiveTurn = false,
 }) {
   const pips = LUDO_DICE_PIPS[value] ?? LUDO_DICE_PIPS[1]
+  const playerColor = getLudoColor(player.id)
   const sizeClassName = compact
-    ? 'h-[clamp(1.65rem,6.2vw,2.35rem)] w-[clamp(1.65rem,6.2vw,2.35rem)] rounded-[clamp(0.34rem,0.85vw,0.52rem)]'
-    : 'h-14 w-14 rounded-[0.58rem] sm:h-16 sm:w-16'
+    ? 'h-[clamp(1.05rem,3.85vw,1.55rem)] w-[clamp(1.05rem,3.85vw,1.55rem)] rounded-[clamp(0.22rem,0.56vw,0.36rem)] sm:h-[clamp(1.28rem,4.8vw,1.9rem)] sm:w-[clamp(1.28rem,4.8vw,1.9rem)] sm:rounded-[clamp(0.28rem,0.72vw,0.44rem)]'
+    : 'h-4 w-4 rounded-[0.22rem] sm:h-14 sm:w-14 sm:rounded-[0.58rem]'
 
   return (
     <button
@@ -1323,29 +1402,49 @@ function LudoDie({
         isActiveTurn &&
           !isRolling &&
           'z-10 scale-[1.06] shadow-[0_0_0_3px_rgba(255,255,255,0.18),0_14px_28px_rgba(15,23,42,0.18)] before:absolute before:inset-[-0.26rem] before:rounded-[inherit] before:border before:border-white/35 before:content-[""] before:animate-ping',
-        isRolling && 'scale-[1.08] -rotate-6 animate-[pulse_0.48s_ease-in-out_infinite] shadow-[0_18px_34px_rgba(15,23,42,0.22)]',
+        isRolling && 'z-20 scale-[1.02] rotate-6 animate-[bounce_0.34s_cubic-bezier(0.2,0.9,0.25,1)_infinite] shadow-[0_8px_14px_rgba(15,23,42,0.24)] sm:shadow-[0_16px_28px_rgba(15,23,42,0.26)]',
       )}
       disabled={!canRoll}
       onClick={onRoll}
     >
+      {isRolling ? (
+        <>
+          <span
+            className="pointer-events-none absolute inset-[-0.1rem] rounded-[inherit] opacity-30 blur-sm animate-pulse sm:inset-[-0.28rem] sm:blur-md sm:opacity-34"
+            style={{ backgroundColor: playerColor }}
+          />
+          <span
+            className="pointer-events-none absolute inset-[-0.05rem] rounded-[inherit] border border-white/65 opacity-55 animate-[ping_0.52s_cubic-bezier(0,0,0.2,1)_infinite] sm:inset-[-0.18rem] sm:opacity-60"
+            style={{ boxShadow: `0 0 6px ${playerColor}` }}
+          />
+          <span
+            className="pointer-events-none absolute -right-px -top-px h-0.5 w-0.5 rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,0.95)] animate-ping sm:-right-0.5 sm:-top-0.5 sm:h-1.5 sm:w-1.5"
+          />
+        </>
+      ) : null}
       <span
         className={cx(
-          'relative grid h-full w-full grid-cols-3 grid-rows-3 rounded-[inherit] border border-white/70 bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(241,245,249,0.96)_55%,rgba(226,232,240,0.95))] shadow-[0_8px_18px_rgba(15,23,42,0.12),inset_0_1px_4px_rgba(255,255,255,0.78),inset_0_-5px_10px_rgba(148,163,184,0.2)] transition duration-200',
+          'relative grid h-full w-full grid-cols-3 grid-rows-3 overflow-hidden rounded-[inherit] border border-white/70 bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(241,245,249,0.96)_55%,rgba(226,232,240,0.95))] shadow-[0_8px_18px_rgba(15,23,42,0.12),inset_0_1px_4px_rgba(255,255,255,0.78),inset_0_-5px_10px_rgba(148,163,184,0.2)] transition duration-200',
           compact
-            ? 'gap-[clamp(0.05rem,0.18vw,0.12rem)] p-[clamp(0.24rem,0.68vw,0.38rem)]'
-            : 'gap-1 p-2',
+            ? 'gap-[clamp(0.025rem,0.1vw,0.07rem)] p-[clamp(0.13rem,0.4vw,0.22rem)] sm:gap-[clamp(0.035rem,0.14vw,0.09rem)] sm:p-[clamp(0.18rem,0.52vw,0.3rem)]'
+            : 'gap-0 p-0.5 sm:gap-1 sm:p-2',
           canRoll && 'group-hover:shadow-[0_12px_22px_rgba(15,23,42,0.16),inset_0_1px_4px_rgba(255,255,255,0.78),inset_0_-5px_10px_rgba(148,163,184,0.2)]',
+          isRolling &&
+            'border-white bg-[radial-gradient(circle_at_25%_20%,rgba(255,255,255,1),rgba(255,255,255,0.9)_34%,rgba(226,232,240,0.98)_70%),linear-gradient(145deg,rgba(255,255,255,1),rgba(203,213,225,0.95))] shadow-[0_18px_34px_rgba(15,23,42,0.28),inset_0_4px_8px_rgba(255,255,255,0.95),inset_0_-9px_14px_rgba(15,23,42,0.22)] animate-[spin_0.38s_cubic-bezier(0.25,0.9,0.22,1)_infinite]',
         )}
       >
+        {isRolling ? (
+          <span className="pointer-events-none absolute inset-y-[-20%] left-[-55%] z-10 w-1/2 rotate-12 bg-gradient-to-r from-transparent via-white/80 to-transparent animate-[pulse_0.24s_ease-in-out_infinite]" />
+        ) : null}
         {Array.from({ length: 9 }, (_, index) => (
           <span
             className={cx(
-              'self-center justify-self-center rounded-full transition duration-150',
+              'relative z-20 self-center justify-self-center rounded-full transition duration-150',
               compact
-                ? 'h-[clamp(0.22rem,0.78vw,0.38rem)] w-[clamp(0.22rem,0.78vw,0.38rem)]'
-                : 'h-2.5 w-2.5',
+                ? 'h-[clamp(0.12rem,0.42vw,0.22rem)] w-[clamp(0.12rem,0.42vw,0.22rem)] sm:h-[clamp(0.16rem,0.58vw,0.3rem)] sm:w-[clamp(0.16rem,0.58vw,0.3rem)]'
+                : 'h-0.5 w-0.5 sm:h-2.5 sm:w-2.5',
               pips.includes(index)
-                ? `${player.pipTone} shadow-[0_1px_3px_rgba(15,23,42,0.25)]`
+                ? `${player.pipTone} ${isRolling ? 'scale-125 shadow-[0_0_10px_currentColor,0_2px_4px_rgba(15,23,42,0.3)]' : 'shadow-[0_1px_3px_rgba(15,23,42,0.25)]'}`
                 : 'opacity-0',
             )}
             key={`pip-${player.id}-${value}-${index}`}
@@ -1376,7 +1475,7 @@ function LudoDiceDock({
   return (
     <div
       className={cx(
-        'absolute z-20 flex items-center gap-1.5 rounded-[0.78rem] border border-yellow-300/80 bg-[#1f4aa9]/92 p-1 shadow-[0_12px_20px_rgba(15,23,42,0.24)] backdrop-blur-md sm:gap-2 sm:p-1.5',
+        'absolute z-20 flex items-center gap-0.5 rounded-[0.42rem] border border-yellow-300/80 bg-[#1f4aa9]/92 p-0.5 shadow-[0_12px_20px_rgba(15,23,42,0.24)] backdrop-blur-md sm:gap-2 sm:rounded-[0.78rem] sm:p-1.5',
         LUDO_DICE_DOCK_PLACEMENTS[player.id],
         isActiveTurn && 'ring-2 ring-yellow-300',
       )}
@@ -1395,7 +1494,7 @@ function LudoDiceDock({
 
       <span
         className={cx(
-          'inline-flex h-9 w-9 items-center justify-center rounded-[0.45rem] border-2 bg-white shadow-[inset_0_2px_4px_rgba(255,255,255,0.85)] transition duration-200 sm:h-10 sm:w-10',
+          'inline-flex h-5 w-5 items-center justify-center rounded-[0.24rem] border bg-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.85)] transition duration-200 sm:h-10 sm:w-10 sm:rounded-[0.45rem] sm:border-2',
           LUDO_CLASSIC_TONES[player.id]?.border,
           isActiveTurn && 'z-10 -translate-y-1 scale-110 shadow-[0_10px_18px_rgba(15,23,42,0.28),inset_0_2px_4px_rgba(255,255,255,0.85)]',
         )}
@@ -1438,12 +1537,12 @@ function LudoBoardEffect({ effect }) {
       style={{ left, top }}
     >
       <span
-        className="absolute h-16 w-16 rounded-full opacity-75 blur-[1px] animate-ping"
+        className="absolute h-8 w-8 rounded-full opacity-55 blur-[1px] animate-ping sm:h-12 sm:w-12"
         style={{ backgroundColor: tone?.color ?? '#ffffff' }}
       />
       <span
         className={cx(
-          'absolute h-12 w-12 rounded-full border-2 border-white/80 shadow-[0_0_26px_rgba(255,255,255,0.65)] animate-[ping_0.72s_cubic-bezier(0,0,0.2,1)_1]',
+          'absolute h-7 w-7 rounded-full border border-white/80 shadow-[0_0_16px_rgba(255,255,255,0.55)] animate-[ping_0.72s_cubic-bezier(0,0,0.2,1)_1] sm:h-10 sm:w-10 sm:border-2',
           effect.type === 'capture' && 'border-red-200',
           effect.type === 'finish' && 'border-yellow-100',
         )}
@@ -1458,23 +1557,30 @@ function LudoBoardEffect({ effect }) {
           <Trophy size={24} />
         </span>
       ) : effect.type === 'entry' ? (
-        <span className="relative flex h-12 w-12 items-center justify-center rounded-full bg-white text-slate-900 shadow-[0_12px_24px_rgba(15,23,42,0.24)] animate-[bounce_0.8s_ease-in-out_1]">
-          <ArrowRight size={22} />
-        </span>
-      ) : (
-        <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-[0_12px_24px_rgba(15,23,42,0.22)] animate-[pulse_0.8s_ease-in-out_2]">
+        <span className="relative flex h-6 w-6 items-center justify-center rounded-full bg-white text-slate-900 shadow-[0_7px_14px_rgba(15,23,42,0.22)] animate-[bounce_0.8s_ease-in-out_1] sm:h-9 sm:w-9">
           <span
-            className="absolute h-6 w-6 rounded-full opacity-40 animate-ping"
+            className="absolute h-4 w-4 rounded-full opacity-25 animate-ping sm:h-6 sm:w-6"
             style={{ backgroundColor: tone?.color ?? '#0f172a' }}
           />
           <span
-            className="relative h-4 w-4 rounded-full border-2 border-white shadow-[0_0_10px_rgba(15,23,42,0.22)]"
+            className="relative h-3 w-3 rounded-full border border-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.45),0_1px_4px_rgba(15,23,42,0.24)] sm:h-5 sm:w-5 sm:border-2"
+            style={{ backgroundColor: tone?.color ?? '#0f172a' }}
+          />
+        </span>
+      ) : (
+        <span className="relative flex h-5 w-5 items-center justify-center rounded-full bg-white/95 shadow-[0_6px_12px_rgba(15,23,42,0.2)] animate-[pulse_0.8s_ease-in-out_2] sm:h-8 sm:w-8">
+          <span
+            className="absolute h-3 w-3 rounded-full opacity-40 animate-ping sm:h-5 sm:w-5"
+            style={{ backgroundColor: tone?.color ?? '#0f172a' }}
+          />
+          <span
+            className="relative h-2.5 w-2.5 rounded-full border border-white shadow-[0_0_7px_rgba(15,23,42,0.2)] sm:h-3.5 sm:w-3.5 sm:border-2"
             style={{ backgroundColor: tone?.color ?? '#0f172a' }}
           />
         </span>
       )}
       <span
-        className="absolute top-full mt-1 min-w-[4.5rem] rounded-full border border-white/70 bg-white/92 px-2 py-1 text-center text-[0.64rem] font-black uppercase tracking-[0.1em] text-slate-900 shadow-[0_8px_16px_rgba(15,23,42,0.18)]"
+        className="absolute top-full mt-0.5 min-w-[3.2rem] rounded-full border border-white/70 bg-white/92 px-1.5 py-0.5 text-center text-[0.5rem] font-black uppercase tracking-[0.08em] text-slate-900 shadow-[0_6px_12px_rgba(15,23,42,0.16)] sm:mt-1 sm:min-w-[4rem] sm:px-2 sm:py-1 sm:text-[0.6rem]"
       >
         {effect.label ?? label}
       </span>
@@ -1734,7 +1840,7 @@ function LudoGame() {
 
     settleTimeoutRef.current = window.setTimeout(() => {
       clearRollTimers()
-      settleRollForPlayer(playerId, Math.floor(Math.random() * 6) + 1, stateSnapshot)
+      settleRollForPlayer(playerId, getBiasedLudoRoll(stateSnapshot), stateSnapshot)
     }, 880)
   }
 
@@ -2107,7 +2213,7 @@ function LudoGame() {
       </div>
 
       <div className="grid gap-5 2xl:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)] 2xl:items-start">
-        <div className="grid gap-4 rounded-[1.55rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-4 shadow-[var(--portfolio-soft-shadow)] sm:p-5">
+        <div className="grid gap-4 rounded-[1.55rem] border border-line bg-[color:var(--portfolio-glass-soft)] p-2 shadow-[var(--portfolio-soft-shadow)] sm:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <div>
               <p className={cardLabelClassName}>Classic Ludo</p>
@@ -2127,7 +2233,7 @@ function LudoGame() {
           </div>
 
           <div className="w-full overflow-hidden">
-            <div className="relative mx-auto w-full max-w-[50rem] rounded-[1.4rem] border border-slate-900/20 bg-[radial-gradient(circle_at_18%_12%,rgba(46,115,255,0.3),transparent_28%),radial-gradient(circle_at_82%_82%,rgba(14,165,233,0.22),transparent_30%),linear-gradient(145deg,#0c1d48,#163b8f)] p-12 shadow-[0_24px_48px_rgba(15,23,42,0.28)] sm:p-16">
+            <div className="relative mx-auto w-full max-w-[50rem] rounded-[0.95rem] border border-slate-900/20 bg-[radial-gradient(circle_at_18%_12%,rgba(46,115,255,0.3),transparent_28%),radial-gradient(circle_at_82%_82%,rgba(14,165,233,0.22),transparent_30%),linear-gradient(145deg,#0c1d48,#163b8f)] p-2 shadow-[0_24px_48px_rgba(15,23,42,0.28)] sm:rounded-[1.4rem] sm:p-16">
               {celebration ? (
                 <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center overflow-hidden">
                   <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(15,23,42,0.08),transparent_62%)]" />
